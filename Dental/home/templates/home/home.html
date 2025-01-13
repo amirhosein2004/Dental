@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <title>صفحه اصلی - دندان‌پزشکی</title>
+
+    <header>
+        <h1>خوش آمدید به کلینیک دندان‌پزشکی ما</h1>
+    </header>
+
+    <!-- بنرهای صفحه اصلی -->
+    <div class="banners">
+        {% for banner in banners %}
+            <div class="banner">
+                <h2>{{ banner.title }}</h2>
+                <p>{{ banner.description }}</p>
+                <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
+            </div>
+        {% empty %}
+            <p>هیچ بنری برای نمایش وجود ندارد.</p>
+        {% endfor %}
+    </div>
+
+    <footer>
+        <p>&copy; 2025 کلینیک دندان‌پزشکی</p>
+    </footer>
+</body>
+
+
+{% endblock %}
