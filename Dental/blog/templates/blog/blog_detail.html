@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="blog-detail shadow-lg rounded p-4 bg-light">
+        {% if blog.image %}
+        <div class="blog-image text-center mb-4">
+            <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="img-fluid rounded">
+        </div>
+        {% endif %}
+        <div class="blog-content">
+            <h1 class="text-center mb-3 text-primary font-weight-bold">{{ blog.title }}</h1>
+            <p class="text-muted text-center mb-5">آخرین بروز رسانی: {{ blog.updated_at|date:"Y/m/d" }}</p>
+            <div class="blog-text" style="line-height: 1.8; font-size: 1.1rem; color: #555;">
+                {{ blog.content|linebreaks }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .blog-detail {
+        max-width: 800px;
+        margin: auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .blog-image img {
+        max-height: 400px;
+        object-fit: cover;
+        border: 2px solid #007bff;
+    }
+    .blog-content h1 {
+        font-size: 2.5rem;
+    }
+    .blog-text {
+        text-align: justify;
+    }
+</style>
+{% endblock %}

@@ -21,7 +21,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'home'
+    'home',
+    'blog',
+    'django_jalali',
 ]
 
 MIDDLEWARE = [
@@ -66,5 +68,8 @@ TIME_ZONE = os.getenv('TIME_ZONE', 'UTC')
 USE_I18N = os.getenv('USE_I18N', 'False') == 'True'
 USE_TZ = os.getenv('USE_TZ', 'False') == 'True'
 
-STATIC_URL = 'static/'
+MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
+MEDIA_ROOT = os.getenv('MEDIA_ROOT', BASE_DIR / 'media') 
+
+STATIC_URL = os.getenv('STATIC_URL', '/static/')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
