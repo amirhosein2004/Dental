@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow-lg rounded">
+        <div class="card-header bg-danger text-white text-center">
+            <h5 class="mb-0">تأیید حذف</h5>
+        </div>
+        <div class="card-body text-center">
+            <p class="lead">آیا مطمئن هستید که می‌خواهید بلاگ <strong>{{ blog.title }}</strong> را حذف کنید؟</p>
+            <p class="text-muted">این عمل قابل بازگشت نیست.</p>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <a href="{% url 'blog_detail' blog.pk %}" class="btn btn-outline-secondary btn-sm w-45">لغو</a>
+            <form action="{% url 'delete_blog' blog.pk %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm w-45">بله، حذف شود</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+    }
+
+    .card-header {
+        background-color: #dc3545;
+        border-radius: 12px 12px 0 0;
+        padding: 1.2rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+        font-size: 1.1rem;
+        color: #495057;
+    }
+
+    .card-footer {
+        padding: 1.2rem 2rem;
+        background-color: #f8f9fa;
+        border-radius: 0 0 12px 12px;
+        box-shadow: inset 0 -1px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn {
+        font-size: 0.8rem; /* اندازه دکمه‌ها را کوچکتر کرده‌ایم */
+        padding: 0.4rem 1rem; /* پدینگ کمتر برای دکمه‌ها */
+        border-radius: 6px; /* گوشه‌های دکمه‌ها را کمی گردتر کردیم */
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary {
+        border-color: #6c757d;
+        color: #6c757d;
+        background-color: transparent;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: #fff;
+        transform: scale(1.05); /* انیمیشن جذاب */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+        transform: scale(1.05); /* انیمیشن جذاب */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .w-45 {
+        width: 45%; /* عرض دکمه‌ها به 45 درصد تنظیم شده است */
+    }
+
+    .lead {
+        font-size: 1.1rem;
+        font-weight: 400;
+        color: #212529;
+    }
+</style>
+{% endblock %}

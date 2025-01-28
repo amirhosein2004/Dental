@@ -2,25 +2,30 @@
 
 {% block content %}
 <div class="container my-5">
-    <h1 class="text-center mb-4 text-primary font-weight-bold">وبلاگ‌های کلینیک دندان‌پزشکی</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-primary font-weight-bold">وبلاگ‌های کلینیک دندان‌پزشکی</h1>
+        <a href="{% url 'create_blog' %}" class="btn btn-primary btn-lg">ایجاد وبلاگ جدید</a>
+    </div>
     <div class="row">
         {% for blog in blogs %}
         <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card shadow-lg h-100 rounded border-0">
-                {% if blog.image %}
-                <img src="{{ blog.image.url }}" class="card-img-top rounded-top" alt="{{ blog.title }}">
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title text-dark font-weight-bold">{{ blog.title }}</h5>
-                    <p class="card-text text-muted small mb-3">
-                        آخرین بروزرسانی: {{ blog.updated_at|date:"Y/m/d" }}
-                    </p>
-                    <p class="card-text text-truncate" style="max-height: 6em; overflow: hidden;">
-                        {{ blog.content|slice:":200" }}{% if blog.content|length > 200 %}...{% endif %}
-                    </p>
-                    <a href="{% url 'blog_detail' blog.pk %}" class="btn btn-outline-primary btn-sm">مطالعه بیشتر</a>
+            <a href="{% url 'blog_detail' blog.pk %}" class="card-link">
+                <div class="card shadow-sm h-100 rounded-lg overflow-hidden border-0">
+                    {% if blog.image %}
+                        <img src="{{ blog.image.url }}" class="card-img-top rounded-top" alt="{{ blog.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title text-dark font-weight-bold">{{ blog.title }}</h5>
+                        <p class="card-text text-muted small mb-3">
+                            آخرین بروزرسانی: {{ blog.updated_at|date:"Y/m/d" }}
+                        </p>
+                        <p class="card-text text-truncate" style="max-height: 6em; overflow: hidden;">
+                            {{ blog.content|truncatechars:200 }}
+                        </p>
+                        <a href="{% url 'blog_detail' blog.pk %}" class="btn btn-primary btn-sm btn-block">مطالعه بیشتر</a>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         {% empty %}
         <div class="col-12">
@@ -33,24 +38,37 @@
 <style>
     .card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background-color: #f9f9f9; /* رنگ زمینه ملایم */
     }
     .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(-8px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
     .card-title {
         font-size: 1.25rem;
-        color: #007bff;
+        color: #333;
+        font-weight: bold;
     }
     .card-text {
-        color: #555;
+        color: #666;
+        font-size: 0.875rem;
     }
     .btn-outline-primary {
-        transition: background-color 0.3s ease, color 0.3s ease;
+        display: none; /* حذف دکمه با خط آبی */
     }
-    .btn-outline-primary:hover {
+    .btn-primary {
         background-color: #007bff;
-        color: #fff;
+        border-color: #007bff;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+        transform: translateY(-3px);
+    }
+    .card-link {
+        text-decoration: none;
+        color: inherit; /* حذف رنگ پیش‌فرض لینک */
     }
 </style>
 {% endblock %}

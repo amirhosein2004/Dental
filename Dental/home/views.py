@@ -1,13 +1,15 @@
-from django.http import HttpResponse
+from django.http import Http404
 from django.views import View
 from django.shortcuts import render
 from .models import Banner
 
 class HomeView(View):
 
+    template_name = 'home/home.html'
+
     def get(self, request, *args, **kwargs):
-        banners = Banner.objects.all()
-        return render(request, 'home/home.html', {'banners':banners})
-    
-    def post(self, request, *args, **kwargs):
-        pass
+        try:
+            banners = Banner.objects.all()
+        except Banner.DoesNotExist:
+            raise Http404("No banners found.")
+        return render(request, self.template_name, {'banners': banners})

@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'home',
     'blog',
     'django_jalali',
+    'Users',
 ]
 
 MIDDLEWARE = [
@@ -68,8 +69,13 @@ TIME_ZONE = os.getenv('TIME_ZONE', 'UTC')
 USE_I18N = os.getenv('USE_I18N', 'False') == 'True'
 USE_TZ = os.getenv('USE_TZ', 'False') == 'True'
 
-MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
-MEDIA_ROOT = os.getenv('MEDIA_ROOT', BASE_DIR / 'media') 
+MEDIA_URL = os.getenv('MEDIA_URL', 'media')
+MEDIA_ROOT = BASE_DIR / os.getenv('MEDIA_ROOT', 'media')
 
-STATIC_URL = os.getenv('STATIC_URL', '/static/')
+STATIC_URL = os.getenv('STATIC_URL', 'static')
+STATIC_ROOT = BASE_DIR / os.getenv('STATIC_ROOT', 'static')
+ 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Custom User Model
+AUTH_USER_MODEL = 'Users.CustomUser'
