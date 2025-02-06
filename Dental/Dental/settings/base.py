@@ -25,6 +25,11 @@ INSTALLED_APPS = [
     'blog',
     'django_jalali',
     'Users',
+    'about',
+    'core',
+
+    # Third-party apps
+    'django_filters',
 ]
 
 MIDDLEWARE = [

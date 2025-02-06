@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center text-primary">جزئیات پزشک - ویرایش در محل</h1>
+    <form id="doctorForm" method="post" enctype="multipart/form-data" action="{% url 'about:detail_doctor' doctor.id %}">
+        {% csrf_token %}
+        <div class="doctor-card">
+            <div class="image-container">
+                <img id="doctorImage" src="{{ doctor.image.url }}" alt="تصویر پزشک">
+                <!-- فایل آپلود تصویر در حالت ویرایش نمایش داده می‌شود -->
+                <input type="file" name="image" id="imageInput" style="display: none;">
+            </div>
+            <div class="info-container">
+                {% for field in form %}
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="action-buttons">
+            <button type="button" id="editBtn" class="btn btn-update">ویرایش</button>
+            <button type="submit" id="saveBtn" class="btn btn-save" style="display: none;">ذخیره</button>
+            <button type="button" id="cancelBtn" class="btn btn-cancel" style="display: none;">لغو</button>
+            <button type="button" class="btn back-btn" onclick="goBack()">بازگشت</button>
+        </div>
+    </form>
+</div>
+
+<!-- استایل سفارشی -->
+<style>
+    .container {
+        max-width: 60%;
+        margin: auto;
+        padding: 20px;
+        text-align: center;
+    }
+    .doctor-card {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .image-container {
+        position: relative;
+    }
+    .doctor-card img {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    .info-container {
+        margin-top: 20px;
+        text-align: left;
+        width: 100%;
+    }
+    .info-container label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+    .info-container input,
+    .info-container textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    .action-buttons {
+        margin-top: 20px;
+    }
+    .btn {
+        padding: 10px 15px;
+        margin: 5px;
+        border-radius: 5px;
+        border: none;
+        font-size: 14px;
+        cursor: pointer;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    .btn-update {
+        background: #007bff;
+    }
+    .btn-save {
+        background: #28a745;
+    }
+    .btn-cancel {
+        background: #dc3545;
+    }
+    .back-btn {
+        background: #6c757d;
+    }
+    .btn:hover {
+        opacity: 0.85;
+        transform: scale(1.05);
+    }
+</style>
+
+<!-- جاوااسکریپت برای عملیات ویرایش inline -->
+<script>
+    function goBack() {
+        window.location.href = "{% url 'about:edit_about' %}";
+    }
+    
+    const editBtn = document.getElementById('editBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    // انتخاب تمام فیلدهای ورودی و تکست اریا در فرم (به جز فیلد فایل)
+    const formInputs = document.querySelectorAll('#doctorForm input:not([type="file"]), #doctorForm textarea');
+    const image = document.getElementById('doctorImage');
+    const imageInput = document.getElementById('imageInput');
+
+    editBtn.addEventListener('click', function() {
+        // حذف ویژگی disabled از تمامی فیلدها
+        formInputs.forEach(input => {
+            input.disabled = false;
+        });
+        // نمایش فایل آپلود تصویر
+        imageInput.style.display = 'block';
+        // تغییر وضعیت دکمه‌ها
+        editBtn.style.display = 'none';
+        saveBtn.style.display = 'inline-block';
+        cancelBtn.style.display = 'inline-block';
+    });
+
+    cancelBtn.addEventListener('click', function() {
+        // بارگذاری مجدد صفحه برای لغو تغییرات
+        location.reload();
+    });
+
+    // امکان کلیک روی تصویر جهت انتخاب تصویر جدید در حالت ویرایش
+    image.addEventListener('click', function() {
+        if (imageInput.style.display !== 'none') {
+            imageInput.click();
+        }
+    });
+
+    // پیش نمایش تصویر جدید در صورت انتخاب
+    imageInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                image.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+{% endblock %}

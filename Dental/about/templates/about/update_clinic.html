@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">ویرایش اطلاعات کلینیک</h2>
+
+    <div class="card p-4 shadow-sm">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label class="form-label">نام کلینیک:</label>
+                {{ form.name }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">آدرس:</label>
+                {{ form.address }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">شماره تلفن:</label>
+                {{ form.phone }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">توضیحات:</label>
+                {{ form.description }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">تصویر کلینیک:</label>
+                {{ form.image }}
+            </div>
+
+            <button type="submit" class="btn btn-success">بروزرسانی</button>
+            <a href="{% url 'about:detail_clinic' clinic.id %}" class="btn btn-secondary">بازگشت</a>
+        </form>
+    </div>
+</div>
+
+<!-- استایل سفارشی -->
+<style>
+    .container {
+        max-width: 600px;
+        margin: auto;
+    }
+    .card {
+        background: #fff;
+        border-radius: 10px;
+    }
+    .form-label {
+        font-weight: bold;
+    }
+</style>
+
+{% endblock %}

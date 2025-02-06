@@ -1,0 +1,79 @@
+<!-- {% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center text-success">افزودن پزشک جدید</h2>
+    <div class="card p-4 shadow-sm">
+        <form method="post" enctype="multipart/form-data" action="{% url 'about:add_doctor' %}">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{field}}
+            {% endfor %}
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-success">ثبت پزشک</button>
+                <a href="{% url 'about:edit_about' %}" class="btn btn-secondary">بازگشت</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- استایل سفارشی -->
+<style>
+    .container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+    }
+    .card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .form-label {
+        font-weight: bold;
+    }
+    .mb-3 {
+        margin-bottom: 15px;
+    }
+    input, textarea, select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: white;
+        text-decoration: none;
+    }
+    .btn-success {
+        background: #28a745;
+    }
+    .btn-secondary {
+        background: #6c757d;
+    }
+    .btn:hover {
+        opacity: 0.9;
+        transform: scale(1.05);
+    }
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll("input, textarea, select").forEach(field => {
+            field.removeAttribute("disabled");
+        });
+    });
+</script>
+
+{% endblock %} -->

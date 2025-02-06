@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center text-danger">حذف خدمت</h2>
+
+    <div class="card p-4 shadow-sm text-center">
+        <p class="mb-4">آیا مطمئن هستید که می‌خواهید خدمت "<strong>{{ service.title }}</strong>" را حذف کنید؟</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">حذف</button>
+            <a href="{% url 'about:detail_service' service.id %}" class="btn btn-secondary">لغو</a>
+        </form>
+    </div>
+</div>
+
+<!-- استایل سفارشی -->
+<style>
+    .container {
+        max-width: 400px;
+        margin: auto;
+    }
+    .card {
+        background: #fff;
+        border-radius: 10px;
+    }
+    .btn {
+        margin: 5px;
+    }
+</style>
+
+{% endblock %}

@@ -4,13 +4,21 @@
 <div class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="text-primary font-weight-bold">جزئیات بلاگ</h1>
-        {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
-            <a href="{% url 'create_blog' %}" class="btn btn-success btn-sm mx-1">ایجاد بلاگ جدید</a>
-            <a href="{% url 'update_blog' blog.pk %}" class="btn btn-warning btn-sm mx-1">ویرایش</a>
-            <form action="{% url 'delete_blog' blog.pk %}" method="get" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger btn-sm mx-1">حذف</button>
-            </form>
+        {% if user.is_authenticated %}
+            {% if user.is_superuser %}
+                <a href="{% url 'blog:create_blog' %}" class="btn btn-success btn-sm mx-1">ایجاد بلاگ جدید</a>
+                <a href="{% url 'blog:update_blog' blog.pk %}" class="btn btn-warning btn-sm mx-1">ویرایش</a>
+                <form action="{% url 'blog:delete_blog' blog.pk %}" method="get" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm mx-1">حذف</button>
+                </form>
+            {% elif user.is_doctor and request.user == blog.writer %}
+                <a href="{% url 'blog:update_blog' blog.pk %}" class="btn btn-warning btn-sm mx-1">ویرایش</a>
+                <form action="{% url 'blog:delete_blog' blog.pk %}" method="get" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm mx-1">حذف</button>
+                </form>
+            {% endif %}
         {% endif %}
     </div>
 

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center text-success">افزودن خدمت جدید</h2>
+
+    <div class="card p-4 shadow-sm">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">عنوان خدمت</label>
+                {{ form.title }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">توضیحات خدمت</label>
+                {{ form.description }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">آیکون خدمت</label>
+                {{ form.icon }}
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success">افزودن</button>
+                <a href="{% url 'about:edit_about' %}" class="btn btn-secondary">بازگشت</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- استایل سفارشی -->
+<style>
+    .container {
+        max-width: 500px;
+        margin: auto;
+    }
+    .card {
+        background: #fff;
+        border-radius: 10px;
+    }
+    .form-label {
+        font-weight: bold;
+    }
+    input, textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+</style>
+
+{% endblock %}
