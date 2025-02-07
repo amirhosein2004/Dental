@@ -6,7 +6,6 @@
         <h1 class="text-primary font-weight-bold">جزئیات بلاگ</h1>
         {% if user.is_authenticated %}
             {% if user.is_superuser %}
-                <a href="{% url 'blog:create_blog' %}" class="btn btn-success btn-sm mx-1">ایجاد بلاگ جدید</a>
                 <a href="{% url 'blog:update_blog' blog.pk %}" class="btn btn-warning btn-sm mx-1">ویرایش</a>
                 <form action="{% url 'blog:delete_blog' blog.pk %}" method="get" style="display: inline;">
                     {% csrf_token %}

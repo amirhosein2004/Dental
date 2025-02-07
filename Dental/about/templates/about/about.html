@@ -6,7 +6,7 @@
 {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
 <div class="container mt-4">
     <div class="edit-section text-center mb-5">
-        <a href="{% url 'about:edit_about' %}" class="btn btn-warning btn-lg px-5 rounded-pill">
+        <a href="{% url 'about:edit_about' %}" class="btn btn-warning btn-lg px-5 rounded-pill shadow-sm">
             <i class="fas fa-edit me-2"></i>ویرایش اطلاعات کلینیک
         </a>
     </div>
@@ -19,8 +19,9 @@
         {% if clinic.image %}
         <img src="{{ clinic.image.url }}" class="card-img-top clinic-main-img" alt="کلینیک">
         {% endif %}
-        <div class="card-body text-center bg-primary text-white py-5">
-            <h1 class="display-4 fw-bold mb-4">{{ clinic.name }}</h1>
+        <div class="card-body text-center bg-primary text-white py-5 position-relative">
+            <div class="overlay"></div>
+            <h1 class="display-4 fw-bold mb-4 position-relative">{{ clinic.name }}</h1>
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <p class="lead mb-4">{{ clinic.description }}</p>
@@ -113,6 +114,15 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- نقشه -->
+    <div class="about-container mb-5">
+        <h2 class="section-title mb-4 position-relative">
+            <span class="section-icon"><i class="fas fa-map-marker-alt"></i></span>
+            موقعیت مکانی مطب
+        </h2>
+        <div id="map" class="rounded shadow-lg" style="height: 400px; width: 100%;"></div>
+    </div>
 </div>
 
 <style>
@@ -168,6 +178,15 @@
         border-top: 3px solid var(--primary-color)!important;
     }
 
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
     @media (max-width: 768px) {
         .section-icon {
             position: static;
@@ -179,4 +198,42 @@
         }
     }
 </style>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAin6F81aIcD-SGrqrFM8olptYF035OiAM&callback=initMap" async defer></script>
+
+<script>
+    function initMap() {
+        // مختصات دقیق مطب (جایگزین کنید)
+        var location = { 
+            lat: 37.10671224302385, 
+            lng: 58.51245110927695 
+        };
+
+        // ایجاد نقشه
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 15,
+            center: location,
+            mapTypeControl: true,
+            streetViewControl: false
+        });
+
+        // افزودن مارکر
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map,
+            title: 'مطب دکتر',
+            icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png' // اختیاری
+        });
+
+        // افزودن اطلاعات هنگام کلیک روی مارکر (اختیاری)
+        var infoWindow = new google.maps.InfoWindow({
+            content: '<h3>مطب دکتر</h3><p>آدرس: قوچان، خیابان گوهرشاد، بین ناصر خسرو و داوودی</p>'
+        });
+
+        marker.addListener('click', function() {
+            infoWindow.open(map, marker);
+        });
+    }
+</script>
+
 {% endblock %}

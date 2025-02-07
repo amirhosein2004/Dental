@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="category-container">
+        <h1 class="title">مدیریت دسته‌بندی‌ها</h1>
+
+        <!-- نمایش دسته‌بندی‌ها -->
+        <div class="category-list">
+            <h2>لیست دسته‌بندی‌ها</h2>
+            {% if categories %}
+                <ul>
+                    {% for category in categories %}
+                        <li class="category-item">
+                            <span>{{ category.name }}</span>
+                            <form method="post" action="{% url 'core:remove_category' category.id %}" class="delete-form">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-btn">✖</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="empty-message">هیچ دسته‌بندی‌ای یافت نشد.</p>
+            {% endif %}
+        </div>
+
+        <!-- فرم اضافه کردن دسته‌بندی -->
+        <div class="category-form">
+            <h2>افزودن دسته‌بندی جدید</h2>
+            <form method="post" action="{% url 'core:add_category' %}" class="add-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="add-btn">➕ افزودن دسته‌بندی</button>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .category-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            text-align: center;
+            color: #333;
+        }
+
+        .category-list {
+            margin-bottom: 20px;
+        }
+
+        .category-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .delete-form {
+            margin: 0;
+        }
+
+        .delete-btn {
+            background: #ff5c5c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .delete-btn:hover {
+            background: #ff0000;
+        }
+
+        .category-form {
+            text-align: center;
+        }
+
+        .add-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .add-btn:hover {
+            background: #218838;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #777;
+        }
+    </style>
+{% endblock %}

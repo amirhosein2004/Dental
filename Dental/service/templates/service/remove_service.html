@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card border-0 shadow-lg p-4 text-center">
+        <h2 class="text-danger mb-4">حذف سرویس</h2>
+        <p class="text-muted">آیا مطمئن هستید که می‌خواهید این سرویس را حذف کنید؟ این عمل قابل بازگشت نیست.</p>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">بله، حذف شود</button>
+            <a href="{% url 'service:service_detail' service.id %}" class="btn btn-secondary">انصراف</a>
+        </form>
+    </div>
+</div>
+
+<style>
+    .card {
+        max-width: 500px;
+        margin: auto;
+    }
+</style>
+{% endblock %}

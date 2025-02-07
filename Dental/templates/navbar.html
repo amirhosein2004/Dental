@@ -12,13 +12,18 @@
           <a class="nav-link active" aria-current="page" href="{% url 'blog:blog' %}">وبلاگ</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">خدمات</a>
+          <a class="nav-link active" aria-current="page" href="{% url 'service:service' %}">خدمات</a>
+        </li>
+        <!-- {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'core:category' %}">مدیریت دسته بندی</a>
+        </li>
+        {% endif %} -->
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">گالری</a>
         </li>
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="#">مشاوره</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">گالری</a>
         </li>
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="#">نوبت دهی</a>

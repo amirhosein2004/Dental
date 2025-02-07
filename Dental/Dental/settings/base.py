@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'Users',
     'about',
     'core',
+    'service',
 
     # Third-party apps
     'django_filters',
