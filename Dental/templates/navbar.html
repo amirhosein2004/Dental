@@ -1,41 +1,114 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+  <div class="container">
+    <!-- لوگو/نام سایت -->
+    <a class="navbar-brand fw-bold text-primary" href="{% url 'home:home' %}">
+      <i class="fas fa-star me-2"></i>
+      نام سایت
+    </a>
+    
+    <!-- دکمه همبرگر موبایل -->
+    <button class="navbar-toggler border-0" 
+            type="button" 
+            data-bs-toggle="collapse" 
+            data-bs-target="#navbarSupportedContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'home:home' %}">خانه</a>
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <!-- آیتم‌های منو -->
+        <li class="nav-item mx-2">
+          <a class="nav-link position-relative text-dark px-3" 
+             href="{% url 'home:home' %}">
+            <i class="fas fa-home me-2"></i>
+            خانه
+            <span class="nav-hover"></span>
+          </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'about:about' %}">درباره ما</a>
+
+        <li class="nav-item mx-2">
+          <a class="nav-link position-relative text-dark px-3" 
+             href="{% url 'about:about' %}">
+            <i class="fas fa-info-circle me-2"></i>
+            درباره ما
+            <span class="nav-hover"></span>
+          </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'blog:blog' %}">وبلاگ</a>
+
+        <li class="nav-item mx-2">
+          <a class="nav-link position-relative text-dark px-3" 
+             href="{% url 'blog:blog' %}">
+            <i class="fas fa-blog me-2"></i>
+            وبلاگ
+            <span class="nav-hover"></span>
+          </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'service:service' %}">خدمات</a>
+
+        <li class="nav-item mx-2">
+          <a class="nav-link position-relative text-dark px-3" 
+             href="{% url 'service:service' %}">
+            <i class="fas fa-concierge-bell me-2"></i>
+            خدمات
+            <span class="nav-hover"></span>
+          </a>
         </li>
-        <!-- {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'core:category' %}">مدیریت دسته بندی</a>
+
+        <!-- بخش مدیریت (شرطی) -->
+        {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
+        <li class="nav-item mx-2">
+          <a class="nav-link position-relative text-dark px-3" 
+             href="{% url 'core:category' %}">
+            <i class="fas fa-tasks me-2"></i>
+            مدیریت دسته‌بندی
+            <span class="nav-hover"></span>
+          </a>
         </li>
-        {% endif %} -->
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">گالری</a>
+        {% endif %}
+
+        <li class="nav-item mx-2">
+          <a class="nav-link position-relative text-dark px-3" 
+             href="{% url 'gallery:gallery' %}">
+            <i class="fas fa-images me-2"></i>
+            گالری
+            <span class="nav-hover"></span>
+          </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">مشاوره</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">نوبت دهی</a>
-        </li>
-        <!-- <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">ثبت نام/ورود</a>
-        </li> -->
       </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
     </div>
   </div>
 </nav>
+
+<style>
+  /* استایل سفارشی */
+  .nav-hover {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: #4a90e2;
+    transition: all 0.3s ease;
+  }
+
+  .nav-link:hover .nav-hover {
+    width: 80%;
+    left: 10%;
+  }
+
+  .navbar {
+    border-radius: 0 0 15px 15px;
+  }
+
+  .nav-link {
+    transition: all 0.2s ease;
+  }
+
+  .nav-link:hover {
+    transform: translateY(-2px);
+  }
+
+  .navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: -1px;
+  }
+</style>

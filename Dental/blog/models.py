@@ -5,7 +5,7 @@ from core.models import Category
 
 User = get_user_model()
 class BlogPost(models.Model):
-    writer = models.ForeignKey(User, on_delete=models.CASCADE)
+    writer = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='blog_posts')
     categories = models.ManyToManyField(Category, related_name='blog_posts')
     title = models.CharField(max_length=200)
     content = models.TextField()

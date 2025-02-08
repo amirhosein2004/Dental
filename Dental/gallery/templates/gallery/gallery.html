@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+
+    <!-- دکمه اضافه کردن گالری -->
+    <div class="text-center mb-4">
+        <a href="{% url 'gallery:add_gallery' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> افزودن گالری جدید
+        </a>
+    </div>
+
+    <!-- باکس دسته‌بندی‌ها -->
+    <div class="category-box mb-4 p-3 text-center bg-light rounded">
+        <a href="{% url 'gallery:gallery' %}?category=" 
+           class="btn btn-outline-primary {% if not request.GET.category %}active{% endif %}">
+            همه دسته‌بندی‌ها
+        </a>
+        {% for category in categories %}
+        <a href="{% url 'gallery:gallery' %}?category={{ category.id }}" 
+           class="btn btn-outline-primary {% if request.GET.category == category.id|stringformat:"s" %}active{% endif %}">
+            {{ category.name }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- نمایش گالری‌ها -->
+    <div class="row g-4">
+        {% for gallery in galleries %}
+            {% if gallery.images.all.count > 0 %}
+            <div class="col-md-4 col-sm-6">
+                <div class="gallery-box position-relative overflow-hidden p-3">
+                    <!-- عنوان گالری -->
+                    <div class="gallery-header text-center mb-2">
+                        <h5 class="fw-bold text-primary">{{ gallery.category|default:"گالری بدون عنوان" }}</h5>
+                    </div>
+    
+                    <!-- اسلایدر تصاویر -->
+                    <div class="swiper-container gallery-swiper">
+                        <div class="swiper-wrapper">
+                            {% for image in gallery.images.all %}
+                            <div class="swiper-slide">
+                                <div class="image-box">
+                                    <img src="{{ image.image.url }}" 
+                                         alt="{{ image.title|default:'تصویر' }}" 
+                                         class="img-fluid" loading="lazy">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <!-- دکمه‌های ناوبری -->
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                    </div>
+    
+                    <!-- دکمه‌های عملیات -->
+                    {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
+                    <div class="gallery-actions text-center mt-3">
+                        <a href="{% url 'gallery:update_gallery' gallery.id %}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-edit"></i> ویرایش
+                        </a>
+                        <a href="{% url 'gallery:delete_gallery' gallery.id %}" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i> حذف
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        {% empty %}
+        <div class="col-12 text-center">
+            <p class="text-muted">گالری‌ای با این دسته‌بندی وجود ندارد.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- لینک‌های ضروری -->
+<link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary-color: #4a90e2;
+    }
+    /* باکس دسته‌بندی‌ها */
+    .category-box {
+        background: #f8f9fa;
+    }
+    .category-box .btn {
+        margin: 0.3rem;
+        transition: transform 0.2s ease;
+    }
+    .category-box .btn:hover {
+        transform: scale(1.05);
+    }
+    .category-box .btn.active {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: #fff;
+    }
+    /* باکس گالری */
+    .gallery-box {
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        text-align: center;
+    }
+    /* تنظیمات Swiper */
+    .gallery-swiper {
+        width: 100%;
+        height: 200px;
+    }
+    .swiper-container {
+        overflow: hidden !important; /* جلوگیری از نمایش بخش‌های اضافی */
+        width: 100% !important; 
+        max-width: 500px; /* کنترل اندازه اسلایدر */
+    }
+    
+    .swiper-slide {
+        text-align: center;
+        width: 100% !important; /* اطمینان از نمایش فقط یک عکس در هر اسلاید */
+    }
+    
+    /* باکس تصویر */
+    .image-box {
+        width: 100%;
+        height: 180px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .image-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    /* دکمه‌های ناوبری Swiper */
+    .swiper-button-next,
+    .swiper-button-prev {
+        background: rgba(255, 255, 255, 0.9);
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .swiper-button-next::after,
+    .swiper-button-prev::after {
+        font-size: 1rem;
+        color: var(--primary-color);
+    }
+</style>
+
+<script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const swiperOptions = {
+            loop: true,
+            speed: 600,
+            grabCursor: true,
+            autoplay: {
+                delay: 4000,
+                disableOnInteraction: false,
+            },
+            slidesPerView: 1,
+            spaceBetween: 10,
+        };
+
+        document.querySelectorAll('.gallery-swiper').forEach(swiperContainer => {
+            new Swiper(swiperContainer, Object.assign({}, swiperOptions, {
+                navigation: {
+                    nextEl: swiperContainer.querySelector('.swiper-button-next'),
+                    prevEl: swiperContainer.querySelector('.swiper-button-prev'),
+                }
+            }));
+        });
+    });
+</script>
+{% endblock %}

@@ -199,41 +199,25 @@
     }
 </style>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAin6F81aIcD-SGrqrFM8olptYF035OiAM&callback=initMap" async defer></script>
-
 <script>
-    function initMap() {
-        // مختصات دقیق مطب (جایگزین کنید)
-        var location = { 
-            lat: 37.10671224302385, 
-            lng: 58.51245110927695 
-        };
+    var map = new L.Map('map', {
+        attributionControl: false,  // غیرفعال کردن نمایش اعتبارسنجی
+        key: 'web.567de89946f24e1ab41c2931720f1871', 
+        maptype: 'osm-bright',
+        poi: true,
+        traffic: false,
+        center: [37.106763111365744, 58.51246833914425],
+        zoom: 13,
+        zoomControl: true,
+        maxZoom: 19,
+    });
+    
+    // اضافه کردن نشانگر (Marker)
+    L.marker([37.106763111365744, 58.51246833914425]).addTo(map)
+        .bindPopup('مکان شما')  // عنوان پنجره بازشو
+        .openPopup();
 
-        // ایجاد نقشه
-        var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 15,
-            center: location,
-            mapTypeControl: true,
-            streetViewControl: false
-        });
-
-        // افزودن مارکر
-        var marker = new google.maps.Marker({
-            position: location,
-            map: map,
-            title: 'مطب دکتر',
-            icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png' // اختیاری
-        });
-
-        // افزودن اطلاعات هنگام کلیک روی مارکر (اختیاری)
-        var infoWindow = new google.maps.InfoWindow({
-            content: '<h3>مطب دکتر</h3><p>آدرس: قوچان، خیابان گوهرشاد، بین ناصر خسرو و داوودی</p>'
-        });
-
-        marker.addListener('click', function() {
-            infoWindow.open(map, marker);
-        });
-    }
 </script>
 
 {% endblock %}
+
