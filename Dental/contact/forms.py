@@ -1,0 +1,34 @@
+from django import forms
+from .models import WorkingHours, ContactMessage
+
+
+class WorkingHoursForm(forms.ModelForm):
+    class Meta:
+        model = WorkingHours
+        fields = ['day', 'morning_start', 'morning_end', 'evening_start', 'evening_end']
+        widgets = {
+            'day': forms.Select(attrs={'class': 'form-control'}),
+            'morning_start': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23}),
+            'morning_end': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23}),
+            'evening_start': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23}),
+            'evening_end': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23}),
+        }
+
+    # def clean_day(self):
+    #     day = self.cleaned_data.get('day')
+
+    #     # بررسی اینکه آیا روز قبلاً در دیتابیس ثبت شده است
+    #     if WorkingHours.objects.filter(day=day).exists():
+    #         raise forms.ValidationError(f'ساعات کاری برای {day} قبلاً ثبت شده است!')
+
+    #     return day
+
+class ContactMessageForm(forms.ModelForm):
+    class Meta:
+        model = ContactMessage
+        fields = ['name', 'phone', 'message']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'نام شما'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'شماره تماس شما'}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'متن پیام'}),
+        }

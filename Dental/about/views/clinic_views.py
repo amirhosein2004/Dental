@@ -99,3 +99,4 @@ class DeleteClinicView(View):
         clinic.delete()
         messages.success(request, 'Clinic deleted successfully.')
         return redirect('about:edit_about')
+

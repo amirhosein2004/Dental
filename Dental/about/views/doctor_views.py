@@ -7,28 +7,28 @@ from about.forms import DoctorForm
 from django.core.exceptions import PermissionDenied
 
 
-# class AddDoctorView(View):
-#     template_name = 'about/add_doctor.html'
-#     form_class = DoctorForm
+class AddDoctorView(View):
+    template_name = 'about/add_doctor.html'
+    form_class = DoctorForm
 
-#     def dispatch(self, request, *args, **kwargs):
-#         if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-#             return super().dispatch(request, *args, **kwargs)
-#         raise Http404("صفحه مورد نظر یافت نشد.")
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
+            return super().dispatch(request, *args, **kwargs)
+        raise Http404("صفحه مورد نظر یافت نشد.")
     
-#     def get(self, request, *args, **kwargs):    
-#         form = self.form_class()
-#         return render(request, self.template_name, {'form': form})
+    def get(self, request, *args, **kwargs):    
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
     
-#     def post(self, request, *args, **kwargs):
-#         form = self.form_class(request.POST, request.FILES)
-#         if form.is_valid():
-#             doctor = form.save(commit=False)
-#             doctor.user = request.user
-#             doctor.save()
-#             messages.success(request, 'پروفایل دکتر با موفقیت ایجاد شد.')
-#             return redirect('about:detail_doctor', doctor.pk)
-#         return render(request, self.template_name, {'form': form})
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
+        if form.is_valid():
+            doctor = form.save(commit=False)
+            doctor.user = request.user
+            doctor.save()
+            messages.success(request, 'پروفایل دکتر با موفقیت ایجاد شد.')
+            return redirect('about:edit_about')
+        return render(request, self.template_name, {'form': form})
 
 class DetailDoctorView(View):
     template_name = 'about/detail_doctor.html'

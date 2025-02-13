@@ -36,11 +36,50 @@
         </div>
     </section>
 
+    <!-- بخش ساعات کاری -->
+    <section class="management-section">
+        <h2>
+            ساعات کاری
+            <a href="{% url 'contact:add_workinghours' %}" class="btn btn-add">+ افزودن ساعت کاری</a>
+        </h2>
+        
+        <!-- دکمه کشویی برای انتخاب ساعت کاری -->
+        <button class="dropbtn" onclick="toggleDropdown('workingHoursDropdown')">انتخاب ساعت کاری</button>
+        
+        <!-- محتوای کشویی -->
+        <div id="workingHoursDropdown" class="dropdown-content">
+            {% for wh in working_hours %}
+                <a href="{% url 'contact:detail_workinghours' wh.id %}" class="working-hour-item">
+                    <span class="day-label">{{ wh.get_day_display }}</span>:
+                    
+                    {% if wh.morning_start and wh.morning_end %}
+                        <span class="working-time">
+                            {{ wh.morning_start }}:00 - {{ wh.morning_end }}:00
+                        </span>
+                    {% else %}
+                        <span class="off-time">تعطیل در صبح</span>
+                    {% endif %}
+                    
+                    {% if wh.evening_start and wh.evening_end %}
+                        <span class="working-time">
+                            | {{ wh.evening_start }}:00 - {{ wh.evening_end }}:00
+                        </span>
+                    {% else %}
+                        <span class="off-time">| تعطیل در عصر</span>
+                    {% endif %}
+                </a>
+            {% empty %}
+                <span class="no-data">هیچ ساعت کاری ثبت نشده است.</span>
+            {% endfor %}
+        </div>
+    </section>
+
+
     <!-- بخش پزشکان -->
     <section class="management-section">
         <h2>
             پزشکان 
-        {#<a href="{% url 'about:add_doctor' %}" class="btn btn-add">+ افزودن پزشک</a>#}
+            <a href="{% url 'about:add_doctor' %}" class="btn btn-add">+ افزودن پزشک</a>
         </h2>
         <button class="dropbtn" onclick="toggleDropdown('doctorDropdown')">انتخاب پزشک</button>
         <div id="doctorDropdown" class="dropdown-content">
@@ -53,6 +92,7 @@
             {% endfor %}
         </div>
     </section>
+
 </div>
 
 <!-- استایل -->

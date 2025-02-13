@@ -40,6 +40,46 @@
         </div>
     </div>
 
+    <!-- بخش ساعات کاری کلینیک
+    <div class="clinic-working-hours mb-5">
+        <h2 class="section-title mb-4 position-relative">
+            <span class="section-icon"><i class="fas fa-clock"></i></span>
+            ساعات کاری کلینیک
+        </h2>
+        <div class="working-hours-content">
+            <ul class="list-group shadow-sm">
+                {% for wh in working_hours %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                        <div class="d-flex flex-column">
+                            <span class="day-label font-weight-bold text-primary">{{ wh.get_day_display }}</span>
+                        </div>
+                        <div class="d-flex flex-column text-right">
+                            {% if wh.morning_start and wh.morning_end %}
+                                <span class="working-time text-success">
+                                    {{ wh.morning_start }}:00 - {{ wh.morning_end }}:00
+                                </span>
+                            {% else %}
+                                <span class="off-time text-muted">تعطیل در صبح</span>
+                            {% endif %}
+                            
+                            {% if wh.evening_start and wh.evening_end %}
+                                <span class="working-time text-warning">
+                                    | {{ wh.evening_start }}:00 - {{ wh.evening_end }}:00
+                                </span>
+                            {% else %}
+                                <span class="off-time text-muted">| تعطیل در عصر</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% empty %}
+                    <div class="no-data text-center text-muted py-3">هیچ ساعت کاری ثبت نشده است.</div>
+                {% endfor %}
+            </ul>
+        </div>
+    </div> -->
+
+
+
     <!-- مشخصات دکترها -->
     <h2 class="section-title mb-4 position-relative">
         <span class="section-icon"><i class="fas fa-user-md"></i></span>
@@ -115,14 +155,6 @@
         {% endfor %}
     </div>
 
-    <!-- نقشه -->
-    <div class="about-container mb-5">
-        <h2 class="section-title mb-4 position-relative">
-            <span class="section-icon"><i class="fas fa-map-marker-alt"></i></span>
-            موقعیت مکانی مطب
-        </h2>
-        <div id="map" class="rounded shadow-lg" style="height: 400px; width: 100%;"></div>
-    </div>
 </div>
 
 <style>
@@ -199,25 +231,4 @@
     }
 </style>
 
-<script>
-    var map = new L.Map('map', {
-        attributionControl: false,  // غیرفعال کردن نمایش اعتبارسنجی
-        key: 'web.567de89946f24e1ab41c2931720f1871', 
-        maptype: 'osm-bright',
-        poi: true,
-        traffic: false,
-        center: [37.106763111365744, 58.51246833914425],
-        zoom: 13,
-        zoomControl: true,
-        maxZoom: 19,
-    });
-    
-    // اضافه کردن نشانگر (Marker)
-    L.marker([37.106763111365744, 58.51246833914425]).addTo(map)
-        .bindPopup('مکان شما')  // عنوان پنجره بازشو
-        .openPopup();
-
-</script>
-
 {% endblock %}
-

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">مدیریت پیام‌ها</h2>
+
+    <!-- دکمه‌های فیلتر و علامت‌گذاری همه به عنوان خوانده‌شده -->
+    <div class="mb-3">
+        <a href="?filter=all" class="btn btn-secondary {% if filter_status == 'all' %}active{% endif %}">همه پیام‌ها</a>
+        <a href="?filter=read" class="btn btn-success {% if filter_status == 'read' %}active{% endif %}">خوانده شده</a>
+        <a href="?filter=unread" class="btn btn-danger {% if filter_status == 'unread' %}active{% endif %}">خوانده نشده</a>
+        <a href="{% url 'contact:mark_all_read' %}" class="btn btn-warning">علامت‌گذاری همه به عنوان خوانده‌شده</a>
+    </div>
+
+    <!-- نمایش لیست پیام‌ها -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>نام</th>
+                <th>شماره تماس</th>
+                <th>پیام</th>
+                <th>تاریخ</th>
+                <th>وضعیت</th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for message in messagesـlist %}
+            <tr>
+                <td>{{ message.name }}</td>
+                <td>{{ message.phone }}</td>
+                <td>{{ message.message }}</td>
+                <td>{{ message.get_created_at_jalali }}</td>
+                <td>
+                    {% if message.is_read %}
+                        <span class="badge bg-success">خوانده شده</span>
+                    {% else %}
+                        <span class="badge bg-danger">خوانده نشده</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not message.is_read %}
+                        <a href="{% url 'contact:mark_as_read' message.id %}" class="btn btn-sm btn-primary">علامت‌گذاری خوانده‌شده</a>
+                    {% else %}
+                        <span class="text-muted">خوانده‌شده</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">هیچ پیامی یافت نشد.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

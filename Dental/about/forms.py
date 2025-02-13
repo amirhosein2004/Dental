@@ -6,6 +6,8 @@ class ClinicForm(forms.ModelForm):
         model = Clinic
         fields = ['name', 'address', 'phone', 'description', 'image']
 
+
+
 class DoctorForm(forms.ModelForm):
     class Meta:
         model = Doctor

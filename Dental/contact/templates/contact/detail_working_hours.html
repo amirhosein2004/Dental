@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="container">
+        <h1 class="my-4">جزئیات ساعت‌های کاری</h1>
+        <table class="table table-bordered">
+            <tr>
+                <th>روز هفته</th>
+                <td>{{ working_hours.day }}</td>
+            </tr>
+            <tr>
+                <th>شروع صبح</th>
+                <td>{{ working_hours.morning_start }}</td>
+            </tr>
+            <tr>
+                <th>پایان صبح</th>
+                <td>{{ working_hours.morning_end }}</td>
+            </tr>
+            <tr>
+                <th>شروع عصر</th>
+                <td>{{ working_hours.evening_start }}</td>
+            </tr>
+            <tr>
+                <th>پایان عصر</th>
+                <td>{{ working_hours.evening_end }}</td>
+            </tr>
+        </table>
+        <div>
+            <a href="{% url 'contact:update_workinghours' working_hours.pk %}" class="btn btn-primary">ویرایش</a>
+            <a href="{% url 'contact:delete_workinghours' working_hours.pk %}" class="btn btn-danger">حذف</a>
+            <a href="{% url 'about:edit_about' %}" class="btn btn-secondary">بازگشت</a>
+        </div>
+    </div>
+
+{% endblock %}

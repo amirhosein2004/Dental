@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'core',
     'service',
     'gallery',
+    'contact',
 
     # Third-party apps
     'django_filters',

@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.contrib import messages
 from django.http import Http404
 from about.models import Clinic, Doctor, Service
+from contact.models import WorkingHours
 
 class AboutView(View):
     template_name = 'about/about.html'
@@ -30,9 +31,11 @@ class EditAboutView(View):
         clinics = Clinic.objects.all()
         doctors = Doctor.objects.all()
         services = Service.objects.all()
+        working_hours = WorkingHours.objects.all()
         context = {
             'clinics': clinics,
             'doctors': doctors,
             'services': services,
+            'working_hours': working_hours
         }
         return render(request, self.template_name, context)

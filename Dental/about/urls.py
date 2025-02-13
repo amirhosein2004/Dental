@@ -2,7 +2,7 @@ from django.urls import path
 from .views.about_views import AboutView, EditAboutView
 from .views.clinic_views import DetailClinicView, AddClinicView, UpdateClinicView, DeleteClinicView
 from .views.service_views import DetailServiceView, AddServiceView, UpdateServiceView, DeleteServiceView
-from .views.doctor_views import DetailDoctorView
+from .views.doctor_views import DetailDoctorView, AddDoctorView
 
 
 app_name = 'about'
@@ -23,12 +23,13 @@ service_patterns = [
     path('service/delete/<int:pk>/', DeleteServiceView.as_view(), name='delete_service'),
 ]
 
+# URLهای مربوط به پزشکان
 doctor_patterns = [
     path('doctor/detail/<int:pk>/', DetailDoctorView.as_view(), name='detail_doctor'),
-    # path('doctor/add/', AddDoctorView.as_view(), name='add_doctor'),
+    path('doctor/add/', AddDoctorView.as_view(), name='add_doctor'),
 ]
 
 urlpatterns = [
     path('', AboutView.as_view(), name='about'),
     path('edit/', EditAboutView.as_view(), name='edit_about'),
-] + clinic_patterns + service_patterns + doctor_patterns
+] + clinic_patterns + service_patterns + doctor_patterns 

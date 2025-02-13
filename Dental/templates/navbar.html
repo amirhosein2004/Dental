@@ -53,6 +53,24 @@
           </a>
         </li>
 
+        <li class="nav-item mx-2">
+          <a class="nav-link position-relative text-dark px-3" 
+             href="{% url 'gallery:gallery' %}">
+            <i class="fas fa-images me-2"></i>
+            گالری
+            <span class="nav-hover"></span>
+          </a>
+        </li>
+
+        <li class="nav-item mx-2">
+          <a class="nav-link position-relative text-dark px-3" 
+             href="{% url 'contact:contact' %}">
+            <i class="fas fa-images me-2"></i>
+            تماس با ما
+            <span class="nav-hover"></span>
+          </a>
+        </li>
+
         <!-- بخش مدیریت (شرطی) -->
         {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
         <li class="nav-item mx-2">
@@ -65,14 +83,6 @@
         </li>
         {% endif %}
 
-        <li class="nav-item mx-2">
-          <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'gallery:gallery' %}">
-            <i class="fas fa-images me-2"></i>
-            گالری
-            <span class="nav-hover"></span>
-          </a>
-        </li>
       </ul>
     </div>
   </div>
