@@ -14,9 +14,9 @@
 
     {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
     <div class="actions">
-        <a href="{% url 'about:update_clinic' clinic.id %}" class="btn update-btn">ویرایش</a>
-        <a href="{% url 'about:delete_clinic' clinic.id %}" class="btn delete-btn">حذف</a>
-        <a href="{% url 'about:edit_about' %}" class="btn delete-btn">بازگشت</a>
+        <a href="{% url 'core:update_clinic' clinic.id %}" class="btn update-btn">ویرایش</a>
+        <a href="{% url 'core:delete_clinic' clinic.id %}" class="btn delete-btn">حذف</a>
+        <a href="{% url 'core:manage' %}" class="btn delete-btn">بازگشت</a>
     </div>
     {% endif %}
 

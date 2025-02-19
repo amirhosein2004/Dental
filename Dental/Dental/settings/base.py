@@ -24,15 +24,17 @@ INSTALLED_APPS = [
     'home',
     'blog',
     'django_jalali',
-    'Users',
+    'users',
     'about',
     'core',
     'service',
     'gallery',
     'contact',
+    'dashboard',
 
     # Third-party apps
     'django_filters',
+    'captcha',
 ]
 
 MIDDLEWARE = [
@@ -86,4 +88,16 @@ STATIC_ROOT = BASE_DIR / os.getenv('STATIC_ROOT', 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
-AUTH_USER_MODEL = 'Users.CustomUser'
+AUTH_USER_MODEL = 'users.CustomUser'
+
+# Google ReCaptcha
+RECAPTCHA_PUBLIC_KEY = "6LdwEtsqAAAAADzdwgPOrMVPUbbMkKfkyqMIcr55"
+RECAPTCHA_PRIVATE_KEY = "6LdwEtsqAAAAAGmybZkNo-FV-hCmaLsbCc9dpwg3"
+
+# email
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'amirhoosenbabai82@gmail.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', None)

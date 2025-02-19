@@ -55,7 +55,16 @@
                     </div>
     
                     <!-- دکمه‌های عملیات -->
-                    {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
+                    {% if user.is_authenticated and user.is_superuser %}
+                    <div class="gallery-actions text-center mt-3">
+                        <a href="{% url 'gallery:update_gallery' gallery.id %}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-edit"></i> ویرایش
+                        </a>
+                        <a href="{% url 'gallery:delete_gallery' gallery.id %}" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i> حذف
+                        </a>
+                    </div>
+                    {% elif user.is_doctor and request.user == gallery.doctor.user %}
                     <div class="gallery-actions text-center mt-3">
                         <a href="{% url 'gallery:update_gallery' gallery.id %}" class="btn btn-sm btn-outline-success">
                             <i class="fas fa-edit"></i> ویرایش

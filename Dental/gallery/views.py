@@ -1,11 +1,13 @@
 from django.views import View
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from .models import Gallery, Image
 from core.models import Category
 from .forms import GalleryForm, ImageForm
 from .filters import GalleryFilter
+from dashboard.models import Doctor
 
 
 class GalleryView(View):
@@ -39,7 +41,10 @@ class AddGalleryView(View):
         image_form = self.form_class_image(request.POST, request.FILES)
 
         if gallery_form.is_valid():
-            gallery = gallery_form.save()
+            gallery = gallery_form.save(commit=False)
+            doctor = Doctor.objects.get(user=request.user)
+            gallery.doctor = doctor
+            gallery.save()
         
             images = request.FILES.getlist('image')  
             for img in images:
@@ -57,8 +62,12 @@ class UpdateGalleryView(View):
     form_class_gallery = GalleryForm
 
     def dispatch(self, request, *args, **kwargs):
+        gallery = get_object_or_404(Gallery, pk=kwargs['pk'])
         if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
+            if request.user.is_superuser or request.user == gallery.doctor.user:
+                return super().dispatch(request, *args, **kwargs)
+            else:
+                raise PermissionDenied("شما اجازه دسترسی ندارید.")
         raise Http404("صفحه مورد نظر یافت نشد.")
 
     def get(self, request, *args, **kwargs):
@@ -119,8 +128,12 @@ class DeleteGalleryView(View):
     template_name = 'gallery/delete_gallery.html'
 
     def dispatch(self, request, *args, **kwargs):
+        gallery = get_object_or_404(Gallery, pk=kwargs['pk'])
         if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
+            if request.user.is_superuser or request.user == gallery.doctor.user:
+                return super().dispatch(request, *args, **kwargs)
+            else:
+                raise PermissionDenied("شما اجازه دسترسی ندارید.")
         raise Http404("صفحه مورد نظر یافت نشد.")
 
     def get(self, request, *args, **kwargs):

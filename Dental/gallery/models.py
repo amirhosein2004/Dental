@@ -1,8 +1,12 @@
 from django.db import models
 from core.models import Category
+from dashboard.models import Doctor
 
 class Gallery(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name='galleries') 
+    doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, related_name='doctor_galleries', null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, related_name='galleries', null=True, blank=True) 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.category} - {self.id}"

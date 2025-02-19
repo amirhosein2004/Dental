@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="text-center text-primary mb-4">مدیریت اطلاعات</h1>
+
+  <!-- بخش مطب‌ها -->
+  <section class="management-section mb-4">
+    <h2 class="section-title">
+      مطب‌ها
+      <a href="{% url 'core:add_clinic' %}" class="btn btn-success btn-sm float-left">+ افزودن مطب</a>
+    </h2>
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="clinicDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        انتخاب مطب
+      </button>
+      <div class="dropdown-menu w-100" aria-labelledby="clinicDropdownButton">
+        {% if clinic %}
+          <a class="dropdown-item" href="{% url 'core:detail_clinic' clinic.id %}">{{ clinic.name }}</a>
+        {% else %}
+          <span class="dropdown-item no-data">هیچ مطبی ثبت نشده است.</span>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- بخش خدمات -->
+  <section class="management-section mb-4">
+    <h2 class="section-title">
+      خدمات
+      <a href="{% url 'service:add_service' %}" class="btn btn-success btn-sm float-left">+ افزودن خدمت</a>
+    </h2>
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="serviceDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        انتخاب خدمت
+      </button>
+      <div class="dropdown-menu w-100" aria-labelledby="serviceDropdownButton">
+        {% for service in services %}
+          <a class="dropdown-item" href="{% url 'service:service_detail' service.id %}">{{ service.title }}</a>
+        {% empty %}
+          <span class="dropdown-item no-data">هیچ خدمتی ثبت نشده است.</span>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- بخش دسته‌بندی‌ها -->
+  <section class="management-section mb-4">
+    <h2 class="section-title">
+      دسته‌بندی‌ها
+      <a href="{% url 'core:add_category' %}" class="btn btn-success btn-sm float-left">+ افزودن دسته‌بندی</a>
+    </h2>
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="categoryDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        انتخاب دسته‌بندی
+      </button>
+      <div class="dropdown-menu w-100" aria-labelledby="categoryDropdownButton">
+        {% for category in categories %}
+          <a class="dropdown-item" href="#">{{ category.name }}</a>
+        {% empty %}
+          <span class="dropdown-item no-data">هیچ دسته‌بندی ثبت نشده است.</span>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- بخش ساعات کاری -->
+  <section class="management-section mb-4">
+    <h2 class="section-title">
+      ساعات کاری
+      <a href="{% url 'contact:add_workinghours' %}" class="btn btn-success btn-sm float-left">+ افزودن ساعت کاری</a>
+    </h2>
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="workingHoursDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        انتخاب ساعت کاری
+      </button>
+      <div class="dropdown-menu w-100" aria-labelledby="workingHoursDropdownButton">
+        {% for wh in working_hours %}
+          <a class="dropdown-item" href="{% url 'contact:detail_workinghours' wh.id %}">
+            <span class="day-label">{{ wh.get_day_display }}</span>:
+            {% if wh.morning_start and wh.morning_end %}
+              <span class="working-time">{{ wh.morning_start }}:00 - {{ wh.morning_end }}:00</span>
+            {% else %}
+              <span class="off-time">تعطیل در صبح</span>
+            {% endif %}
+            {% if wh.evening_start and wh.evening_end %}
+              <span class="working-time"> | {{ wh.evening_start }}:00 - {{ wh.evening_end }}:00</span>
+            {% else %}
+              <span class="off-time">| تعطیل در عصر</span>
+            {% endif %}
+          </a>
+        {% empty %}
+          <span class="dropdown-item no-data">هیچ ساعت کاری ثبت نشده است.</span>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- بخش پیام‌ها -->
+  <section class="management-section mb-4">
+    <h2 class="section-title">
+      پیام‌ها
+      <a href="{% url 'contact:messages' %}" class="btn btn-success btn-sm float-left">پیام‌ها</a>
+    </h2>
+  </section>
+</div>
+
+<style>
+  /* Container & Global Styles */
+  .container {
+    max-width: 800px;
+  }
+
+  .management-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    color: #007bff;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .btn-add {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
+
+  /* Dropdown Styles */
+  .dropdown-toggle {
+    text-align: left;
+    width: 100%;
+  }
+
+  .dropdown-menu {
+    width: 100%;
+    display: block;
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    position: relative !important;
+  }
+
+  .dropdown.show .dropdown-menu {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+
+  .dropdown-item {
+    text-align: right;
+    padding: 10px 15px;
+  }
+
+  .dropdown-item.no-data {
+    color: #999;
+    font-style: italic;
+  }
+
+  .working-time {
+    color: #28a745;
+  }
+
+  .off-time {
+    color: #dc3545;
+  }
+  
+  /* Adjust dropdown spacing when open */
+  .dropdown.show {
+    margin-bottom: 120px;
+  }
+
+  /* Media Queries */
+  @media (max-width: 768px) {
+    .container {
+      padding: 10px;
+    }
+    .management-section {
+      margin-bottom: 20px;
+    }
+  }
+</style>
+
+<!-- jQuery & Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $(".dropdown-toggle").click(function () {
+      var parentSection = $(this).closest(".management-section");
+      
+      // Close dropdowns in other sections
+      $(".management-section").not(parentSection).removeClass("dropdown-open");
+      
+      // Toggle current dropdown open/close
+      parentSection.toggleClass("dropdown-open");
+    });
+    
+    // Close dropdown when clicking outside
+    $(window).click(function(event) {
+      if(!$(event.target).closest('.dropdown').length) {
+        $(".management-section").removeClass("dropdown-open");
+      }
+    });
+  });
+</script>
+{% endblock %}
+

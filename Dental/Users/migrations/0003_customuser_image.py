@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Users', '0002_customuser_groups_customuser_user_permissions'),
+        ('users', '0002_customuser_groups_customuser_user_permissions'),
     ]
 
     operations = [

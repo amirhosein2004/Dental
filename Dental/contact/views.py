@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import Http404
 from .models import WorkingHours, ContactMessage
-from about.models import Clinic
+from core.models import Clinic
 from .forms import WorkingHoursForm, ContactMessageForm
 
 class ContactView(View):
@@ -69,7 +69,7 @@ class MarkAsReadView(View):
         message = get_object_or_404(ContactMessage, id=kwargs['pk'])
         message.is_read = True
         message.save()
-        return redirect('contact:contact_messages')
+        return redirect('contact:messages')
     
 class MarkAllAsReadView(View):
     """علامت‌گذاری همه پیام‌های خوانده‌نشده به عنوان خوانده‌شده"""
@@ -81,7 +81,7 @@ class MarkAllAsReadView(View):
 
     def get(self, request, *args, **kwargs):
         ContactMessage.objects.filter(is_read=False).update(is_read=True)
-        return redirect('contact:contact_messages') 
+        return redirect('contact:messages') 
 
 class DetailWorkingHoursView(View):
     template_name = 'contact/detail_working_hours.html'
@@ -119,7 +119,7 @@ class AddWorkingHoursView(View):
         if form.is_valid():
             form.save()
             messages.success(request, 'ساعات کاری با موفقیت اضافه شد.')
-            return redirect('about:edit_about')
+            return redirect('core:manage')
 
         messages.error(request, 'روز را قبلا وارد کرد اید.')
         return render(request, self.template_name, {'form': form})
@@ -148,7 +148,7 @@ class UpdateWorkingHoursView(View):
         if form.is_valid():
             form.save()
             messages.success(request, ' working hours updated successfully.')
-            return redirect('about:edit_about')
+            return redirect('core:manage')
         context = {
             'form': form,
             'working_hours': working_hours
@@ -174,4 +174,4 @@ class DeleteWorkingHoursView(View):
         working_hours = WorkingHours.objects.get(pk=kwargs['pk'])
         working_hours.delete()
         messages.success(request, 'working hours deleted successfully.')
-        return redirect('about:edit_about')
+        return redirect('core:manage')

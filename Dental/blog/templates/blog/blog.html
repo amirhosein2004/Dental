@@ -36,7 +36,6 @@
                 <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-hover">
                     <i class="fas fa-search me-2"></i> فیلتر
                 </button>
-
             </div>
         </div>
     </form>
@@ -53,7 +52,7 @@
                     {% endif %}
                     <div class="position-absolute top-0 start-0 m-3">
                         <span class="badge bg-primary opacity-90">
-                            <i class="fas fa-calendar-alt me-2"></i>{{ blog.updated_at|date:"Y/m/d" }}
+                            <i class="fas fa-calendar-alt me-2"></i>{{ blog.get_updated_at_jalali }}
                         </span>
                     </div>
                 </div>
@@ -62,7 +61,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div>
                             <p class="mb-0 small text-muted">نویسنده</p>
-                            <p class="mb-0 fw-bold">{{ blog.writer.first_name }} {{ blog.writer.last_name }}</p>
+                            <p class="mb-0 fw-bold">{{ blog.writer.user.first_name }} {{ blog.writer.user.last_name }}</p>
                         </div>
                         <div class="text-end">
                             {% for category in blog.categories.all %}

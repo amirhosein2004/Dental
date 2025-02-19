@@ -2,9 +2,8 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.http import Http404
 from django.contrib import messages
-from .forms import CategoryForm
-from .models import Category
-
+from core.forms import CategoryForm
+from core.models import Category
 
 class CategoryView(View):
     form_class = CategoryForm
@@ -29,6 +28,10 @@ class AddCategoryView(View):
             return super().dispatch(request, *args, **kwargs)
         raise Http404("صفحه مورد نظر یافت نشد.")
     
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+    
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
@@ -51,4 +54,3 @@ class RemoveCategoryView(View):
         category.delete()
         messages.success(request, "دسته‌بندی با موفقیت حذف شد.")
         return redirect('core:category')
-        

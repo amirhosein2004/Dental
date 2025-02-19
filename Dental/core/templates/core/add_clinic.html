@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center">ویرایش اطلاعات کلینیک</h2>
+    <h2 class="text-center">افزودن کلینیک جدید</h2>
 
     <div class="card p-4 shadow-sm">
         <form method="post" enctype="multipart/form-data">
@@ -33,8 +33,8 @@
                 {{ form.image }}
             </div>
 
-            <button type="submit" class="btn btn-success">بروزرسانی</button>
-            <a href="{% url 'about:detail_clinic' clinic.id %}" class="btn btn-secondary">بازگشت</a>
+            <button type="submit" class="btn btn-primary">ثبت کلینیک</button>
+            <a href="{% url 'core:manage' %}" class="btn btn-secondary">بازگشت</a>
         </form>
     </div>
 </div>

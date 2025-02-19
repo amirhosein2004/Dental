@@ -6,6 +6,7 @@ from .forms import BlogPostForm
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from .filters import BlogPostFilter
+from dashboard.models import Doctor
 
 class BlogView(View):
     filter_class = BlogPostFilter
@@ -38,7 +39,8 @@ class CreateBlogView(View):
         form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
             blog = form.save(commit=False)
-            blog.writer = request.user
+            doctor = Doctor.objects.get(user=request.user)
+            blog.writer = doctor
             blog.save()
             messages.success(request, "بلاگ جدید با موفقیت ایجاد شد.")
             return redirect('blog:blog')

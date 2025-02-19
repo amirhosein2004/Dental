@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% for doctor in doctors %}
+
+<a href="{% url 'dashboard:dashboard_doctor' doctor.id %}"> {{doctor.user.first_name}} {{doctor.user.last_name}}</a>
+
+{% endfor %}
+
+{% endblock %}

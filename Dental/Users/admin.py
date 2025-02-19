@@ -20,3 +20,4 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ('is_staff', 'is_superuser', 'is_doctor')
 
 admin.site.register(CustomUser, UserAdmin)
+
