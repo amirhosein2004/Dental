@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'gallery',
     'contact',
     'dashboard',
+    'accounts',
 
     # Third-party apps
     'django_filters',

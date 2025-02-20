@@ -29,7 +29,7 @@ urlpatterns = [
     path('gallery/', include('gallery.urls')),
     path('contact/', include('contact.urls')),
     path('dashboard/', include('dashboard.urls')),
-    # path('auth/', include('users.urls')),
+    path('auth/', include('accounts.urls')),
 ]
 
 if settings.DEBUG:

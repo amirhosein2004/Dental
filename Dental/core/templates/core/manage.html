@@ -24,26 +24,6 @@
     </div>
   </section>
 
-  <!-- بخش خدمات -->
-  <section class="management-section mb-4">
-    <h2 class="section-title">
-      خدمات
-      <a href="{% url 'service:add_service' %}" class="btn btn-success btn-sm float-left">+ افزودن خدمت</a>
-    </h2>
-    <div class="dropdown">
-      <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="serviceDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        انتخاب خدمت
-      </button>
-      <div class="dropdown-menu w-100" aria-labelledby="serviceDropdownButton">
-        {% for service in services %}
-          <a class="dropdown-item" href="{% url 'service:service_detail' service.id %}">{{ service.title }}</a>
-        {% empty %}
-          <span class="dropdown-item no-data">هیچ خدمتی ثبت نشده است.</span>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-
   <!-- بخش دسته‌بندی‌ها -->
   <section class="management-section mb-4">
     <h2 class="section-title">

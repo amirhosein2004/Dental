@@ -11,10 +11,10 @@ class WorkingHoursForm(forms.ModelForm):
         fields = ['day', 'morning_start', 'morning_end', 'evening_start', 'evening_end']
         widgets = {
             'day': forms.Select(attrs={'class': 'form-control'}),
-            'morning_start': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23}),
-            'morning_end': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23}),
-            'evening_start': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23}),
-            'evening_end': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23}),
+            'morning_start': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23, 'placeholder': 'اگر چیزی وارد نکنید تعطیل ثبت میشود'}),
+            'morning_end': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23,'placeholder': 'اگر چیزی وارد نکنید تعطیل ثبت میشود'}),
+            'evening_start': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23, 'placeholder': 'اگر چیزی وارد نکنید تعطیل ثبت میشود'}),
+            'evening_end': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 23, 'placeholder': 'اگر چیزی وارد نکنید تعطیل ثبت میشود'}),
         }
 
     # def clean_day(self):
