@@ -7,6 +7,10 @@ from captcha.widgets import ReCaptchaV2Checkbox
 User = get_user_model()
 
 class DoctorLoginForm(forms.Form):
+    """
+    Form for doctor login with username, password, and captcha validation.
+    Includes a honeypot field to prevent spam.
+    """
     username = forms.CharField(
         max_length=150,
         validators=[RegexValidator(
@@ -27,7 +31,7 @@ class DoctorLoginForm(forms.Form):
         widget=ReCaptchaV2Checkbox(),
         error_messages={'required': "لطفاً کپچا رو تکمیل کن"}
     )
-    # honeypot field to prevent spam
+    # Honeypot field to prevent spam
     MyLoveDoctor = forms.CharField( 
         required=False,
         widget=forms.HiddenInput(attrs={'tabindex': '-1', 'autocomplete': 'off'}),
@@ -35,6 +39,9 @@ class DoctorLoginForm(forms.Form):
     )
 
     def clean(self):
+        """
+        Custom clean method to authenticate the user and check if the user is a doctor.
+        """
         cleaned_data = super().clean()
         username = cleaned_data.get("username")
         password = cleaned_data.get("password")
@@ -49,12 +56,19 @@ class DoctorLoginForm(forms.Form):
         return cleaned_data
     
     def clean_MyLoveDoctor(self):
+        """
+        Custom clean method for the honeypot field to detect suspicious activity.
+        """
         MyLoveDoctor = self.cleaned_data.get('MyLoveDoctor')
         if MyLoveDoctor:
             raise ValidationError("فعالیت مشکوک تشخیص داده شد!")
         return MyLoveDoctor
         
 class VerifyOTPForm(forms.Form):
+    """
+    Form for verifying OTP with captcha validation.
+    Includes a honeypot field to prevent spam.
+    """
     otp = forms.CharField(
         label="کد تأیید",
         max_length=6,
@@ -69,7 +83,7 @@ class VerifyOTPForm(forms.Form):
         widget=ReCaptchaV2Checkbox(),
         error_messages={'required': "لطفاً کپچا رو تکمیل کن"}
     )
-    # honeypot field to prevent spam
+    # Honeypot field to prevent spam
     MyLoveDoctor = forms.CharField(
         required=False,
         widget=forms.HiddenInput(attrs={'tabindex': '-1', 'autocomplete': 'off'}),
@@ -77,17 +91,24 @@ class VerifyOTPForm(forms.Form):
     )
 
     def clean_MyLoveDoctor(self):
+        """
+        Custom clean method for the honeypot field to detect suspicious activity.
+        """
         MyLoveDoctor = self.cleaned_data.get('MyLoveDoctor')
         if MyLoveDoctor:
             raise ValidationError("فعالیت مشکوک تشخیص داده شد!")
         return MyLoveDoctor
 
 class PasswordResetCaptchaForm(PasswordResetForm):
+    """
+    Form for password reset with captcha validation.
+    Includes a honeypot field to prevent spam.
+    """
     captcha = ReCaptchaField(
         widget=ReCaptchaV2Checkbox(),
         error_messages={'required': "لطفاً کپچا رو تکمیل کن"}
     ) 
-    # honeypot field to prevent spam
+    # Honeypot field to prevent spam
     MyLoveDoctor = forms.CharField(
         required=False,
         widget=forms.HiddenInput(attrs={'tabindex': '-1', 'autocomplete': 'off'}),
@@ -95,6 +116,9 @@ class PasswordResetCaptchaForm(PasswordResetForm):
     )
     
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the form and update the email field attributes and error messages.
+        """
         super().__init__(*args, **kwargs)
         self.fields['email'].widget.attrs.update({
             'class': 'form-control',
@@ -107,17 +131,24 @@ class PasswordResetCaptchaForm(PasswordResetForm):
         })
 
     def clean_MyLoveDoctor(self):
+        """
+        Custom clean method for the honeypot field to detect suspicious activity.
+        """
         MyLoveDoctor = self.cleaned_data.get('MyLoveDoctor')
         if MyLoveDoctor:
             raise ValidationError("فعالیت مشکوک تشخیص داده شد!")
         return MyLoveDoctor
 
 class SetPasswordCaptchaForm(SetPasswordForm):
+    """
+    Form for setting a new password with captcha validation.
+    Includes a honeypot field to prevent spam.
+    """
     captcha = ReCaptchaField(
         widget=ReCaptchaV2Checkbox(),
         error_messages={'required': "لطفاً کپچا رو تکمیل کن"}
     )
-    # honeypot field to prevent spam
+    # Honeypot field to prevent spam
     MyLoveDoctor = forms.CharField(
         required=False,
         widget=forms.HiddenInput(attrs={'tabindex': '-1', 'autocomplete': 'off'}),
@@ -131,7 +162,11 @@ class SetPasswordCaptchaForm(SetPasswordForm):
         'password_entirely_numeric': "رمز عبورت نباید فقط عدد باشه",
         'password_too_similar': "رمز عبورت نباید خیلی شبیه اطلاعات شخصی دیگه‌ات باشه",
     }
+    
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the form and update the new password fields attributes and error messages.
+        """
         super().__init__(*args, **kwargs)
         self.fields['new_password1'].widget.attrs.update({
             'class': 'form-control',
@@ -149,11 +184,14 @@ class SetPasswordCaptchaForm(SetPasswordForm):
         self.fields['new_password2'].error_messages.update({
             'required': "لطفاً تکرار رمز عبور رو وارد کن"
         })
-        # غیرفعال کردن کمک‌متن پیش‌فرض
+        # Disable default help text
         self.fields['new_password1'].help_text = ""
         self.fields['new_password2'].help_text = ""
     
     def clean_MyLoveDoctor(self):
+        """
+        Custom clean method for the honeypot field to detect suspicious activity.
+        """
         MyLoveDoctor = self.cleaned_data.get('MyLoveDoctor')
         if MyLoveDoctor:
             raise forms.ValidationError("فعالیت مشکوک تشخیص داده شد!")

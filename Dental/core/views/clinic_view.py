@@ -4,6 +4,9 @@ from core.models import Clinic
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 
 class DetailClinicView(DoctorOrSuperuserRequiredMixin, View):
+    """
+    View to display the details of a specific clinic.
+    """
     template_name = 'core/detail_clinic.html'
               
     def get(self, request, *args, **kwargs):
@@ -12,6 +15,9 @@ class DetailClinicView(DoctorOrSuperuserRequiredMixin, View):
         return render(request, self.template_name, context)
 
 class AddClinicView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    """
+    View to handle the addition of a new clinic.
+    """
     template_name = 'core/add_clinic.html'
     form_class = ClinicForm
     
@@ -27,16 +33,20 @@ class AddClinicView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
             form.save()
             messages.success(request, 'کلینیک با موفقیت اضافه شد')
             return redirect('core:manage')
-        # else:
-        #     messages.error(request, "خطا در ایجاد مطب. لطفاً دوباره امتحان کنید") 
         
         return render(request, self.template_name, context)
 
 class UpdateClinicView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    """
+    View to handle the update of an existing clinic.
+    """
     template_name = 'core/update_clinic.html'
     form_class = ClinicForm
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        Override dispatch to get the clinic object before handling the request.
+        """
         self.clinic = get_object_or_404(Clinic, pk=kwargs['pk'])
         return super().dispatch(request, *args, **kwargs) 
         
@@ -58,14 +68,19 @@ class UpdateClinicView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
             form.save()
             messages.success(request, 'کلینیک با موفقیت بروز رسانی شد')
             return redirect('core:manage')
-        # else:
-        #     messages.error(request, 'لطفاً اطلاعات را به درستی وارد کنید')
+
         return render(request, self.template_name, context)
 
 class DeleteClinicView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    """
+    View to handle the deletion of an existing clinic.
+    """
     template_name = 'core/delete_clinic.html'
         
     def dispatch(self, request, *args, **kwargs):
+        """
+        Override dispatch to get the clinic object before handling the request.
+        """
         self.clinic = get_object_or_404(Clinic, pk=kwargs['pk'])
         return super().dispatch(request, *args, **kwargs)
 

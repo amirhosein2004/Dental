@@ -1,24 +1,46 @@
-# Project-specific imports from common_imports
 from utils.common_imports import View, render  
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
-# Imports from local models
 from core.models import Category, Clinic  
 from dashboard.models import Doctor  
 from service.models import Service  
 from contact.models import WorkingHours, ContactMessage  
 
 
-
 class ManageView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    """
+    ManageView handles the display of various management-related data for the dental clinic.
+    It ensures that only doctors or superusers can access this view and applies rate limiting.
+    """
     template_name = 'core/manage.html'
          
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to the manage view.
+        
+        Retrieves all instances of Clinic, Doctor, Service, WorkingHours, Category, and ContactMessage
+        and passes them to the template for rendering.
+        
+        Args:
+            request: The HTTP request object.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        
+        Returns:
+            HttpResponse: The rendered template with the context data.
+        """
+        # Retrieve all clinics
         clinics = Clinic.objects.all()
+        # Retrieve all doctors
         doctors = Doctor.objects.all()
+        # Retrieve all services
         services = Service.objects.all()
+        # Retrieve all working hours
         working_hours = WorkingHours.objects.all()
+        # Retrieve all categories
         categories = Category.objects.all()
+        # Retrieve all contact messages
         messages_list = ContactMessage.objects.all()
+        
         context = {
             'clinics': clinics,
             'doctors': doctors,
@@ -27,4 +49,5 @@ class ManageView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
             'categories': categories,
             'messages_list': messages_list
         }
+        
         return render(request, self.template_name, context)

@@ -1,8 +1,10 @@
 from utils.common_imports import forms, ValidationError
 from .models import Service
 
-
 class ServiceForm(forms.ModelForm):
+    """
+    A form for creating and updating Service instances.
+    """
     class Meta:
         model = Service
         fields = ['title', 'description', 'image']
@@ -18,7 +20,7 @@ class ServiceForm(forms.ModelForm):
             }),
             'image': forms.FileInput(attrs={
                 'class': 'form-control',
-                'accept': 'image/jpeg,image/png'  # محدود کردن فرمت‌ها توی مرورگر
+                'accept': 'image/jpeg,image/png'  # Limit file formats in the browser
             }),
         }
         labels = {
@@ -38,9 +40,12 @@ class ServiceForm(forms.ModelForm):
                 'required': "لطفاً تصویر خدمت را آپلود کنید",
             },
         }
+
     def clean_title(self):
+        """
+        Custom validation for the title field to ensure uniqueness.
+        """
         title = self.cleaned_data.get('title')
         if title and Service.objects.exclude(pk=self.instance.pk).filter(title=title).exists():
             raise ValidationError("این عنوان قبلاً ثبت شده است")
         return title
-    

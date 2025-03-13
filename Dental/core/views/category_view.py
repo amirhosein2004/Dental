@@ -4,6 +4,9 @@ from core.models import Category
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 
 class CategoryView(DoctorOrSuperuserRequiredMixin, View):
+    """
+    View to display all categories and a form to add a new category.
+    """
     form_class = CategoryForm
     template_name = 'core/category.html'
 
@@ -14,6 +17,9 @@ class CategoryView(DoctorOrSuperuserRequiredMixin, View):
         return render(request, self.template_name, context)
     
 class AddCategoryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    """
+    View to handle adding a new category.
+    """
     form_class = CategoryForm
     template_name = 'core/add_category.html'
     
@@ -33,10 +39,16 @@ class AddCategoryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
         return render(request, self.template_name, context)
     
 class UpdateCategoryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    """
+    View to handle updating an existing category.
+    """
     form_class = CategoryForm
     template_name = 'core/update_category.html'
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        Override dispatch to get the category object.
+        """
         self.category = get_object_or_404(Category, pk=kwargs['pk'])
         return super().dispatch(request, *args, **kwargs) 
 
@@ -56,9 +68,15 @@ class UpdateCategoryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
         return render(request, self.template_name, context)
 
 class RemoveCategoryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    """
+    View to handle removing an existing category.
+    """
     template_name = 'core/remove_category.html'
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        Override dispatch to get the category object.
+        """
         self.category = get_object_or_404(Category, pk=kwargs['pk'])
         return super().dispatch(request, *args, **kwargs) 
     

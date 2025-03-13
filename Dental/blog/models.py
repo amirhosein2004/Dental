@@ -4,10 +4,12 @@ from utils.validators import validate_image, validate_slug, validate_title, vali
 from core.models import Category
 from dashboard.models import Doctor
 from django.utils.text import slugify
-from googletrans import Translator  # اضافه کردن گوگل ترنسلیت
+from googletrans import Translator  # add google translate
 
 class BlogPost(models.Model):
-    """مدل پست وبلاگ"""
+    """
+    Model for the blogs
+    """
     
     writer = models.ForeignKey(
         Doctor,  
@@ -51,33 +53,38 @@ class BlogPost(models.Model):
         ordering = ['-updated_at']
 
     def save(self, *args, **kwargs):
-        self.full_clean()
+        """
+        Override the save method to include custom validation and slug generation.
+        """
+        self.full_clean()  # Validate the model fields
         with transaction.atomic():
+            # Generate a unique slug if it doesn't exist or if the title has changed
             if not self.slug or (self.pk is None or self.title != BlogPost.objects.get(pk=self.pk).title):
                 self.slug = self._generate_unique_slug()
             try:
-                super().save(*args, **kwargs)
+                super().save(*args, **kwargs)  
             except IntegrityError:
                 raise ValidationError("عنوان تکراری است. لطفاً عنوان دیگری انتخاب کنید")
 
     def _generate_unique_slug(self):
         """
-        تولید اسلاگ یکتا بر اساس عنوان
+        Generate a unique slug based on the title.
         
         Returns:
-            str: اسلاگ یکتا
+            str: Unique slug
         """
         try:
             translator = Translator()
             english_title = translator.translate(self.title, src='fa', dest='en').text
         except Exception as e:
-            # با استفاده از ValidationError می‌توانیم خطا را به سطح ویو منتقل کنیم.
+            # Raise a validation error to be handled at the view level
             raise ValidationError("خطایی رخ داده است. لطفاً بعداً تلاش کنید")
         
-        base_slug = slugify(english_title)[:150]  # محدود کردن طول اولیه
+        base_slug = slugify(english_title)[:150]  # Limit initial length
         unique_slug = base_slug
         counter = 1
         
+        # Ensure the slug is unique
         while BlogPost.objects.filter(slug=unique_slug).exclude(pk=self.pk).exists():
             unique_slug = f"{base_slug}-{counter}"
             counter += 1
@@ -88,13 +95,18 @@ class BlogPost(models.Model):
     @property
     def get_updated_at_jalali(self):
         """
-        تبدیل تاریخ به‌روزرسانی به فرمت شمسی
+        Convert the updated_at date to Jalali format.
         
         Returns:
-            str: تاریخ شمسی در فرمت YYYY/MM
+            str: Jalali date in YYYY/MM format
         """
         return jdatetime.datetime.fromgregorian(datetime=self.updated_at).strftime("%Y/%m")
 
     def __str__(self):
-        """نمایش رشته‌ای پست"""
+        """
+        String representation of the blog post.
+        
+        Returns:
+            str: Title and writer of the blog post
+        """
         return f"{self.title[:50]} - {self.writer or 'بدون نویسنده'}"

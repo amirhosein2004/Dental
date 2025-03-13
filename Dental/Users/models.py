@@ -10,6 +10,9 @@ from .managers import CustomUserManager
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    """
+    Custom user model that extends AbstractBaseUser and PermissionsMixin.
+    """
     username = models.CharField(
         max_length=150,
         unique=True,
@@ -51,18 +54,33 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = "کاربران"
 
     def save(self, *args, **kwargs):
+        """
+        Override the save method to ensure full_clean is called before saving.
+        """
         self.full_clean()
         super().save(*args, **kwargs)
         
     @property
     def get_full_name(self):
+        """
+        Returns the full name of the user.
+        """
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
+        """
+        Returns the string representation of the user.
+        """
         return self.username
     
     def has_perm(self, perm, obj=None):
+        """
+        Returns True if the user has the specified permission.
+        """
         return self.is_superuser
 
     def has_module_perms(self, app_label):
+        """
+        Returns True if the user has permissions to view the app `app_label`.
+        """
         return self.is_superuser

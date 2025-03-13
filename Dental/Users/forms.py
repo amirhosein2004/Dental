@@ -1,9 +1,15 @@
 from utils.common_imports import forms, get_user_model, ValidationError
 
+# Get the custom user model
 User = get_user_model()
 
-
 class CustomUserDoctorUpdateForm(forms.ModelForm):
+    """
+    A form for updating doctor user profiles. This form includes fields for
+    image, username, email, first name, and last name. It also includes custom
+    widgets, labels, and error messages for these fields.
+    """
+    
     class Meta:
         model = User
         fields = ['image', 'username', 'email', 'first_name', 'last_name']
@@ -54,12 +60,18 @@ class CustomUserDoctorUpdateForm(forms.ModelForm):
         }
 
     def clean_username(self):
+        """
+        Validate that the username is unique.
+        """
         username = self.cleaned_data.get('username')
         if username and User.objects.exclude(pk=self.instance.pk).filter(username=username).exists():
             raise ValidationError("این نام کاربری قبلاً استفاده شده است")
         return username
 
     def clean_email(self):
+        """
+        Validate that the email is unique.
+        """
         email = self.cleaned_data.get('email')
         if email and User.objects.exclude(pk=self.instance.pk).filter(email=email).exists():
             raise ValidationError("این ایمیل قبلاً ثبت شده است")

@@ -6,6 +6,7 @@ from utils.validators import validate_phone, validate_text, validate_hour
 import jdatetime  
 
 
+# Constants for days of the week in Persian
 DAYS_OF_WEEK = (
     (0, "شنبه"),
     (1, "یک‌شنبه"),
@@ -17,6 +18,9 @@ DAYS_OF_WEEK = (
 )  
 
 class WorkingHours(models.Model):
+    """
+    Model to represent working hours for each day of the week.
+    """
     day = models.IntegerField(
         choices=DAYS_OF_WEEK,
         help_text="روز هفته",
@@ -51,6 +55,9 @@ class WorkingHours(models.Model):
         verbose_name_plural = "ساعات کاری"
 
     def save(self, *args, **kwargs):
+        """
+        Override save method to perform full clean before saving.
+        """
         self.full_clean()
         super().save(*args, **kwargs)
 
@@ -61,13 +68,16 @@ class WorkingHours(models.Model):
         return f"{day_name}: صبح {morning} | عصر {evening}"
 
 class ContactMessage(models.Model):
+    """
+    Model to represent a contact message.
+    """
     name = models.CharField(
         max_length=100,
         validators=[RegexValidator(
         regex=r'^[a-zA-Z0-9\u0600-\u06FF\s\.,!?():;"\'\-]+$',
         message="متن فقط می‌تواند شامل حروف، اعداد و علائم نگارشی رایج باشد"
     )]
-        )
+    )
     phone = models.CharField(
         max_length=20,
         validators=[validate_phone]
@@ -84,12 +94,17 @@ class ContactMessage(models.Model):
         verbose_name_plural = "پیام‌های تماس"
 
     def save(self, *args, **kwargs):
+        """
+        Override save method to perform full clean before saving.
+        """
         self.full_clean()
         super().save(*args, **kwargs)
     
     @property
     def get_created_at_jalali(self):
-        """ تبدیل تاریخ میلادی به شمسی """
+        """
+        Convert Gregorian date to Jalali (Persian) date.
+        """
         if not self.created_at:
             return "نامشخص"
         return jdatetime.datetime.fromgregorian(datetime=self.created_at).strftime("%Y/%m/%d - %H:%M")

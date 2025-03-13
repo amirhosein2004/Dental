@@ -1,5 +1,8 @@
 # Project-specific imports from common_imports
-from utils.common_imports import View, render, redirect, get_object_or_404, messages, PermissionDenied, transaction 
+from utils.common_imports import (View, render, redirect,
+        get_object_or_404, transaction,
+        messages, PermissionDenied
+    ) 
 
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 
@@ -15,8 +18,10 @@ from .forms import GalleryForm, ImageForm
 from .filters import GalleryFilter  
 
 
-
 class GalleryView(RateLimitMixin, View):
+    """
+    View to display the gallery page with a list of galleries and a filter.
+    """
     template_name = 'gallery/gallery.html'
 
     def get(self, request, *args, **kwargs):
@@ -27,6 +32,9 @@ class GalleryView(RateLimitMixin, View):
         return render(request, self.template_name, context)
     
 class AddGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    """
+    View to handle adding a new gallery.
+    """
     template_name = 'gallery/add_gallery.html'
     form_class_image = ImageForm
     form_class_gallery = GalleryForm
@@ -45,7 +53,6 @@ class AddGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
         image_form = self.form_class_image(request.POST, request.FILES)
 
         if gallery_form.is_valid() and image_form.is_valid():
-
             try:
                 with transaction.atomic():
                     gallery = gallery_form.save(commit=False)
@@ -62,8 +69,6 @@ class AddGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
                 return redirect('gallery:gallery_list')
             except Doctor.DoesNotExist:
                 messages.error(request, "شما به‌عنوان پزشک ثبت نشده‌اید و نمی‌توانید گالری اضافه کنید")
-        # else:
-        #     messages.error(request, "لطفاً اطلاعات را به درستی وارد کنید")  
         
         context = {
             'gallery_form': gallery_form,
@@ -72,21 +77,27 @@ class AddGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
         return render(request, self.template_name, context)
     
 class UpdateGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    """
+    View to handle updating an existing gallery.
+    """
     template_name = 'gallery/update_gallery.html'
     form_class_image = ImageForm
     form_class_gallery = GalleryForm
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        Ensure the user has permission to update the gallery.
+        """
         self.gallery = get_object_or_404(
             Gallery.objects.select_related('doctor__user').prefetch_related('images'),
             pk=kwargs['pk']
         )
         if not(request.user.is_superuser or request.user == self.gallery.doctor.user):
-                raise PermissionError("شما فقط می‌توانید گالری‌های خودتان را ویرایش کنید")
+            raise PermissionDenied("شما فقط می‌توانید گالری‌های خودتان را ویرایش کنید")
         return super().dispatch(request, *args, **kwargs)
     
     def get(self, request, *args, **kwargs):
-        gallery_form = self.form_class_gallery(instance=self.gallery)  # برای پر کردن فیلدها با مقادیر فعلی
+        gallery_form = self.form_class_gallery(instance=self.gallery)
         image_form = self.form_class_image()
         context = {
             'gallery_form': gallery_form,
@@ -96,10 +107,10 @@ class UpdateGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        gallery_form = self.form_class_gallery(request.POST, instance=self.gallery)  # دریافت فرم گالری
+        gallery_form = self.form_class_gallery(request.POST, instance=self.gallery)
         image_form = self.form_class_image(request.POST, request.FILES)
 
-        if 'add_images' in request.POST:  # وقتی که دکمه "Add Images" زده شود
+        if 'add_images' in request.POST:
             if image_form.is_valid():
                 images = [
                     Image(gallery=gallery_form, image=img)
@@ -109,22 +120,21 @@ class UpdateGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
                 messages.success(request, "تصاویر جدید با موفقیت اضافه شدند")
                 return redirect('gallery:update_gallery', pk=self.gallery.id)
 
-        if 'delete_all_images' in request.POST:  # وقتی که دکمه "Delete All Images" زده شود
-            self.gallery.images.all().delete()  # حذف تمامی تصاویر گالری
+        if 'delete_all_images' in request.POST:
+            self.gallery.images.all().delete()
             messages.success(request, "تمامی تصاویر گالری حذف شدند")
             return redirect('gallery:update_gallery', pk=self.gallery.id)
 
         if 'change_category' in request.POST:
             if gallery_form.is_valid():
-                gallery_form.save()  # ذخیره تغییرات گالری از جمله تغییر دسته‌بندی
+                gallery_form.save()
                 messages.success(request, "دسته بندی گالری با موفقیت به‌روزرسانی شد")
                 return redirect('gallery:update_gallery', pk=self.gallery.id)
 
-        # حذف یا اضافه کردن تصاویر جدید (در صورت انتخاب)
         if 'delete_image' in request.POST:
             image_id = request.POST.get('image_id')
             image = get_object_or_404(Image, id=image_id, gallery=self.gallery)
-            image.delete()  # حذف تصویر
+            image.delete()
             messages.success(request, "تصویر با موفقیت حذف شد")
             return redirect('gallery:update_gallery', pk=self.gallery.id)
 
@@ -132,14 +142,20 @@ class UpdateGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
             'gallery_form': gallery_form,
             'image_form': image_form,
             'gallery': self.gallery,
-            'images': self.gallery.images.all()  # ارسال دوباره تصاویر برای نمایش
+            'images': self.gallery.images.all()
         }
         return render(request, self.template_name, context)
     
 class DeleteGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    """
+    View to handle deleting a gallery.
+    """
     template_name = 'gallery/delete_gallery.html'
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        Ensure the user has permission to delete the gallery.
+        """
         self.gallery = get_object_or_404(Gallery, pk=kwargs['pk'])
         if not(request.user.is_superuser or request.user == self.gallery.doctor.user):
             raise PermissionDenied("شما فقط می‌توانید گالری‌های خودتان را حذف کنید")

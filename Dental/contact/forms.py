@@ -1,15 +1,15 @@
-# Project-specific imports from common_imports
 from utils.common_imports import forms
 
-# Third-party imports (Django validators and captcha fields/widgets)
 from captcha.fields import ReCaptchaField  
 from captcha.widgets import ReCaptchaV2Checkbox  
 
-# Imports from local models
 from .models import WorkingHours, ContactMessage  
 
 
 class WorkingHoursForm(forms.ModelForm):
+    """
+    Form for managing working hours with validation for morning and evening times.
+    """
     class Meta:
         model = WorkingHours
         fields = ['day', 'morning_start', 'morning_end', 'evening_start', 'evening_end']
@@ -45,27 +45,31 @@ class WorkingHoursForm(forms.ModelForm):
                 'required': "لطفاً روز هفته را انتخاب کنید.",
             },
         }
+
     def clean(self):
-        """اعتبارسنجی فرم"""
+        """
+        Custom validation for the form to ensure that start times are before end times
+        and that both start and end times are provided if one is provided.
+        """
         cleaned_data = super().clean()
         morning_start = cleaned_data.get('morning_start')
         morning_end = cleaned_data.get('morning_end')
         evening_start = cleaned_data.get('evening_start')
         evening_end = cleaned_data.get('evening_end')
 
-        # اعتبارسنجی شیفت صبح
+        # Validate morning shift
         if morning_start is not None and morning_end is not None:
             if morning_start >= morning_end:
                 self.add_error('morning_start', "ساعت شروع صبح باید کمتر از ساعت پایان باشد")
                 self.add_error('morning_end', "ساعت پایان صبح باید بیشتر از ساعت شروع باشد")
 
-        # اعتبارسنجی شیفت عصر
+        # Validate evening shift
         if evening_start is not None and evening_end is not None:
             if evening_start >= evening_end:
                 self.add_error('evening_start', "ساعت شروع عصر باید کمتر از ساعت پایان باشد")
                 self.add_error('evening_end', "ساعت پایان عصر باید بیشتر از ساعت شروع باشد")
 
-        # اگر فقط یکی از شروع یا پایان پر شده باشد
+        # Ensure both start and end times are provided if one is provided
         if morning_start is not None and morning_end is None:
             self.add_error('morning_end', "لطفاً ساعت پایان صبح را وارد کنید")
         if morning_end is not None and morning_start is None:
@@ -77,8 +81,11 @@ class WorkingHoursForm(forms.ModelForm):
 
         return cleaned_data
 
-class ContactMessageForm(forms.ModelForm):
 
+class ContactMessageForm(forms.ModelForm):
+    """
+    Form for submitting contact messages with CAPTCHA and honeypot field for spam prevention.
+    """
     captcha = ReCaptchaField(
         widget=ReCaptchaV2Checkbox(),
         error_messages={
@@ -86,20 +93,21 @@ class ContactMessageForm(forms.ModelForm):
             'invalid': "کپچا نامعتبر است. لطفاً دوباره تلاش کنید",
         }
     )
-    # honeypot field to prevent spam
+    # Honeypot field to prevent spam
     MyLoveDoctor = forms.CharField(
         required=False,
         widget=forms.HiddenInput(attrs={'tabindex': '-1', 'autocomplete': 'off'}),
         label=''
     )
+
     class Meta:
         model = ContactMessage
         fields = ['name', 'phone', 'message']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
-                  'placeholder': 'نام شما',
-                  'autocomplete': 'off',
+                'placeholder': 'نام شما',
+                'autocomplete': 'off',
             }),
             'message': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -109,8 +117,8 @@ class ContactMessageForm(forms.ModelForm):
             }),
             'phone': forms.TextInput(attrs={
                 'class': 'form-control',
-                  'placeholder': 'شماره تماس شما',
-                  'autocomplete': 'off',
+                'placeholder': 'شماره تماس شما',
+                'autocomplete': 'off',
             }),
         }
         error_messages = {
@@ -118,7 +126,11 @@ class ContactMessageForm(forms.ModelForm):
             'phone': {'required': "لطفاً شماره تلفن خود را وارد کنید"},
             'message': {'required': "لطفاً پیام خود را وارد کنید"},
         }
+
     def clean_MyLoveDoctor(self):
+        """
+        Custom validation for the honeypot field to detect and prevent spam.
+        """
         MyLoveDoctor = self.cleaned_data.get('MyLoveDoctor')
         if MyLoveDoctor:
             raise forms.ValidationError("فعالیت مشکوک تشخیص داده شد!")

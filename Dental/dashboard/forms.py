@@ -2,6 +2,9 @@ from utils.common_imports import forms
 from .models import Doctor
 
 class DoctorForm(forms.ModelForm):
+    """
+    A form for creating and updating Doctor instances.
+    """
     class Meta:
         model = Doctor
         fields = ['description', 'twitter', 'instagram', 'telegram', 'linkedin']

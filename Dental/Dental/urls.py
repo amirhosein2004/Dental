@@ -1,27 +1,3 @@
-"""
-URL configuration for the Dental project.
-
-This module routes URL paths to their corresponding views in the Dental project.
-It includes the default Django admin interface, and URL configurations for various apps,
-such as home, blog, about, service, core, gallery, contact, dashboard, and accounts (authentication).
-
-For more information on URL routing, see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-
-Examples:
-
-Function-based views:
-    1. Import: from my_app import views
-    2. URL pattern: path('', views.home, name='home')
-
-Class-based views:
-    1. Import: from other_app.views import Home
-    2. URL pattern: path('', Home.as_view(), name='home')
-
-Including another URL configuration:
-    1. Import include: from django.urls import include, path
-    2. URL pattern: path('blog/', include('blog.urls'))
-"""
 from utils.common_imports import admin, path, include, settings
 from django.conf.urls.static import static
 

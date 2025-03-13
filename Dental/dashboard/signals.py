@@ -8,11 +8,20 @@ from .models import Doctor
 
 @receiver(post_save, sender=CustomUser)
 def create_doctor_profile(sender, instance, created, **kwargs):
+    """
+    Signal receiver that creates or deletes a Doctor profile based on the CustomUser instance.
+
+    Args:
+        sender (class): The model class that sent the signal.
+        instance (CustomUser): The instance of the sender model.
+        created (bool): A boolean indicating whether a new record was created.
+        **kwargs: Additional keyword arguments.
+    """
     if instance.is_doctor:
-        # اگر is_doctor تیک خورده و پروفایل Doctor وجود ندارد، بساز
+        # If the user is marked as a doctor and does not have a Doctor profile, create one.
         if not hasattr(instance, 'doctor'):
             Doctor.objects.create(user=instance)
     else:
-        # اگر is_doctor تیک ندارد و پروفایل Doctor وجود دارد، حذف کن
+        # If the user is not marked as a doctor and has a Doctor profile, delete it.
         if hasattr(instance, 'doctor'):
             instance.doctor.delete()

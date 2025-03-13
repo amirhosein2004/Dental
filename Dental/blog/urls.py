@@ -1,10 +1,3 @@
-"""
-URL configuration for the Blog section.
-
-This module defines the URL patterns for the 'blog' app, handling requests for 
-listing blogs, viewing blog details, creating, updating, and deleting blog posts.
-"""
-
 from utils.common_imports import path
 from .views import BlogView, BlogDetailView, CreateBlogView, UpdateBlogView, DeleteBlogView
 

@@ -2,6 +2,9 @@ from utils.common_imports import forms
 from .models import Category, Clinic
 
 class CategoryForm(forms.ModelForm):
+    """
+    Form for creating and updating Category instances.
+    """
     class Meta:
         model = Category
         fields = ['name']
@@ -17,7 +20,9 @@ class CategoryForm(forms.ModelForm):
         }
 
 class ClinicForm(forms.ModelForm):
-
+    """
+    Form for creating and updating Clinic instances.
+    """
     class Meta:
         model = Clinic
         fields = ['name', 'address', 'phone', 'email', 'description', 'image', 'is_primary']
@@ -54,7 +59,7 @@ class ClinicForm(forms.ModelForm):
             }),
             'image': forms.FileInput(attrs={
                 'class': 'form-control',
-                'accept': 'image/jpeg,image/png',  # فقط JPG و PNG
+                'accept': 'image/jpeg,image/png',  # Restrict file types in the browser
             }),
             'is_primary': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',
@@ -78,4 +83,3 @@ class ClinicForm(forms.ModelForm):
                 'invalid': "لطفاً یک ایمیل معتبر وارد کنید.",
             },
         }
-        

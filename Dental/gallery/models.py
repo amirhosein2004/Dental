@@ -4,6 +4,9 @@ from dashboard.models import Doctor
 from utils.validators import validate_image
 
 class Gallery(models.Model):
+    """
+    Model representing a gallery which can be associated with a doctor and a category.
+    """
     doctor = models.ForeignKey(
         Doctor,
         on_delete=models.SET_NULL,
@@ -25,6 +28,9 @@ class Gallery(models.Model):
         verbose_name_plural = "گالری‌ها"
     
     def save(self, *args, **kwargs):
+        """
+        Override the save method to perform full_clean before saving.
+        """
         self.full_clean()
         super().save(*args, **kwargs)
 
@@ -32,9 +38,22 @@ class Gallery(models.Model):
         return f"category: {self.category.name if self.category else 'بدون دسته‌بندی'} | gallery: {self.id}"
     
 def gallery_image_upload_path(instance, filename):
+    """
+    Generate the upload path for gallery images.
+    
+    Args:
+        instance: The instance of the Image model.
+        filename: The original filename of the uploaded image.
+    
+    Returns:
+        str: The upload path for the image.
+    """
     return f'gallery_images/{instance.gallery.id}/{filename}'
 
 class Image(models.Model):
+    """
+    Model representing an image associated with a gallery.
+    """
     gallery = models.ForeignKey(
         Gallery,
         on_delete=models.CASCADE,
@@ -43,7 +62,7 @@ class Image(models.Model):
     image = models.ImageField(
         upload_to=gallery_image_upload_path, 
         validators=[validate_image]
-        )
+    )
 
     class Meta:
         ordering = ['id']
@@ -51,6 +70,9 @@ class Image(models.Model):
         verbose_name_plural = "تصاویر"
 
     def save(self, *args, **kwargs):
+        """
+        Override the save method to perform full_clean before saving.
+        """
         self.full_clean()
         super().save(*args, **kwargs)
 

@@ -10,6 +10,9 @@ from django.db.models import Q
 
 
 class BlogPostFilter(django_filters.FilterSet):
+    """
+    Filter class for BlogPost model to filter blog posts based on writer, category, and title.
+    """
     writer = django_filters.CharFilter(method='filter_by_writer_name', label='نویسنده')
 
     category = django_filters.ModelMultipleChoiceFilter(
@@ -27,7 +30,17 @@ class BlogPostFilter(django_filters.FilterSet):
         fields = ['writer', 'category', 'title']
 
     def filter_by_writer_name(self, queryset, name, value):
-        """فیلتر کردن بر اساس نام و فامیل نویسنده"""
+        """
+        Filter the queryset by writer's first name or last name.
+
+        Args:
+            queryset: The initial queryset of BlogPost objects.
+            name: The name of the filter field.
+            value: The value to filter by.
+
+        Returns:
+            Filtered queryset containing BlogPost objects where the writer's first name or last name contains the given value.
+        """
         if value:
             return queryset.filter(
                 Q(writer__user__first_name__icontains=value) |
@@ -36,10 +49,30 @@ class BlogPostFilter(django_filters.FilterSet):
         return queryset
 
     def filter_by_categories(self, queryset, name, value):
+        """
+        Filter the queryset by selected categories.
+
+        Args:
+            queryset: The initial queryset of BlogPost objects.
+            name: The name of the filter field.
+            value: The value to filter by.
+
+        Returns:
+            Filtered queryset containing BlogPost objects that belong to the selected categories.
+        """
         if value:
             return queryset.filter(categories__in=value).distinct()
         return queryset
 
     def filter_queryset(self, queryset):
+        """
+        Override the default filter_queryset method to optimize the queryset with select_related and prefetch_related.
+
+        Args:
+            queryset: The initial queryset of BlogPost objects.
+
+        Returns:
+            Optimized queryset with related writer and categories preloaded.
+        """
         queryset = queryset.select_related('writer').prefetch_related('categories')
         return super().filter_queryset(queryset)

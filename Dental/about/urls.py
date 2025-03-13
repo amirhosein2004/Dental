@@ -1,10 +1,8 @@
-from utils.common_imports import path
-from .views import AboutView
+from utils.common_imports import path  # Importing path for defining URL patterns
+from .views import AboutView  
 
-# Define app namespace
-app_name = 'about'
+app_name = 'about'  
 
 urlpatterns = [
-    # About Us main page
-    path('', AboutView.as_view(), name='about'),
+    path('', AboutView.as_view(), name='about'),  
 ]
