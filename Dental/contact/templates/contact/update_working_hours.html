@@ -7,6 +7,17 @@
 
     <form method="POST">
         {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
         <div class="form-group">
             <label for="{{ form.day.id_for_label }}">روز هفته</label>
             {{ form.day }}

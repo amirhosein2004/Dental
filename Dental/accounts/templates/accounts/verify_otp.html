@@ -1,11 +1,131 @@
- {% extends "base.html" %} 
+{% extends 'base.html' %}
 
- {% block content %}
- 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">تأیید کد</button>
-</form>
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-lg border-0 animate__animated animate__fadeIn">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h2 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>تأیید کد OTP
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" id="otpForm" action="{% url 'accounts:verify_otp' %}">
+                        {% csrf_token %}
+                        <!-- فیلد OTP -->
+                        <div class="mb-4">
+                            <label for="{{ form.otp.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-key me-1"></i>{{ form.otp.label }}
+                            </label>
+                            {{ form.otp }}
+                            {% if form.otp.errors %}
+                                <div class="text-danger mt-1">{{ form.otp.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">لطفاً کد ۶ رقمی ارسالی رو وارد کنید.</small>
+                        </div>
 
- {% endblock content %}
+                        <!-- کپچا -->
+                        <div class="mb-4">
+                            {{ form.captcha }}
+                            {% if form.captcha.errors %}
+                                <div class="text-danger mt-1">{{ form.captcha.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- هانی‌پات (مخفی) -->
+                        {{ form.honeypot }}
+
+                        <!-- دکمه تأیید -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block animate__animated animate__pulse animate__infinite" id="submitBtn">
+                                <i class="fas fa-check me-2"></i>تأیید کد
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- ارسال مجدد -->
+                    <div class="text-center mt-4">
+                        <p class="mb-2">کد دریافت نکردید؟</p>
+                        <form action="{% url 'accounts:resend_otp' %}" method="post" style="display:inline;" id="resendForm">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link text-primary fw-bold" id="resendBtn">
+                                <i class="fas fa-redo-alt me-1"></i>
+                                <span id="resendText">
+                                    {% if remaining_seconds > 0 %}
+                                        صبر کنید ({{ remaining_seconds }} ثانیه)
+                                    {% else %}
+                                        ارسال مجدد کد
+                                    {% endif %}
+                                </span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- نمایش پیام موفقیت -->
+                    {% if success_message %}
+                        <p class="text-success mt-2">{{ success_message }}</p>
+                    {% endif %}
+                    {% if messages %}
+                        <ul>
+                        {% for message in messages %}
+                            <li class="{{ message.tags }}">{{ message }}</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- استایل و اسکریپت -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<style>
+    .card { border-radius: 15px; transition: transform 0.3s ease; }
+    .card:hover { transform: translateY(-5px); }
+    .btn-primary { background: linear-gradient(45deg, #007bff, #00b4db); border: none; transition: all 0.3s ease; }
+    .btn-primary:hover { background: linear-gradient(45deg, #0056b3, #0081a7); transform: scale(1.05); }
+    .btn-link { transition: color 0.3s ease; }
+    .btn-link:hover { color: #0056b3 !important; text-decoration: none; }
+    .form-control:focus { border-color: #00b4db; box-shadow: 0 0 5px rgba(0, 180, 219, 0.5); }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const submitBtn = document.querySelector('#submitBtn');
+        const resendBtn = document.querySelector('#resendBtn');
+        const resendText = document.querySelector('#resendText');
+
+        // غیرفعال کردن دکمه تأیید هنگام ارسال
+        document.querySelector('#otpForm').addEventListener('submit', function () {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>در حال بررسی...';
+        });
+
+        // تایمر زنده برای ارسال مجدد
+        document.querySelector('#resendForm').addEventListener('submit', function (e) {
+            resendBtn.disabled = true;
+            resendText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>در حال ارسال...';
+        });
+
+        // شروع تایمر اگه remaining_seconds از سرور اومده باشه
+        {% if remaining_seconds > 0 %}
+            let timeLeft = {{ remaining_seconds }};
+            resendBtn.disabled = true;
+            resendText.textContent = `صبر کنید (${timeLeft} ثانیه)`;
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                resendText.textContent = `صبر کنید (${timeLeft} ثانیه)`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    resendBtn.disabled = false;
+                    resendText.textContent = 'ارسال مجدد کد';
+                }
+            }, 1000);
+        {% endif %}
+    });
+</script>
+{% endblock %}

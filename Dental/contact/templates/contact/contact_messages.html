@@ -9,7 +9,10 @@
         <a href="?filter=all" class="btn btn-secondary {% if filter_status == 'all' %}active{% endif %}">همه پیام‌ها</a>
         <a href="?filter=read" class="btn btn-success {% if filter_status == 'read' %}active{% endif %}">خوانده شده</a>
         <a href="?filter=unread" class="btn btn-danger {% if filter_status == 'unread' %}active{% endif %}">خوانده نشده</a>
-        <a href="{% url 'contact:mark_all_read' %}" class="btn btn-warning">علامت‌گذاری همه به عنوان خوانده‌شده</a>
+        <form action="{% url 'contact:mark_all_read' %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">علامت‌گذاری همه به عنوان خوانده‌شده</button>
+        </form>
     </div>
 
     <!-- نمایش لیست پیام‌ها -->
@@ -25,7 +28,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for message in messagesـlist %}
+            {% for message in messages_list %}
             <tr>
                 <td>{{ message.name }}</td>
                 <td>{{ message.phone }}</td>
@@ -40,8 +43,11 @@
                 </td>
                 <td>
                     {% if not message.is_read %}
-                        <a href="{% url 'contact:mark_as_read' message.id %}" class="btn btn-sm btn-primary">علامت‌گذاری خوانده‌شده</a>
-                    {% else %}
+                        <form action="{% url 'contact:mark_as_read' message.id %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-primary">علامت‌گذاری خوانده‌شده</button>
+                        </form>
+                        {% else %}
                         <span class="text-muted">خوانده‌شده</span>
                     {% endif %}
                 </td>

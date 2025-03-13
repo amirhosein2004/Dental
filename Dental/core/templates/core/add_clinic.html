@@ -5,33 +5,10 @@
     <h2 class="text-center">افزودن کلینیک جدید</h2>
 
     <div class="card p-4 shadow-sm">
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
             
-            <div class="mb-3">
-                <label class="form-label">نام کلینیک:</label>
-                {{ form.name }}
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">آدرس:</label>
-                {{ form.address }}
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">شماره تلفن:</label>
-                {{ form.phone }}
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">توضیحات:</label>
-                {{ form.description }}
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">تصویر کلینیک:</label>
-                {{ form.image }}
-            </div>
+            {{form.as_p}}
 
             <button type="submit" class="btn btn-primary">ثبت کلینیک</button>
             <a href="{% url 'core:manage' %}" class="btn btn-secondary">بازگشت</a>

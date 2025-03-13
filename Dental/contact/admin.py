@@ -1,7 +1,11 @@
-from django.contrib import admin
-from .models import WorkingHours, ContactMessage
-from django.forms import TimeInput
-from django.db import models
+# Project-specific imports from common_imports
+from utils.common_imports import admin, models  
+
+# Imports from local models
+from .models import WorkingHours, ContactMessage  
+
+# Third-party imports (Django forms)
+from django.forms import TimeInput  
 
 
 class WorkingHoursAdmin(admin.ModelAdmin):

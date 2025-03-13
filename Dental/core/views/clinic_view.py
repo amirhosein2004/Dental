@@ -1,100 +1,79 @@
-from django.views import View
-from django.shortcuts import render, redirect
-from django.http import Http404
-from django.contrib import messages
+from utils.common_imports import View, render, redirect, messages, get_object_or_404
 from core.forms import ClinicForm
 from core.models import Clinic
+from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 
-class DetailClinicView(View):
+class DetailClinicView(DoctorOrSuperuserRequiredMixin, View):
     template_name = 'core/detail_clinic.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
-        
+              
     def get(self, request, *args, **kwargs):
-        clinic = Clinic.objects.get(pk=kwargs['pk'])
-        context = {
-            'clinic': clinic,
-        }
+        clinic = get_object_or_404(Clinic, pk=kwargs['pk'])
+        context = {'clinic': clinic}
         return render(request, self.template_name, context)
 
-class AddClinicView(View):
+class AddClinicView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'core/add_clinic.html'
     form_class = ClinicForm
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
     
     def get(self, request, *args, **kwargs):
         form = self.form_class()
-        context = {
-            'form': form,
-        }
+        context = {'form': form}
         return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
+        context = {'form': form}
         if form.is_valid():
             form.save()
-            messages.success(request, 'Clinic added successfully.')
+            messages.success(request, 'کلینیک با موفقیت اضافه شد')
             return redirect('core:manage')
-        context = {
-            'form': form,
-        }
+        # else:
+        #     messages.error(request, "خطا در ایجاد مطب. لطفاً دوباره امتحان کنید") 
+        
         return render(request, self.template_name, context)
 
-class UpdateClinicView(View):
+class UpdateClinicView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'core/update_clinic.html'
     form_class = ClinicForm
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
+        self.clinic = get_object_or_404(Clinic, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs) 
         
     def get(self, request, *args, **kwargs):
-        clinic = Clinic.objects.get(pk=kwargs['pk'])
-        form = self.form_class(instance=clinic)
+        form = self.form_class(instance=self.clinic)
         context = {
             'form': form,
-            'clinic': clinic
+            'clinic': self.clinic,
         }
         return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
-        clinic = Clinic.objects.get(pk=kwargs['pk'])
-        form = self.form_class(request.POST, request.FILES, instance=clinic)
+        form = self.form_class(request.POST, request.FILES, instance=self.clinic)
+        context = {
+            'form': form,
+            'clinic': self.clinic,
+        }
         if form.is_valid():
             form.save()
-            messages.success(request, 'Clinic updated successfully.')
+            messages.success(request, 'کلینیک با موفقیت بروز رسانی شد')
             return redirect('core:manage')
-        context = {
-            'form': form,
-            'clinic': clinic
-        }
+        # else:
+        #     messages.error(request, 'لطفاً اطلاعات را به درستی وارد کنید')
         return render(request, self.template_name, context)
 
-class DeleteClinicView(View):
+class DeleteClinicView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'core/delete_clinic.html'
-
+        
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
+        self.clinic = get_object_or_404(Clinic, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        clinic = Clinic.objects.get(pk=kwargs['pk'])
-        context = {
-            'clinic': clinic,
-        }
+        context = {'clinic': self.clinic,}
         return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
-        clinic = Clinic.objects.get(pk=kwargs['pk'])
-        clinic.delete()
-        messages.success(request, 'Clinic deleted successfully.')
+        self.clinic.delete()
+        messages.success(request, 'کلینیک با موفقیت حذف شد')
         return redirect('core:manage')

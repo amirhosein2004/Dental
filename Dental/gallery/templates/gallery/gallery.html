@@ -13,13 +13,13 @@
 
     <!-- باکس دسته‌بندی‌ها -->
     <div class="category-box mb-4 p-3 text-center bg-light rounded">
-        <a href="{% url 'gallery:gallery' %}?category=" 
+        <a href="{% url 'gallery:gallery_list' %}?category=" 
            class="btn btn-outline-primary {% if not request.GET.category %}active{% endif %}">
             همه دسته‌بندی‌ها
         </a>
         {% for category in categories %}
-        <a href="{% url 'gallery:gallery' %}?category={{ category.id }}" 
-           class="btn btn-outline-primary {% if request.GET.category == category.id|stringformat:"s" %}active{% endif %}">
+        <a href="{% url 'gallery:gallery_list' %}?category={{ category.id }}" 
+           class="btn btn-outline-primary {% if request.GET.category == category.id|stringformat:'s' %}active{% endif %}">
             {{ category.name }}
         </a>
         {% endfor %}

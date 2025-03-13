@@ -1,177 +1,149 @@
-from django.views import View
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.http import Http404
-from .models import WorkingHours, ContactMessage
-from core.models import Clinic
-from .forms import WorkingHoursForm, ContactMessageForm
+# Project-specific imports from common_imports
+from utils.common_imports import View, render, redirect, get_object_or_404, messages  
+from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 
-class ContactView(View):
+# Imports from local models
+from .models import WorkingHours, ContactMessage  
+
+# Imports from other apps in the project
+from core.models import Clinic  
+
+# Imports from local forms
+from .forms import WorkingHoursForm, ContactMessageForm  
+
+class ContactView(RateLimitMixin, View):
     template_name = 'contact/contact.html'
     form_class = ContactMessageForm
 
+    def dispatch(self, request, *args, **kwargs):
+        self.clinic = Clinic.objects.filter(is_primary=True).first()
+        self.workinghours = WorkingHours.objects.all()
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
-        clinic = Clinic.objects.first()
-        workinghours = WorkingHours.objects.all()
         form = self.form_class()
-        contex = {
-            'clinic': clinic,
-            'workinghours': workinghours,
+        context = {
+            'clinic': self.clinic,
+            'workinghours': self.workinghours,
             'form': form, 
         }
-        return render(request, self.template_name, contex)    
+        return render(request, self.template_name, context)    
     
     def post(self, request, *args, **kwargs):
-        clinic = Clinic.objects.first()
-        workinghours = WorkingHours.objects.all()
         form = self.form_class(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'پیام شما با موفقیت ارسال شد.')
-            return redirect('contact:contact')
-        else:
-            messages.error(request, 'لطفاً اطلاعات را به درستی وارد کنید.')
         context = {
-            'clinic': clinic,
-            'workinghours': workinghours,
+            'clinic': self.clinic,
+            'workinghours': self.workinghours,
             'form': form,
         }
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'پیام شما با موفقیت ارسال شد')
+            return redirect('contact:contact')
+        # else:
+        #     messages.error(request, 'لطفاً اطلاعات را به درستی وارد کنید')
         return render(request, self.template_name, context)
     
-class ContactMessagesView(View):
+class ContactMessagesView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'contact/contact_messages.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
-    
+        
     def get(self, request, *args, **kwargs):
         filter_status = request.GET.get('filter', 'all')  
-        messagesـlist = ContactMessage.objects.all().order_by('-created_at')
+        messages_list = ContactMessage.objects.all()
 
         # فیلتر پیام‌ها بر اساس وضعیت خوانده‌شده
         if filter_status == 'read':
-            messagesـlist = messagesـlist.filter(is_read=True)
+            messages_list = messages_list.filter(is_read=True)
         elif filter_status == 'unread':
-            messagesـlist = messagesـlist.filter(is_read=False)
-
-        return render(request, self.template_name, {'messagesـlist': messagesـlist, 'filter_status': filter_status})
-
-class MarkAsReadView(View):
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
-    
-    def get(self, request, *args, **kwargs):
-        message = get_object_or_404(ContactMessage, id=kwargs['pk'])
-        message.is_read = True
-        message.save()
-        return redirect('contact:messages')
-    
-class MarkAllAsReadView(View):
-    """علامت‌گذاری همه پیام‌های خوانده‌نشده به عنوان خوانده‌شده"""
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
-
-    def get(self, request, *args, **kwargs):
-        ContactMessage.objects.filter(is_read=False).update(is_read=True)
-        return redirect('contact:messages') 
-
-class DetailWorkingHoursView(View):
-    template_name = 'contact/detail_working_hours.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
-        
-    def get(self, request, *args, **kwargs):
-        working_hours = WorkingHours.objects.get(pk=kwargs['pk'])
-        context = {
-            'working_hours': working_hours,
-        }
+            messages_list = messages_list.filter(is_read=False)
+        context = {'messages_list': messages_list, 'filter_status': filter_status}
         return render(request, self.template_name, context)
 
-class AddWorkingHoursView(View):
+class MarkAsReadView(DoctorOrSuperuserRequiredMixin, View):
+    
+    def post(self, request, *args, **kwargs):
+        message = get_object_or_404(ContactMessage, id=kwargs['pk'])
+        message.is_read = True
+        message.save(update_fields=['is_read'])
+        return redirect('contact:messages')
+    
+class MarkAllAsReadView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    """علامت‌گذاری همه پیام‌های خوانده‌نشده به عنوان خوانده‌شده"""
+
+    def post(self, request, *args, **kwargs):
+        updated = ContactMessage.objects.filter(is_read=False).update(is_read=True)
+        messages.success(request, f"پیام با موفقیت علامت‌گذاری شدند {updated}")
+        return redirect('contact:messages')
+
+class DetailWorkingHoursView(DoctorOrSuperuserRequiredMixin, View):
+    template_name = 'contact/detail_working_hours.html'
+        
+    def get(self, request, *args, **kwargs):
+        working_hours = get_object_or_404(WorkingHours, id=kwargs['pk'])
+        context = {'working_hours': working_hours}
+        return render(request, self.template_name, context)
+
+class AddWorkingHoursView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'contact/add_working_hours.html'
     form_class = WorkingHoursForm
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
     
     def get(self, request, *args, **kwargs):
         form = self.form_class()
-        context = {
-            'form': form,
-        }
-        return render(request, self.template_name, context)
+        return render(request, self.template_name, {'form': form})
     
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'ساعات کاری با موفقیت اضافه شد.')
+            messages.success(request, 'ساعت کاری با موفقیت اضافه شد')
             return redirect('core:manage')
-
-        messages.error(request, 'روز را قبلا وارد کرد اید.')
+        # else:
+        #     messages.error(request, 'خطایی پیش آمده لطفا اطلاعات را بررسی کنید')
         return render(request, self.template_name, {'form': form})
-    
-class UpdateWorkingHoursView(View):
+        
+class UpdateWorkingHoursView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'contact/update_working_hours.html'
     form_class = WorkingHoursForm
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
+        self.working_hours = get_object_or_404(WorkingHours, id=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+        
         
     def get(self, request, *args, **kwargs):
-        working_hours = WorkingHours.objects.get(pk=kwargs['pk'])
-        form = self.form_class(instance=working_hours)
+        form = self.form_class(instance=self.working_hours)
         context = {
             'form': form,
-            'working_hours': working_hours
+            'working_hours': self.working_hours
         }
         return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
-        working_hours = WorkingHours.objects.get(pk=kwargs['pk'])
-        form = self.form_class(request.POST, instance=working_hours)
-        if form.is_valid():
-            form.save()
-            messages.success(request, ' working hours updated successfully.')
-            return redirect('core:manage')
+        form = self.form_class(request.POST, instance=self.working_hours)
         context = {
             'form': form,
-            'working_hours': working_hours
+            'working_hours': self.working_hours
         }
+        if form.is_valid():
+            form.save()
+            messages.success(request, ' ساعات کاری با موفقیت بروز شد')
+            return redirect('core:manage')
+        # else:
+        #     messages.error(request, 'مشکلی در بروزرسانی ساعات کاری رخ داد لطفا اطلاعات را درست وارد کنید.')
         return render(request, self.template_name, context)
     
-class DeleteWorkingHoursView(View):
+class DeleteWorkingHoursView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'contact/delete_working_hours.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
+        self.working_hours = get_object_or_404(WorkingHours, id=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        working_hours = WorkingHours.objects.get(pk=kwargs['pk'])
-        context = {
-            'working_hours': working_hours,
-        }
+        context = {'working_hours': self.working_hours,}
         return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
-        working_hours = WorkingHours.objects.get(pk=kwargs['pk'])
-        working_hours.delete()
-        messages.success(request, 'working hours deleted successfully.')
+        self.working_hours.delete()
+        messages.success(request, "ساعات کاری با موفقیت حذف شد")
         return redirect('core:manage')

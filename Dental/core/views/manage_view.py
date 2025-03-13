@@ -1,30 +1,26 @@
-from django.views import View
-from django.shortcuts import render, redirect
-from django.http import Http404
-from django.contrib import messages
-from core.models import Category, Clinic
-from dashboard.models import Doctor
-from service.models import Service
-from contact.models import WorkingHours, ContactMessage
+# Project-specific imports from common_imports
+from utils.common_imports import View, render  
+from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
+# Imports from local models
+from core.models import Category, Clinic  
+from dashboard.models import Doctor  
+from service.models import Service  
+from contact.models import WorkingHours, ContactMessage  
 
 
-class ManageView(View):
+
+class ManageView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'core/manage.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
-    
+         
     def get(self, request, *args, **kwargs):
-        clinic = Clinic.objects.first()
+        clinics = Clinic.objects.all()
         doctors = Doctor.objects.all()
         services = Service.objects.all()
         working_hours = WorkingHours.objects.all()
         categories = Category.objects.all()
         messages_list = ContactMessage.objects.all()
         context = {
-            'clinic': clinic,
+            'clinics': clinics,
             'doctors': doctors,
             'services': services,
             'working_hours': working_hours, 

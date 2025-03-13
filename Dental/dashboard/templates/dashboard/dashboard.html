@@ -1,6 +1,269 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <ul>
+      <li><a href="#" class="menu-link active" data-target="profile-section">📁 پروفایل پزشک</a></li>
+      <li><a href="#" class="menu-link" data-target="password-section">🔑 تغییر رمز عبور</a></li>
+      <li><a href="#" class="menu-link" data-target="blog-section">📚 بلاگ‌های من</a></li>
+      <li><a href="#" class="menu-link" data-target="gallery-section">🖼️ گالری من</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <!-- Profile Section -->
+    <div id="profile-section" class="content-section active">
+      <h2 class="section-title">👨⚕️ پروفایل پزشک</h2>
+      
+      <!-- Sub-menu for Profile -->
+      <div class="sub-menu">
+        <ul>
+          <li><a href="#" class="sub-menu-link active" data-target="account-info">🔐 اطلاعات کاربری</a></li>
+          <li><a href="#" class="sub-menu-link" data-target="self-intro">📝 معرفی خود</a></li>
+          <li><a href="#" class="sub-menu-link" data-target="social-media">🌐 شبکه‌های اجتماعی</a></li>
+        </ul>
+      </div>
+
+      <!-- Profile Update Form -->
+      <form id="profile-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- Account Information Sub-section -->
+        <div id="account-info" class="sub-content-section active">
+          <div class="profile-info">
+            <div class="profile-image-container">
+              {% if doctor.user.image %}
+                <img id="profile-preview" src="{{ doctor.user.image.url }}" alt="عکس پروفایل" class="profile-image" style="max-width: 150px; border-radius: 50%;">
+              {% else %}
+                <img id="profile-preview" src="/media/users/default.png" alt="عکس پیش‌فرض" class="profile-image" style="max-width: 150px; border-radius: 50%;">
+              {% endif %}
+              <label for="id_image">انتخاب عکس جدید:</label>
+              {{ user_form.image }}
+            </div>
+            <p><strong>👤 نام کاربری:</strong> {{ user_form.username }}</p>
+            <p><strong>📧 ایمیل:</strong> {{ user_form.email }}</p>
+            <p><strong>👨⚕️ نام:</strong> {{ user_form.first_name }}</p>
+            <p><strong>🏷️ نام خانوادگی:</strong> {{ user_form.last_name }}</p>
+          </div>
+        </div>
+
+        <!-- Self Introduction Sub-section -->
+        <div id="self-intro" class="sub-content-section">
+          <div class="intro-box">
+            <h3>📌 معرفی تخصصی</h3>
+            {{ doctor_form.description }}
+          </div>
+        </div>
+
+        <!-- Social Links Sub-section -->
+        <div id="social-media" class="sub-content-section">
+          <div class="social-links">
+            <p><strong>Twitter:</strong> {{ doctor_form.twitter }}</p>
+            <p><strong>Instagram:</strong> {{ doctor_form.instagram }}</p>
+            <p><strong>Telegram:</strong> {{ doctor_form.telegram }}</p>
+            <p><strong>LinkedIn:</strong> {{ doctor_form.linkedin }}</p>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <div style="margin-top: 1.5rem;">
+          <button type="button" id="global-save-btn">💾 ذخیره تغییرات</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Password Change Section -->
+    <div id="password-section" class="content-section">
+      <h2 class="section-title">🔑 تغییر رمز عبور</h2>
+      <form id="password-form" method="post" action="{% url 'accounts:change_password' doctor.user.id %}">
+        {% csrf_token %}
+        {{ password_form.as_p }}
+        <button type="submit" class="save-btn">تغییر رمز</button>
+      </form>
+      <div id="password-messages" style="margin-top: 1rem;"></div> <!-- محل نمایش پیام‌ها -->
+    </div>
+
+    <!-- Blog Section -->
+    <div id="blog-section" class="content-section">
+      <h2 class="section-title">📰 آخرین مقالات</h2>
+      <a href="{% url 'blog:create_blog' %}" class="btn btn-primary">➕ افزودن مقاله جدید</a>
+      {% if blogs %}
+        {% for blog in blogs %}
+          <div class="blog-post">
+            <h4 class="blog-title">{{ blog.title }}</h4>
+            <p class="blog-excerpt">{{ blog.content|truncatewords:30 }}</p>
+            <a href="{% url 'blog:blog_detail' blog.slug %}" class="read-more">📖 ادامه مطلب →</a>
+            <div class="management-buttons">
+              <a href="{% url 'blog:update_blog' blog.pk %}" class="btn btn-warning">✏️ ویرایش</a>
+              <a href="{% url 'blog:delete_blog' blog.pk %}" class="btn btn-danger" onclick="return confirm('آیا مطمئن هستید؟')">🗑 حذف</a>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <p>📭 هنوز مقاله‌ای منتشر نکرده‌اید!</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Gallery Section -->
+    <div id="gallery-section" class="content-section">
+      <h2 class="section-title">🖼️ گالری تصاویر</h2>
+      <a href="{% url 'gallery:add_gallery' %}" class="btn btn-primary">➕ افزودن تصویر جدید</a>
+      {% if galleries %}
+        <div class="gallery-grid">
+          {% for gallery in galleries %}
+            <div class="gallery-category">
+              <h4 class="gallery-title">{{ gallery.category }}</h4>
+              <div class="gallery-management">
+                <a href="{% url 'gallery:update_gallery' gallery.id %}" class="btn btn-warning">✏️ ویرایش</a>
+                <a href="{% url 'gallery:delete_gallery' gallery.id %}" class="btn btn-danger" onclick="return confirm('آیا مطمئن هستید؟')">🗑 حذف</a>
+              </div>
+              <div class="gallery-images">
+                {% for image in gallery.images.all %}
+                  <div class="gallery-img">
+                    <img src="{{ image.image.url }}" alt="Gallery Image">
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <p>📷 گالری شما خالی است!</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // فعال‌سازی بخش‌های منو
+    const activateSection = (target) => {
+      document.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
+      document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+      
+      const activeLink = document.querySelector(`.menu-link[data-target="${target}"]`);
+      if (activeLink) activeLink.classList.add('active');
+      
+      const activeSection = document.getElementById(target);
+      if (activeSection) activeSection.classList.add('active');
+    };
+  
+    document.querySelectorAll('.menu-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        activateSection(this.dataset.target);
+      });
+    });
+  
+    // مدیریت ساب‌منوها
+    const subMenuLinks = document.querySelectorAll('.sub-menu-link');
+    if (subMenuLinks.length) {
+      subMenuLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          document.querySelectorAll('.sub-menu-link').forEach(l => l.classList.remove('active'));
+          document.querySelectorAll('.sub-content-section').forEach(section => section.classList.remove('active'));
+          
+          this.classList.add('active');
+          const subTarget = this.dataset.target;
+          const activeSubSection = document.getElementById(subTarget);
+          if (activeSubSection) activeSubSection.classList.add('active');
+        });
+      });
+    }
+  
+    // ارسال فرم پروفایل با آژاکس
+    document.getElementById('global-save-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      const form = document.getElementById('profile-form');
+      const formData = new FormData(form);
+  
+      fetch("{% url 'dashboard:dashboard_doctor' doctor.pk %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": formData.get('csrfmiddlewaretoken')
+        },
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(html => {
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("خطایی رخ داده است.");
+      });
+    });
+
+    // ارسال فرم تغییر رمز عبور با آژاکس و پردازش پاسخ HTML
+    document.getElementById('password-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = this;
+      const formData = new FormData(form);
+      const messagesDiv = document.getElementById('password-messages');
+      messagesDiv.innerHTML = ''; // پاک کردن پیام‌های قبلی
+
+      fetch("{% url 'accounts:change_password' doctor.user.id %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": formData.get('csrfmiddlewaretoken')
+        },
+        body: formData
+      })
+      .then(response => {
+        if (response.redirected) {
+          // در صورت موفقیت و ریدایرکت
+          messagesDiv.innerHTML = '<p style="color: green;">رمز عبور شما با موفقیت تغییر کرد</p>';
+          form.reset(); // ریست کردن فرم
+          return null; // نیازی به پردازش بیشتر نیست
+        }
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text(); // گرفتن HTML در صورت خطا
+      })
+      .then(html => {
+        if (html) {
+          // استخراج خطاها از HTML
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const errorLists = doc.querySelectorAll('.errorlist');
+          if (errorLists.length > 0) {
+            let errorMessages = '<ul style="color: red;">';
+            errorLists.forEach(list => {
+              list.querySelectorAll('li').forEach(item => {
+                errorMessages += `<li>${item.textContent}</li>`;
+              });
+            });
+            errorMessages += '</ul>';
+            messagesDiv.innerHTML = errorMessages;
+          }
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        messagesDiv.innerHTML = '<p style="color: red;">خطایی در ارتباط با سرور رخ داد. لطفاً دوباره تلاش کنید.</p>';
+      });
+    });
+  });
+</script>
+
+
 <style>
   :root {
     --primary-color: #2A2F4F;
@@ -178,7 +441,7 @@
   }
 
   /* Save Button */
-  #global-save-btn {
+  #global-save-btn, .save-btn {
     padding: 0.75rem 2rem;
     background: var(--primary-color);
     color: white;
@@ -188,7 +451,7 @@
     cursor: pointer;
   }
 
-  #global-save-btn:hover {
+  #global-save-btn:hover, .save-btn:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
@@ -224,204 +487,4 @@
   }
 </style>
 
-<div class="dashboard-container">
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <ul>
-      <li><a href="#" class="menu-link active" data-target="profile-section">📁 پروفایل پزشک</a></li>
-      <li><a href="#" class="menu-link" data-target="blog-section">📚 بلاگ‌های من</a></li>
-      <li><a href="#" class="menu-link" data-target="gallery-section">🖼️ گالری من</a></li>
-    </ul>
-  </div>
-
-  <!-- Main Content -->
-  <div class="content">
-    <!-- Profile Section -->
-    <div id="profile-section" class="content-section active">
-      <h2 class="section-title">👨⚕️ پروفایل پزشک</h2>
-      
-      <!-- Sub-menu for Profile -->
-      <div class="sub-menu">
-        <ul>
-          <li><a href="#" class="sub-menu-link active" data-target="account-info">🔐 اطلاعات کاربری</a></li>
-          <li><a href="#" class="sub-menu-link" data-target="self-intro">📝 معرفی خود</a></li>
-          <li><a href="#" class="sub-menu-link" data-target="social-media">🌐 شبکه‌های اجتماعی</a></li>
-        </ul>
-      </div>
-
-      <!-- Profile Update Form -->
-      <form id="profile-form" enctype="multipart/form-data">
-        {% csrf_token %}
-        <!-- Account Information Sub-section -->
-        <div id="account-info" class="sub-content-section active">
-          <div class="profile-info">
-            <div class="profile-image-container">
-              {% if doctor.user.image %}
-                <img id="profile-preview" src="{{ doctor.user.image.url }}" alt="عکس پروفایل" class="profile-image" style="max-width: 150px; border-radius: 50%;">
-              {% else %}
-                <img id="profile-preview" src="/media/users/default.png" alt="عکس پیش‌فرض" class="profile-image" style="max-width: 150px; border-radius: 50%;">
-              {% endif %}
-              <label for="id_image">انتخاب عکس جدید:</label>
-              {{ user_form.image }}
-            </div>
-            <p><strong>👤 نام کاربری:</strong> {{ user_form.username }}</p>
-            <p><strong>📧 ایمیل:</strong> {{ user_form.email }}</p>
-            <p><strong>👨⚕️ نام:</strong> {{ user_form.first_name }}</p>
-            <p><strong>🏷️ نام خانوادگی:</strong> {{ user_form.last_name }}</p>
-          </div>
-        </div>
-
-        <!-- Self Introduction Sub-section -->
-        <div id="self-intro" class="sub-content-section">
-          <div class="intro-box">
-            <h3>📌 معرفی تخصصی</h3>
-            {{ doctor_form.description }}
-          </div>
-        </div>
-
-        <!-- Social Links Sub-section -->
-        <div id="social-media" class="sub-content-section">
-          <div class="social-links">
-            <p><strong>Twitter:</strong> {{ doctor_form.twitter }}</p>
-            <p><strong>Instagram:</strong> {{ doctor_form.instagram }}</p>
-            <p><strong>Telegram:</strong> {{ doctor_form.telegram }}</p>
-            <p><strong>LinkedIn:</strong> {{ doctor_form.linkedin }}</p>
-          </div>
-        </div>
-
-        <!-- Save Button -->
-        <div style="margin-top: 1.5rem;">
-          <button type="button" id="global-save-btn">💾 ذخیره تغییرات</button>
-        </div>
-      </form>
-    </div>
-
-    <!-- Blog Section -->
-    <div id="blog-section" class="content-section">
-      <h2 class="section-title">📰 آخرین مقالات</h2>
-      <a href="{% url 'blog:create_blog' %}" class="btn btn-primary">➕ افزودن مقاله جدید</a>
-      {% if blogs %}
-        {% for blog in blogs %}
-          <div class="blog-post">
-            <h4 class="blog-title">{{ blog.title }}</h4>
-            <p class="blog-excerpt">{{ blog.content|truncatewords:30 }}</p>
-            <a href="{% url 'blog:blog_detail' blog.id %}" class="read-more">📖 ادامه مطلب →</a>
-            <div class="management-buttons">
-              <a href="{% url 'blog:update_blog' blog.id %}" class="btn btn-warning">✏️ ویرایش</a>
-              <a href="{% url 'blog:delete_blog' blog.id %}" class="btn btn-danger" onclick="return confirm('آیا مطمئن هستید؟')">🗑 حذف</a>
-            </div>
-          </div>
-        {% endfor %}
-      {% else %}
-        <div class="empty-state">
-          <p>📭 هنوز مقاله‌ای منتشر نکرده‌اید!</p>
-        </div>
-      {% endif %}
-    </div>
-
-    <!-- Gallery Section -->
-    <div id="gallery-section" class="content-section">
-      <h2 class="section-title">🖼️ گالری تصاویر</h2>
-      <a href="{% url 'gallery:add_gallery' %}" class="btn btn-primary">➕ افزودن تصویر جدید</a>
-      {% if galleries %}
-        <div class="gallery-grid">
-          {% for gallery in galleries %}
-            <div class="gallery-category">
-              <h4 class="gallery-title">{{ gallery.category }}</h4>
-              <div class="gallery-management">
-                <a href="{% url 'gallery:update_gallery' gallery.id %}" class="btn btn-warning">✏️ ویرایش</a>
-                <a href="{% url 'gallery:delete_gallery' gallery.id %}" class="btn btn-danger" onclick="return confirm('آیا مطمئن هستید؟')">🗑 حذف</a>
-              </div>
-              <div class="gallery-images">
-                {% for image in gallery.images.all %}
-                  <div class="gallery-img">
-                    <img src="{{ image.image.url }}" alt="Gallery Image">
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="empty-state">
-          <p>📷 گالری شما خالی است!</p>
-        </div>
-      {% endif %}
-    </div>
-  </div>
-</div>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    // Activate menu sections
-    const activateSection = (target) => {
-      document.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
-      document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
-      
-      const activeLink = document.querySelector(`.menu-link[data-target="${target}"]`);
-      if (activeLink) activeLink.classList.add('active');
-      
-      const activeSection = document.getElementById(target);
-      if (activeSection) activeSection.classList.add('active');
-    };
-
-    document.querySelectorAll('.menu-link').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        activateSection(this.dataset.target);
-      });
-    });
-
-    // Save form data via AJAX
-    document.getElementById('global-save-btn').addEventListener('click', function() {
-      const form = document.getElementById('profile-form');
-      const formData = new FormData(form);
-
-      // Optionally add profile picture if available
-      const profilePicInput = document.querySelector('#id_profile_picture');
-      if (profilePicInput && profilePicInput.files.length > 0) {
-        formData.append('profile_picture', profilePicInput.files[0]);
-      }
-
-      fetch("{% url 'dashboard:edit_profile' doctor.pk %}", {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": formData.get('csrfmiddlewaretoken')
-        },
-        body: formData
-      })
-      .then(response => response.json())
-      .then(result => {
-        if (result.status === "success") {
-          alert(result.message);
-          location.reload();
-        } else {
-          alert("خطا: " + result.message);
-          console.log(result.errors);
-        }
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        alert("خطایی رخ داده است.");
-      });
-    });
-
-    // Handle sub-menu links
-    const subMenuLinks = document.querySelectorAll('.sub-menu-link');
-    if (subMenuLinks.length) {
-      subMenuLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          document.querySelectorAll('.sub-menu-link').forEach(l => l.classList.remove('active'));
-          document.querySelectorAll('.sub-content-section').forEach(section => section.classList.remove('active'));
-          
-          this.classList.add('active');
-          const subTarget = this.dataset.target;
-          const activeSubSection = document.getElementById(subTarget);
-          if (activeSubSection) activeSubSection.classList.add('active');
-        });
-      });
-    }
-  });
-</script>
 {% endblock %}

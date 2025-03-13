@@ -15,8 +15,10 @@
         انتخاب مطب
       </button>
       <div class="dropdown-menu w-100" aria-labelledby="clinicDropdownButton">
-        {% if clinic %}
-          <a class="dropdown-item" href="{% url 'core:detail_clinic' clinic.id %}">{{ clinic.name }}</a>
+        {% if clinics %}
+          {% for clinic in clinics %}
+            <a class="dropdown-item" href="{% url 'core:detail_clinic' clinic.id %}">{{ clinic.name }}</a>
+          {% endfor %}
         {% else %}
           <span class="dropdown-item no-data">هیچ مطبی ثبت نشده است.</span>
         {% endif %}

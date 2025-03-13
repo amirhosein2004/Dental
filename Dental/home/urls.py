@@ -1,4 +1,4 @@
-from django.urls import path
+from utils.common_imports import path
 from .views import HomeView
 
 app_name = 'home'

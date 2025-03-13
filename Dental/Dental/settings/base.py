@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import secrets
 
 # بارگذاری فایل .env
 load_dotenv()
@@ -9,7 +10,8 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # متغیرهای محیطی عمومی
-SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')  # مقدار پیش‌فرض برای مواقع تست
+SECRET_KEY = os.getenv('SECRET_KEY', secrets.token_urlsafe(50))  # مقدار پیش‌فرض برای مواقع تست
+
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
@@ -75,15 +77,30 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#         'LOCATION': 'unique-snowflake',
+#     }
+# }
+
+# SESSION_COOKIE_SECURE = True  # فقط HTTPS
+# SESSION_COOKIE_HTTPONLY = True  # جلوگیری از دسترسی جاوااسکریپت
+# SESSION_COOKIE_SAMESITE = 'Strict'  # جلوگیری از CSRF
+# CSRF_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True  # همه درخواست‌ها به HTTPS ریدایرکت بشن
+
+PASSWORD_RESET_TIMEOUT = 1800  # ۳۰ دقیقه (۱۸۰۰ ثانیه)
+
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', 'en-us')
 TIME_ZONE = os.getenv('TIME_ZONE', 'UTC')
 USE_I18N = os.getenv('USE_I18N', 'False') == 'True'
 USE_TZ = os.getenv('USE_TZ', 'False') == 'True'
 
-MEDIA_URL = os.getenv('MEDIA_URL', 'media')
+MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = BASE_DIR / os.getenv('MEDIA_ROOT', 'media')
 
-STATIC_URL = os.getenv('STATIC_URL', 'static')
+STATIC_URL = os.getenv('STATIC_URL', '/static/')
 STATIC_ROOT = BASE_DIR / os.getenv('STATIC_ROOT', 'static')
  
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -102,3 +119,6 @@ EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'amirhoosenbabai82@gmail.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', None)
+
+OTP_SECRET_KEY = os.getenv('OTP_SECRET_KEY', secrets.token_urlsafe(50))
+RESET_PREFIX = os.getenv('RESET_PREFIX', 'amir-amiir-amiiir')

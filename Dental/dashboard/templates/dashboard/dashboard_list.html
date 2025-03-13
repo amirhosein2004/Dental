@@ -4,8 +4,11 @@
 
 {% for doctor in doctors %}
 
-<a href="{% url 'dashboard:dashboard_doctor' doctor.id %}"> {{doctor.user.first_name}} {{doctor.user.last_name}}</a>
-
+<div>
+<a href="{% url 'dashboard:dashboard_doctor' doctor.id %}">
+    {{ doctor }}
+</a>
+</div>
 {% endfor %}
 
 {% endblock %}

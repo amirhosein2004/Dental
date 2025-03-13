@@ -1,98 +1,126 @@
-from django.views import View
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import BlogPost
-from django.http import Http404
-from .forms import BlogPostForm
-from django.contrib import messages
-from django.core.exceptions import PermissionDenied
-from .filters import BlogPostFilter
-from dashboard.models import Doctor
+# Project-specific imports from common_imports
+from utils.common_imports import View, render, redirect, get_object_or_404, Http404, messages, ValidationError, PermissionDenied  
+
+from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
+# Imports from local models, forms, and filters
+from .models import BlogPost  
+from .forms import BlogPostForm  
+from .filters import BlogPostFilter  
+
+# Imports from external applications
+from dashboard.models import Doctor  
+ 
 
 class BlogView(View):
     filter_class = BlogPostFilter
+    template_name = 'blog/blog.html'
 
     def get(self, request, *args, **kwargs):
         blogs = BlogPost.objects.all()
         blog_filter = self.filter_class(request.GET, queryset=blogs)
-        return render(request, 'blog/blog.html', {'blogs': blog_filter.qs, 'filter': blog_filter})
+        context = {
+        'blogs': blog_filter.qs,  # فیلتر شده‌ها
+        'filter': blog_filter,    # فیلتر خود
+        }
+        return render(request, self.template_name, context)
 
 class BlogDetailView(View):
 
     def get(self, request, *args, **kwargs):
-        blog = get_object_or_404(BlogPost, pk=kwargs['pk'])
-        return render(request, 'blog/blog_detail.html', {'blog': blog})
-
-class CreateBlogView(View):
+        blog = get_object_or_404(
+            BlogPost.objects.select_related('writer').prefetch_related('categories'),
+            slug=kwargs['slug']
+        )
+        context = {'blog': blog}
+        return render(request, 'blog/blog_detail.html', context)
+    
+class CreateBlogView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     form_class = BlogPostForm
     template_name = 'blog/create_blog.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
         
     def get(self, request, *args, **kwargs):
         form = self.form_class()
-        return render(request, self.template_name, {'form': form})
+        context = {'form': form}
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
+        context = {'form': form}
         if form.is_valid():
-            blog = form.save(commit=False)
-            doctor = Doctor.objects.get(user=request.user)
-            blog.writer = doctor
-            blog.save()
-            messages.success(request, "بلاگ جدید با موفقیت ایجاد شد.")
-            return redirect('blog:blog')
-        messages.error(request, "خطا در ایجاد بلاگ. لطفاً دوباره تلاش کنید.")
-        return render(request, self.template_name, {'form': form})
 
-class UpdateBlogView(View):
+            try:
+                blog = form.save(commit=False)
+                doctor = Doctor.objects.get(user=request.user)  # بهینه‌سازی کوئری
+                blog.writer = doctor
+                blog.save()
+                form.save_m2m()  # ذخیره ارتباطات ManyToMany
+                messages.success(request, "بلاگ جدید با موفقیت ایجاد شد.")
+                return redirect('blog:blog_list')
+            
+            except Doctor.DoesNotExist:
+                messages.error(request, "شما به عنوان پزشک ثبت نشده‌اید و نمی‌توانید بلاگ بنویسید")
+            except ValidationError as ve:
+                messages.error(request, ve.message)
+        # else:
+        #     messages.error(request, "خطا در ایجاد بلاگ. لطفاً اطلاعات را بررسی کنید")
+        return render(request, self.template_name, context) 
+
+class UpdateBlogView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     form_class = BlogPostForm
     template_name = 'blog/update_blog.html'
 
     def dispatch(self, request, *args, **kwargs):
-        blog = get_object_or_404(BlogPost, pk=kwargs['pk'])
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            if request.user.is_superuser or request.user == blog.writer:
-                return super().dispatch(request, *args, **kwargs)
-            else:
-                raise PermissionDenied("شما اجازه دسترسی ندارید.")
-        raise Http404("صفحه مورد نظر یافت نشد.")
+        if not (request.user.is_superuser or request.user == self.blog.writer.user):
+            raise PermissionDenied("شما فقط می‌توانید بلاگ‌های خودتان را ویرایش کنید")
+        
+        self.blog = get_object_or_404(
+            BlogPost.objects.select_related('writer').prefetch_related('categories'),
+            pk=kwargs['pk']
+        )
+
+        return super().dispatch(request, *args, **kwargs)
         
     def get(self, request, *args, **kwargs):
-        blog = get_object_or_404(BlogPost, pk=kwargs['pk'])
-        form = self.form_class(instance=blog)
-        return render(request, self.template_name, {'form': form})
+        form = self.form_class(instance=self.blog)
+        context = {'form': form}
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        blog = get_object_or_404(BlogPost, pk=kwargs['pk'])
-        form = self.form_class(request.POST, request.FILES, instance=blog)
+        form = self.form_class(request.POST, request.FILES, instance=self.blog)
+        context = {'form': form}
         if form.is_valid():
-            form.save()
-            messages.success(request, "بلاگ با موفقیت به‌روزرسانی شد.")
-            return redirect('blog:blog')
-        messages.error(request, "خطا در به‌روزرسانی بلاگ. لطفاً دوباره تلاش کنید.")
-        return render(request, self.template_name, {'form': form})
+
+            try:
+                form.save()
+                messages.success(request, "بلاگ با موفقیت به‌روزرسانی شد")
+                return redirect('blog:blog_detail', slug=self.blog.slug)
+            
+            except ValidationError as ve:
+                # نمایش پیام خطای مرتبط با ترجمه عنوان یا سایر خطاهای مدل
+                messages.error(request, ve.message)
+        # else:
+        #     messages.error(request, "خطا در به‌روزرسانی بلاگ. لطفاً اطلاعات را بررسی کنید")
+        return render(request, self.template_name, context)
     
-class DeleteBlogView(View):
+class DeleteBlogView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'blog/delete_blog.html'
 
     def dispatch(self, request, *args, **kwargs):
-        blog = get_object_or_404(BlogPost, pk=kwargs['pk'])
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            if request.user.is_superuser or request.user == blog.writer:
-                return super().dispatch(request, *args, **kwargs)
-            else:
-                raise PermissionDenied("شما اجازه دسترسی ندارید.")
-        raise Http404("صفحه مورد نظر یافت نشد.")
+        if not (request.user.is_superuser or request.user == self.blog.writer.user):
+            raise PermissionDenied("شما فقط می‌توانید بلاگ‌های خودتان را حذف کنید")
+        
+        self.blog = get_object_or_404(
+            BlogPost.objects.select_related('writer'),  # categories لازم نیست
+            pk=kwargs['pk']
+        )
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        blog = get_object_or_404(BlogPost, pk=kwargs['pk'])
-        return render(request, self.template_name, {'blog': blog})
+        context = {'blog': self.blog}
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        blog = get_object_or_404(BlogPost, pk=kwargs['pk'])
-        blog.delete()
-        messages.success(request, "بلاگ با موفقیت حذف شد.")
-        return redirect('blog:blog')
+        self.blog.delete()
+        messages.success(request, "بلاگ با موفقیت حذف شد")
+        return redirect('blog:blog_list')

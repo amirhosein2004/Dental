@@ -27,7 +27,7 @@
         <!-- فرم اضافه کردن دسته‌بندی -->
         <div class="category-form">
             <h2>افزودن دسته‌بندی جدید</h2>
-            <form method="post" action="{% url 'core:add_category' %}" class="add-form">
+            <form method="post" action="{% url 'core:add_category' %}" class="add-form" novalidate>
                 {% csrf_token %}
                 {{ form.as_p }}
                 <button type="submit" class="add-btn">➕ افزودن دسته‌بندی</button>

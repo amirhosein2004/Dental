@@ -45,7 +45,7 @@
                         <p class="text-muted line-clamp-3">{{ service.description }}</p>
                     </div>
 
-                    <a href="{% url 'service:service_detail' service.id %}" class="stretched-link btn btn-primary rounded-pill px-4">
+                    <a href="{% url 'service:service_detail' service.slug %}" class="stretched-link btn btn-primary rounded-pill px-4">
                         مشاهده جزئیات
                         <i class="fas fa-arrow-left ms-2"></i>
                     </a>

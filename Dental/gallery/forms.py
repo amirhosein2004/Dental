@@ -1,17 +1,37 @@
-from django import forms
+from utils.common_imports import forms
 from .models import Gallery, Image
-from core.models import Category
 
 class GalleryForm(forms.ModelForm):
-    # category = forms.ModelChoiceField(queryset=Category.objects.all(), empty_label='انتخاب کنید')
-
     class Meta:
         model = Gallery
         fields = ['category']
+        widgets = {
+            'category': forms.Select(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'category': 'دسته‌بندی',
+        }
+        error_messages = {
+            'category': {
+                'required': "لطفاً دسته‌بندی را انتخاب کنید",
+            },
+        }
 
 class ImageForm(forms.ModelForm):
-    image = forms.ImageField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
-
     class Meta:
         model = Image
         fields = ['image']
+        widgets = {
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/jpeg,image/png',  # فقط jpg و png
+            }),
+        }
+        labels = {
+            'image': 'تصویر',
+        }
+        error_messages = {
+            'image': {
+                'required': "لطفاً یک تصویر آپلود کنید",
+            },
+        }

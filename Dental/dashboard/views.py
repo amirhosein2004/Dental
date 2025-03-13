@@ -1,124 +1,86 @@
-from django.shortcuts import render, redirect
-import json
-from django.http import Http404, JsonResponse
-from django.contrib import messages
-from django.views import View
-from .models import Doctor
-from blog.models import BlogPost
-from gallery.models import Gallery
-from .forms import DoctorForm
-from users.forms import CustomUserDoctorUpdateForm
-from blog.forms import BlogPostForm
-from gallery.forms import GalleryForm
-from django.contrib.auth import get_user_model
+# Project-specific imports from common_imports
+from utils.common_imports import render, Http404, messages, View, get_user_model, get_object_or_404, transaction, PasswordChangeForm
+from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
+# Imports from local models
+from .models import Doctor  
+
+# Imports from local forms
+from .forms import DoctorForm  
+from users.forms import CustomUserDoctorUpdateForm  
 
 
 User = get_user_model()
 
-class DasboardView(View):
+class DashboardView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'dashboard/dashboard.html'
     form_class_doctor = DoctorForm
     form_class_user = CustomUserDoctorUpdateForm
+    form_class_password = PasswordChangeForm
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            raise Http404("صفحه مورد نظر یافت نشد.")
-
-        doctor_id = kwargs.get('doctor_id')
-
-        # دریافت پروفایل دکتر فعلی که لاگین کرده
-        logged_in_doctor = getattr(request.user, 'doctor', None)
-
+        # اول کوئری رو می‌زنیم
+        self.doctor = get_object_or_404(
+            Doctor.objects.select_related('user').prefetch_related(
+                'blog_posts', 'doctor_galleries__images'
+            ),
+            id=kwargs['doctor_id']
+        )
+        self.blogs = self.doctor.blog_posts.all()
+        self.galleries = self.doctor.doctor_galleries.all()
+        
         # اگر کاربر دکتر باشد ولی بخواهد داشبورد دکتر دیگری را ببیند، خطا بده
-        if request.user.is_doctor and (not logged_in_doctor or logged_in_doctor.id != doctor_id):
-            raise Http404("شما اجازه دسترسی به این صفحه را ندارید.")
+        if request.user.is_doctor and request.user.doctor != self.doctor:
+            raise PermissionError("شما فقط می‌توانید داشبورد خودتان را مشاهده کنید")
 
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        doctor_id = kwargs.get('doctor_id')
 
-        # اگر سوپر یوزر است، می‌تواند هر دکتری را ببیند
-        if request.user.is_superuser:
-            doctor = Doctor.objects.filter(id=doctor_id).first()
-        else:
-            doctor = getattr(request.user, 'doctor', None)
-
-        if not doctor:
-            raise Http404("پروفایل پزشک یافت نشد.")
-
-        blogs = BlogPost.objects.filter(writer=doctor).order_by("-updated_at")
-        galleries = Gallery.objects.filter(doctor=doctor).order_by("-updated_at")
-
-        doctor_form = self.form_class_doctor(instance=doctor)
-        user_form = self.form_class_user(instance=doctor.user)
-
-        user = User.objects.get(id=doctor.user.id)
-
+        doctor_form = self.form_class_doctor(instance=self.doctor)
+        user_form = self.form_class_user(instance=self.doctor.user)
+        password_form = self.form_class_password(user=self.doctor.user)  # فرم تغییر رمز
         context = {
-            'doctor': doctor,
-            'blogs': blogs,
-            'galleries': galleries,
+            'doctor': self.doctor,
+            'blogs': self.blogs,
+            'galleries': self.galleries,
             'doctor_form': doctor_form,
             'user_form': user_form,
-            'user': user,
+            'password_form': password_form,  
         }
         return render(request, self.template_name, context)
     
-class EditProfileDashboardView(View):
-    form_class_doctor = DoctorForm
-    form_class_user = CustomUserDoctorUpdateForm
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            raise Http404("صفحه مورد نظر یافت نشد.")
-
-        doctor_id = kwargs.get('doctor_id')
-
-        # دریافت دکتر لاگین‌شده
-        logged_in_doctor = getattr(request.user, 'doctor', None)
-
-        # اگر کاربر دکتر باشد ولی بخواهد پروفایل دکتر دیگری را ویرایش کند، خطا بده
-        if request.user.is_doctor and (not logged_in_doctor or logged_in_doctor.id != doctor_id):
-            raise Http404("شما اجازه ویرایش این پروفایل را ندارید.")
-
-        return super().dispatch(request, *args, **kwargs)
-
     def post(self, request, *args, **kwargs):
-
-        doctor_id = kwargs.get('doctor_id')
-
-        # سوپر یوزر می‌تواند اطلاعات هر دکتری را ویرایش کند
-        if request.user.is_superuser:
-            doctor_instance = Doctor.objects.filter(id=doctor_id).first()
-        else:
-            doctor_instance = getattr(request.user, 'doctor', None)
-
-        if not doctor_instance:
-            return JsonResponse({'status': 'error', 'message': 'پروفایل پزشک یافت نشد.'})
-
-        user_form = self.form_class_user(request.POST, request.FILES, instance=doctor_instance.user)
-        doctor_form = self.form_class_doctor(request.POST, instance=doctor_instance)
+        user_form = self.form_class_user(request.POST, request.FILES, instance=self.doctor.user)
+        doctor_form = self.form_class_doctor(request.POST, instance=self.doctor)
 
         if user_form.is_valid() and doctor_form.is_valid():
-            user_form.save()
-            doctor_form.save()
-            return JsonResponse({'status': 'success', 'message': 'تغییرات با موفقیت ذخیره شدند.'})
+            with transaction.atomic():
+                user_form.save()
+                doctor_form.save()
+                messages.success(request, "تغییرات با موفقیت ذخیره شدند")
 
-        errors = {
-            'user_errors': user_form.errors,
-            'doctor_errors': doctor_form.errors
+        else:
+            messages.error(request, "خطا در اعتبارسنجی فرم‌ها")
+
+        # برگرداندن کاربر به همون صفحه با فرم‌ها و داده‌ها
+        context = {
+            'doctor': self.doctor,
+            'blogs': self.blogs,
+            'galleries': self.galleries,
+            'doctor_form': doctor_form,
+            'user_form': user_form,
         }
-        return JsonResponse({'status': 'error', 'message': 'خطا در اعتبارسنجی فرم‌ها', 'errors': errors})
+        return render(request, self.template_name, context)
 
 class DashboardListView(View):
     template_name = 'dashboard/dashboard_list.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
-    
+        if not(request.user.is_superuser and request.user.is_authenticated):
+            raise Http404("صفحه مورد نظر یافت نشد.")
+        return super().dispatch(request, *args, **kwargs)
+        
     def get(self, request, *args, **kwargs):
-        doctors = Doctor.objects.all()
-        return render(request, self.template_name, {'doctors': doctors})
+        doctors = Doctor.objects.select_related('user').all()
+        context = {'doctors': doctors}
+        return render(request, self.template_name, context)

@@ -8,11 +8,15 @@
             <h1 class="display-5 fw-bold text-gradient-primary mb-4 mb-lg-0">
                 <i class="fas fa-blog me-3"></i> آخرین مقالات آموزشی
             </h1>
+            {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
             <a href="{% url 'core:category' %}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill shadow-hover">
                 <i class="fas fa-plus-circle me-2"></i> مدیریت دسته‌بندی
+            {% endif %}
             </a>
+            {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
             <a href="{% url 'blog:create_blog' %}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill shadow-hover">
                 <i class="fas fa-plus-circle me-2"></i> مقاله جدید
+            {% endif %}
             </a>
         </div>
     </div>
@@ -21,8 +25,8 @@
     <form method="GET" class="filter-box p-4 mb-4 rounded-3 shadow-sm">
         <div class="row g-3 align-items-end">
             <div class="col-md-4">
-                <label for="{{ filter.form.text.id_for_label }}" class="form-label">متن مورد نظر</label>
-                {{ filter.form.text }}
+                <label for="{{ filter.form.text.id_for_label }}" class="form-label">عنوان مورد نظر</label>
+                {{ filter.form.title }}
             </div>
             <div class="col-md-4">
                 <label for="{{ filter.form.writer.id_for_label }}" class="form-label">نویسنده</label>
@@ -75,7 +79,7 @@
                         {{ blog.content|truncatechars:200|safe }}
                     </div>
 
-                    <a href="{% url 'blog:blog_detail' blog.pk %}" class="stretched-link read-more-btn">
+                    <a href="{% url 'blog:blog_detail' blog.slug %}" class="stretched-link read-more-btn">
                         <span class="btn btn-primary rounded-pill px-4 py-2 shadow-hover">
                             ادامه مطلب
                             <i class="fas fa-arrow-left ms-2"></i>
@@ -89,7 +93,7 @@
             <div class="empty-state text-center py-5">
                 <img src="{% static 'images/empty-blog.svg' %}" class="mb-4" width="200" alt="بدون مقاله">
                 <h4 class="text-muted fw-bold">مقاله‌ای یافت نشد!</h4>
-                <a href="{% url 'blog:blog' %}" class="btn btn-secondary mt-3">نمایش همه مقالات</a>
+                <a href="{% url 'blog:blog_list' %}" class="btn btn-secondary mt-3">نمایش همه مقالات</a>
             </div>
         </div>
         {% endfor %}

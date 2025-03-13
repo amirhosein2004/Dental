@@ -10,7 +10,7 @@
         <form method="POST">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">بله، حذف شود</button>
-            <a href="{% url 'service:service_detail' service.id %}" class="btn btn-secondary">انصراف</a>
+            <a href="{% url 'service:service_detail' service.slug %}" class="btn btn-secondary">انصراف</a>
         </form>
     </div>
 </div>

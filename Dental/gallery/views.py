@@ -1,147 +1,154 @@
-from django.views import View
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import Http404
-from django.contrib import messages
-from django.core.exceptions import PermissionDenied
-from .models import Gallery, Image
-from core.models import Category
-from .forms import GalleryForm, ImageForm
-from .filters import GalleryFilter
-from dashboard.models import Doctor
+# Project-specific imports from common_imports
+from utils.common_imports import View, render, redirect, get_object_or_404, messages, PermissionDenied, transaction 
+
+from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
+
+# Imports from local models
+from .models import Gallery, Image  
+from core.models import Category  
+from dashboard.models import Doctor  
+
+# Imports from local forms
+from .forms import GalleryForm, ImageForm  
+
+# Imports from local filters
+from .filters import GalleryFilter  
 
 
-class GalleryView(View):
+
+class GalleryView(RateLimitMixin, View):
     template_name = 'gallery/gallery.html'
 
     def get(self, request, *args, **kwargs):
         categories = Category.objects.all()
-        galleries = Gallery.objects.all()
+        galleries = Gallery.objects.select_related('category', 'doctor__user').prefetch_related('images')
         gallery_filter = GalleryFilter(request.GET, queryset=galleries)
-        return render(request, self.template_name, {'galleries': gallery_filter.qs, 'filter': gallery_filter, 'categories': categories})
+        context = {'galleries': gallery_filter.qs, 'filter': gallery_filter, 'categories': categories}
+        return render(request, self.template_name, context)
     
-class AddGalleryView(View):
+class AddGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'gallery/add_gallery.html'
     form_class_image = ImageForm
     form_class_gallery = GalleryForm
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
-
     def get(self, request, *args, **kwargs):
         gallery_form = self.form_class_gallery()
         image_form = self.form_class_image()
-        return render(request, self.template_name, {
+        context = {
             'gallery_form': gallery_form,
-            'image_form': image_form,})
+            'image_form': image_form,
+        }
+        return render(request, self.template_name, context)
         
     def post(self, request, *args, **kwargs):
         gallery_form = self.form_class_gallery(request.POST)
         image_form = self.form_class_image(request.POST, request.FILES)
 
-        if gallery_form.is_valid():
-            gallery = gallery_form.save(commit=False)
-            doctor = Doctor.objects.get(user=request.user)
-            gallery.doctor = doctor
-            gallery.save()
-        
-            images = request.FILES.getlist('image')  
-            for img in images:
-                Image.objects.create(gallery=gallery, image=img)  
-            return redirect('gallery:gallery')
+        if gallery_form.is_valid() and image_form.is_valid():
 
-        return render(request, self.template_name, {
+            try:
+                with transaction.atomic():
+                    gallery = gallery_form.save(commit=False)
+                    doctor = Doctor.objects.get(user=request.user)
+                    gallery.doctor = doctor
+                    gallery.save()
+                    
+                    images = [
+                        Image(gallery=gallery, image=img)
+                        for img in request.FILES.getlist('image')
+                    ]
+                    Image.objects.bulk_create(images)
+                messages.success(request, "گالری با موفقیت ایجاد شد")
+                return redirect('gallery:gallery_list')
+            except Doctor.DoesNotExist:
+                messages.error(request, "شما به‌عنوان پزشک ثبت نشده‌اید و نمی‌توانید گالری اضافه کنید")
+        # else:
+        #     messages.error(request, "لطفاً اطلاعات را به درستی وارد کنید")  
+        
+        context = {
             'gallery_form': gallery_form,
             'image_form': image_form,
-        })
+        }
+        return render(request, self.template_name, context)
     
-class UpdateGalleryView(View):
+class UpdateGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'gallery/update_gallery.html'
     form_class_image = ImageForm
     form_class_gallery = GalleryForm
 
     def dispatch(self, request, *args, **kwargs):
-        gallery = get_object_or_404(Gallery, pk=kwargs['pk'])
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            if request.user.is_superuser or request.user == gallery.doctor.user:
-                return super().dispatch(request, *args, **kwargs)
-            else:
-                raise PermissionDenied("شما اجازه دسترسی ندارید.")
-        raise Http404("صفحه مورد نظر یافت نشد.")
-
+        self.gallery = get_object_or_404(
+            Gallery.objects.select_related('doctor__user').prefetch_related('images'),
+            pk=kwargs['pk']
+        )
+        if not(request.user.is_superuser or request.user == self.gallery.doctor.user):
+                raise PermissionError("شما فقط می‌توانید گالری‌های خودتان را ویرایش کنید")
+        return super().dispatch(request, *args, **kwargs)
+    
     def get(self, request, *args, **kwargs):
-        gallery = Gallery.objects.get(pk=kwargs['pk'])
-        gallery_form = self.form_class_gallery(instance=gallery)  # برای پر کردن فیلدها با مقادیر فعلی
+        gallery_form = self.form_class_gallery(instance=self.gallery)  # برای پر کردن فیلدها با مقادیر فعلی
         image_form = self.form_class_image()
-        images = gallery.images.all()  # گرفتن تصاویر موجود گالری
-        return render(request, self.template_name, {
+        context = {
             'gallery_form': gallery_form,
             'image_form': image_form,
-            'gallery': gallery,
-            'images': images  # ارسال تصاویر به قالب
-        })
+            'gallery': self.gallery,
+        }
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        gallery = Gallery.objects.get(pk=kwargs['pk'])
-        gallery_form = self.form_class_gallery(request.POST, instance=gallery)  # دریافت فرم گالری
+        gallery_form = self.form_class_gallery(request.POST, instance=self.gallery)  # دریافت فرم گالری
         image_form = self.form_class_image(request.POST, request.FILES)
 
         if 'add_images' in request.POST:  # وقتی که دکمه "Add Images" زده شود
             if image_form.is_valid():
-                images = request.FILES.getlist('image')  # دریافت فایل‌های تصویر
-                for img in images:
-                    Image.objects.create(gallery=gallery, image=img)  # ذخیره تصاویر جدید
-                messages.success(request, "تصاویر جدید با موفقیت اضافه شدند.")
-                return redirect('gallery:update_gallery', pk=gallery.id)
+                images = [
+                    Image(gallery=gallery_form, image=img)
+                    for img in request.FILES.getlist('image')
+                ]
+                Image.objects.bulk_create(images)
+                messages.success(request, "تصاویر جدید با موفقیت اضافه شدند")
+                return redirect('gallery:update_gallery', pk=self.gallery.id)
 
         if 'delete_all_images' in request.POST:  # وقتی که دکمه "Delete All Images" زده شود
-            gallery.images.all().delete()  # حذف تمامی تصاویر گالری
-            messages.success(request, "تمامی تصاویر حذف شدند.")
-            return redirect('gallery:update_gallery', pk=gallery.id)
+            self.gallery.images.all().delete()  # حذف تمامی تصاویر گالری
+            messages.success(request, "تمامی تصاویر گالری حذف شدند")
+            return redirect('gallery:update_gallery', pk=self.gallery.id)
 
         if 'change_category' in request.POST:
             if gallery_form.is_valid():
-                gallery = gallery_form.save()  # ذخیره تغییرات گالری از جمله تغییر دسته‌بندی
-                messages.success(request, "گالری با موفقیت به‌روزرسانی شد.")
-                return redirect('gallery:update_gallery', pk=gallery.id)
+                gallery_form.save()  # ذخیره تغییرات گالری از جمله تغییر دسته‌بندی
+                messages.success(request, "دسته بندی گالری با موفقیت به‌روزرسانی شد")
+                return redirect('gallery:update_gallery', pk=self.gallery.id)
 
         # حذف یا اضافه کردن تصاویر جدید (در صورت انتخاب)
         if 'delete_image' in request.POST:
             image_id = request.POST.get('image_id')
-            try:
-                image = Image.objects.get(id=image_id, gallery=gallery)
-                image.delete()  # حذف تصویر
-                messages.success(request, "تصویر با موفقیت حذف شد.")
-            except Image.DoesNotExist:
-                messages.error(request, "تصویر یافت نشد.")
-            return redirect('gallery:update_gallery', pk=gallery.id)
+            image = get_object_or_404(Image, id=image_id, gallery=self.gallery)
+            image.delete()  # حذف تصویر
+            messages.success(request, "تصویر با موفقیت حذف شد")
+            return redirect('gallery:update_gallery', pk=self.gallery.id)
 
-        return render(request, self.template_name, {
+        context = {
             'gallery_form': gallery_form,
             'image_form': image_form,
-            'gallery': gallery,
-            'images': gallery.images.all()  # ارسال دوباره تصاویر برای نمایش
-        })
+            'gallery': self.gallery,
+            'images': self.gallery.images.all()  # ارسال دوباره تصاویر برای نمایش
+        }
+        return render(request, self.template_name, context)
     
-class DeleteGalleryView(View):
+class DeleteGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'gallery/delete_gallery.html'
 
     def dispatch(self, request, *args, **kwargs):
-        gallery = get_object_or_404(Gallery, pk=kwargs['pk'])
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            if request.user.is_superuser or request.user == gallery.doctor.user:
-                return super().dispatch(request, *args, **kwargs)
-            else:
-                raise PermissionDenied("شما اجازه دسترسی ندارید.")
-        raise Http404("صفحه مورد نظر یافت نشد.")
+        self.gallery = get_object_or_404(Gallery, pk=kwargs['pk'])
+        if not(request.user.is_superuser or request.user == self.gallery.doctor.user):
+            raise PermissionDenied("شما فقط می‌توانید گالری‌های خودتان را حذف کنید")
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        gallery = Gallery.objects.get(pk=kwargs['pk'])
-        return render(request, self.template_name, {'gallery': gallery})
+        context = {'gallery': self.gallery}
+        return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
-        gallery = Gallery.objects.get(pk=kwargs['pk'])
-        gallery.delete()
-        return redirect('gallery:gallery')
-    
+        self.gallery.delete()
+        return redirect('gallery:gallery_list')

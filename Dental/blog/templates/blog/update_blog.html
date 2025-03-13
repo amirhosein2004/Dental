@@ -11,6 +11,17 @@
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <ul>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
                         <div class="form-group">
                             {% for field in form %}
                                 <div class="mb-4">
@@ -21,9 +32,6 @@
                                     {% if field.help_text %}
                                         <small class="form-text text-muted">{{ field.help_text }}</small>
                                     {% endif %}
-                                    {% for error in field.errors %}
-                                        <div class="invalid-feedback d-block">{{ error }}</div>
-                                    {% endfor %}
                                 </div>
                             {% endfor %}
                         </div>

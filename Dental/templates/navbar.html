@@ -1,11 +1,12 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+  
   <div class="container">
     <!-- لوگو/نام سایت -->
     <a class="navbar-brand fw-bold text-primary" href="{% url 'home:home' %}">
       <i class="fas fa-star me-2"></i>
       نام سایت
     </a>
-    
+
     <!-- دکمه همبرگر موبایل -->
     <button class="navbar-toggler border-0" 
             type="button" 
@@ -37,7 +38,7 @@
 
         <li class="nav-item mx-2">
           <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'blog:blog' %}">
+             href="{% url 'blog:blog_list' %}">
             <i class="fas fa-blog me-2"></i>
             وبلاگ
             <span class="nav-hover"></span>
@@ -46,7 +47,7 @@
 
         <li class="nav-item mx-2">
           <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'service:service' %}">
+             href="{% url 'service:service_list' %}">
             <i class="fas fa-concierge-bell me-2"></i>
             خدمات
             <span class="nav-hover"></span>
@@ -55,7 +56,7 @@
 
         <li class="nav-item mx-2">
           <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'gallery:gallery' %}">
+             href="{% url 'gallery:gallery_list' %}">
             <i class="fas fa-images me-2"></i>
             گالری
             <span class="nav-hover"></span>
@@ -77,7 +78,13 @@
           <a class="nav-link position-relative text-dark px-3" 
              href="{% url 'dashboard:dashboard_doctor' request.user.doctor.id %}">
             <i class="fas fa-tasks me-2"></i>
-            داشبور پزشک
+            {% if request.user.first_name == 'سعیده' %}
+            داشبوردت زنوک
+            {% elif request.user.first_name == 'سجاد' %}
+            داشبوردت مردک
+            {% else %}
+            داشبورک پزشک
+            {% endif %}
             <span class="nav-hover"></span>
           </a>
         </li>
@@ -109,6 +116,12 @@
       </ul>
     </div>
   </div>
+  <div>
+    {% if request.user.is_authenticated %}
+      <p> Welcome {{request.user.get_full_name}} </p>
+    {% endif %}
+  </div>
+  
 </nav>
 
 <style>

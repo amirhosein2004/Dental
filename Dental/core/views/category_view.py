@@ -1,56 +1,69 @@
-from django.views import View
-from django.shortcuts import render, redirect
-from django.http import Http404
-from django.contrib import messages
+from utils.common_imports import View, render, redirect, messages, get_object_or_404
 from core.forms import CategoryForm
 from core.models import Category
+from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 
-class CategoryView(View):
+class CategoryView(DoctorOrSuperuserRequiredMixin, View):
     form_class = CategoryForm
     template_name = 'core/category.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
 
     def get(self, request, *args, **kwargs):
         categories = Category.objects.all()
         form = self.form_class()
-        return render(request, self.template_name, {'categories': categories, 'form': form})
+        context = {'categories': categories, 'form': form}
+        return render(request, self.template_name, context)
     
-class AddCategoryView(View):
+class AddCategoryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     form_class = CategoryForm
     template_name = 'core/add_category.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
     
     def get(self, request, *args, **kwargs):
         form = self.form_class()
-        return render(request, self.template_name, {'form': form})
+        context = {'form': form}
+        return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
+        context = {'form': form}
         if form.is_valid():
             form.save()
-            messages.success(request, "دسته‌بندی جدید با موفقیت ایجاد شد.")
+            messages.success(request, "دسته‌بندی جدید با موفقیت ایجاد شد")
             return redirect('core:category')
-        messages.error(request, "خطا در ایجاد دسته‌بندی. لطفاً دوباره تلاش کنید.")
-        return render(request, self.template_name, {'form': form})
 
-class RemoveCategoryView(View):
+        return render(request, self.template_name, context)
+    
+class UpdateCategoryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
+    form_class = CategoryForm
+    template_name = 'core/update_category.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.category = get_object_or_404(Category, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs) 
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class(instance=self.category)
+        context = {'form': form}
+        return render(request, self.template_name, context)
+    
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, instance=self.category)
+        context = {'form': form}
+        if form.is_valid():
+            form.save()
+            messages.success(request, "دسته‌بندی با موفقیت بروز رسانی شد")
+            return redirect('core:category')
+
+        return render(request, self.template_name, context)
+
+class RemoveCategoryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     template_name = 'core/remove_category.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.is_doctor or request.user.is_superuser):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404("صفحه مورد نظر یافت نشد.")
+        self.category = get_object_or_404(Category, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs) 
     
     def post(self, request, *args, **kwargs):
-        category = Category.objects.get(pk=kwargs['pk'])
+        category = get_object_or_404(Category, pk=kwargs['pk'])
         category.delete()
-        messages.success(request, "دسته‌بندی با موفقیت حذف شد.")
+        messages.success(request, "دسته‌بندی با موفقیت حذف شد")
         return redirect('core:category')

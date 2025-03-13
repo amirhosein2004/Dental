@@ -1,6 +1,9 @@
-import django_filters
-from .models import Gallery
-from core.models import Category
+# Third-party imports
+import django_filters  
+
+# Imports from local models
+from .models import Gallery  
+from core.models import Category  
 
 class GalleryFilter(django_filters.FilterSet):
     category = django_filters.ModelChoiceFilter(

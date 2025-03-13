@@ -1,42 +1,26 @@
-from django.urls import path, reverse_lazy
-from django.contrib.auth import views as auth_views
-from .views import DoctorLoginView, DoctorLogoutView, VerifyOTPView
-from .forms import PasswordResetCaptchaForm, SetPasswordCaptchaForm
+# Project-specific imports from common_imports
+from utils.common_imports import path, settings
+
+# Imports from local views and forms
+from .views.auth_view import DoctorLoginView, DoctorLogoutView, VerifyOTPView, ResendOTPView, ChangePasswordView
+from accounts.views.password_reset_view import (
+    CustomPasswordResetView,
+    CustomPasswordResetDoneView,
+    CustomPasswordResetConfirmView,
+    CustomPasswordResetCompleteView
+)
+
 
 app_name = 'accounts'
 urlpatterns = [
-    path('login/', DoctorLoginView.as_view(), name='doctor_login'),
+    path('login/SB/fuckyoudoc', DoctorLoginView.as_view(), name='doctor_login'),
     path('logout/', DoctorLogoutView.as_view(), name='doctor_logout'),
     path('verify-otp/', VerifyOTPView.as_view(), name='verify_otp'),
-    
-    # reset password
-    path('password_reset/', 
-         auth_views.PasswordResetView.as_view(
-             template_name='accounts/password_reset.html',
-             email_template_name='accounts/password_reset_email.html',
-             success_url=reverse_lazy('accounts:password_reset_done'),
-             form_class=PasswordResetCaptchaForm
-         ), 
-         name='password_reset'),
-    
-    path('password_reset_done/', 
-         auth_views.PasswordResetDoneView.as_view(
-             template_name='accounts/password_reset_done.html'
-         ), 
-         name='password_reset_done'),
-    
-    path('reset/<uidb64>/<token>/', 
-         auth_views.PasswordResetConfirmView.as_view(
-             template_name='accounts/password_reset_confirm.html',
-             success_url=reverse_lazy('accounts:password_reset_complete'),
-             form_class=SetPasswordCaptchaForm
+    path('resend-otp/', ResendOTPView.as_view(), name='resend_otp'),
+    path('change-password/<int:user_id>/', ChangePasswordView.as_view(), name='change_password'),
 
-         ), 
-         name='password_reset_confirm'),
-    
-    path('reset/done/', 
-         auth_views.PasswordResetCompleteView.as_view(
-             template_name='accounts/password_reset_complete.html'
-         ), 
-         name='password_reset_complete'),
+    path(f'{settings.RESET_PREFIX}/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path(f'{settings.RESET_PREFIX}/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path(f'{settings.RESET_PREFIX}/confirm/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path(f'{settings.RESET_PREFIX}/complete/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]
