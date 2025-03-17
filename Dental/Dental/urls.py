@@ -31,6 +31,10 @@ urlpatterns = [
     
     # Authentication (login, logout, register, etc.)
     path('auth/', include('accounts.urls')),
+
+    # CKEditor 5 URL
+    path('ckeditor_5/', include('django_ckeditor_5.urls')),
+
 ]
 
 # Serve static and media files during development

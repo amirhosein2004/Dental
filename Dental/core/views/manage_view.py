@@ -1,9 +1,10 @@
-from utils.common_imports import View, render  
+from utils.common_imports import View, render, method_decorator, cache_page
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 from core.models import Category, Clinic  
 from dashboard.models import Doctor  
 from service.models import Service  
 from contact.models import WorkingHours, ContactMessage  
+from utils.cache import get_cache_key
 
 
 class ManageView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
@@ -13,6 +14,7 @@ class ManageView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     """
     template_name = 'core/manage.html'
          
+    @method_decorator(lambda func: cache_page(28800, key_prefix=lambda request: get_cache_key(request, cache_view='manageview'))(func))  # Cache for 8 hours
     def get(self, request, *args, **kwargs):
         """
         Handles GET requests to the manage view.

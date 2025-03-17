@@ -1,6 +1,6 @@
 # Project-specific imports from common_imports
-from utils.common_imports import models, RegexValidator
-from utils.validators import validate_phone, validate_text, validate_hour
+from utils.common_imports import models
+from utils.validators import validate_phone, validate_length
 
 # Third-party imports
 import jdatetime  
@@ -27,22 +27,18 @@ class WorkingHours(models.Model):
     )
     morning_start = models.IntegerField(
         null=True, blank=True,
-        validators=[validate_hour],
         help_text="ساعت شروع شیفت صبح (0-23)"
     )
     morning_end = models.IntegerField(
         null=True, blank=True,
-        validators=[validate_hour],
         help_text="ساعت پایان شیفت صبح (0-23)"
     )
     evening_start = models.IntegerField(
         null=True, blank=True,
-        validators=[validate_hour],
         help_text="ساعت شروع شیفت عصر (0-23)"
     )
     evening_end = models.IntegerField(
         null=True, blank=True,
-        validators=[validate_hour],
         help_text="ساعت پایان شیفت عصر (0-23)"
     )
 
@@ -71,20 +67,9 @@ class ContactMessage(models.Model):
     """
     Model to represent a contact message.
     """
-    name = models.CharField(
-        max_length=100,
-        validators=[RegexValidator(
-        regex=r'^[a-zA-Z0-9\u0600-\u06FF\s\.,!?():;"\'\-]+$',
-        message="متن فقط می‌تواند شامل حروف، اعداد و علائم نگارشی رایج باشد"
-    )]
-    )
-    phone = models.CharField(
-        max_length=20,
-        validators=[validate_phone]
-    )
-    message = models.TextField(
-        validators=[validate_text]
-    )
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20, validators=[validate_phone])
+    message = models.TextField(validators=[validate_length])
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 

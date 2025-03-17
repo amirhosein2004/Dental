@@ -1,7 +1,8 @@
 # Project-specific imports from common_imports
 from utils.common_imports import (render, Http404, messages,
         View, get_user_model, get_object_or_404,
-        transaction, PasswordChangeForm, PermissionDenied
+        transaction, PasswordChangeForm, PermissionDenied,
+        method_decorator, cache_page
     )
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 # Imports from local models
@@ -10,6 +11,7 @@ from .models import Doctor
 # Imports from local forms
 from .forms import DoctorForm  
 from users.forms import CustomUserDoctorUpdateForm  
+from utils.cache import get_cache_key
 
 
 User = get_user_model()
@@ -31,7 +33,7 @@ class DashboardView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
         self.doctor = get_object_or_404(
             Doctor.objects.select_related('user').prefetch_related(
                 'blog_posts', 'doctor_galleries__images'
-            ),
+            ), 
             id=kwargs['doctor_id']
         )
         self.blogs = self.doctor.blog_posts.all()
@@ -43,6 +45,7 @@ class DashboardView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
 
         return super().dispatch(request, *args, **kwargs)
 
+    @method_decorator(lambda func: cache_page(28800, key_prefix=lambda request: get_cache_key(request, cache_view='dashboardview'))(func))  # Cache the view for 8 hours
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests and render the dashboard with forms.

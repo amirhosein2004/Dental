@@ -228,22 +228,35 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        let form = document.querySelector("form");
-
-        if (form) {
-            // پاک کردن مقدار تمام فیلدهای فرم
-            form.querySelectorAll("input, select").forEach(field => {
-                field.value = "";
-            });
-
-            // حذف پارامترهای GET از آدرس بدون ریلود صفحه
-            let newUrl = window.location.pathname; // فقط مسیر صفحه را نگه می‌دارد
-            window.history.replaceState({}, "", newUrl);
+        // پاک کردن فیلترها هنگام لود اولیه صفحه
+        if(performance.navigation.type === 1) { // اگر صفحه رفرش شده باشد
+            if(window.location.search) {
+                window.location.replace(window.location.pathname);
+            }
         }
+
+        // ریست کردن مقادیر فرم
+        const resetForm = () => {
+            document.querySelectorAll('form input, form select').forEach(element => {
+                if(element.tagName === 'INPUT') {
+                    element.value = '';
+                } else if(element.tagName === 'SELECT') {
+                    element.selectedIndex = 0;
+                }
+            });
+        }
+
+        // اگر پارامترهای GET وجود ندارند فرم را ریست کنید
+        if(!window.location.search) {
+            resetForm();
+        }
+
+        // مدیریت کلیک روی دکمه پاک کردن
+        document.querySelector('.btn-clear-filters')?.addEventListener('click', () => {
+            resetForm();
+        });
     });
 </script>
-
-
 
 
 {% endblock %}

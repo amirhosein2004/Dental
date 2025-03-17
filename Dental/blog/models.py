@@ -1,16 +1,18 @@
 import jdatetime
 from utils.common_imports import models, ValidationError, transaction, IntegrityError
-from utils.validators import validate_image, validate_slug, validate_title, validate_content
+from utils.validators import validate_image, validate_length
 from core.models import Category
 from dashboard.models import Doctor
 from django.utils.text import slugify
 from googletrans import Translator  # add google translate
+from functools import partial
+from django_ckeditor_5.fields import CKEditor5Field  # add ckeditor
+
 
 class BlogPost(models.Model):
     """
     Model for the blogs
     """
-    
     writer = models.ForeignKey(
         Doctor,  
         on_delete=models.SET_NULL,
@@ -21,20 +23,14 @@ class BlogPost(models.Model):
         Category, 
         related_name='blog_posts',
     )
-    title = models.CharField(
-        unique=True,
-        max_length=200,
-        validators=[validate_title]
-    )
+    title = models.CharField(unique=True, max_length=200)
     slug = models.SlugField(
         max_length=200,
         unique=True,
         blank=True,
-        null=True,
-        validators=[validate_slug]
     )
-    content = models.TextField(
-        validators=[validate_content]
+    content = CKEditor5Field(
+        validators=[partial(validate_length, min_length=50, max_length=20000)]
     )
     image = models.ImageField(
         upload_to='blog_images',

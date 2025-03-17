@@ -1,6 +1,6 @@
 from .common_imports import send_mail, settings
 
-def send_otp_email(user, otp_code):
+def send_otp_email(user_email, otp_code):
     """
     Sends an email containing the OTP code to the user.
 
@@ -14,7 +14,7 @@ def send_otp_email(user, otp_code):
     subject = 'کد تأیید ورود پزشک'  # Email subject 
     message = f'کد ورود شما: {otp_code}\n\nاین کد فقط برای ۲ دقیقه معتبر است'  # Email message 
     from_email = settings.EMAIL_HOST_USER  # Sender's email address from settings
-    recipient_list = [user.email]  # Recipient's email address
+    recipient_list = [user_email]  # Recipient's email address
 
     try:
         # Attempt to send the email

@@ -10,7 +10,7 @@ from accounts.views.password_reset_view import (
 app_name = 'accounts'
 
 urlpatterns = [
-    path('login/', DoctorLoginView.as_view(), name='doctor_login'),  # Route for doctor login
+    path('login/SB/fuckyoudoc', DoctorLoginView.as_view(), name='doctor_login'),  # Route for doctor login
     path('logout/', DoctorLogoutView.as_view(), name='doctor_logout'),  # Route for doctor logout
     path('verify-otp/', VerifyOTPView.as_view(), name='verify_otp'),  # Route for OTP verification
     path('resend-otp/', ResendOTPView.as_view(), name='resend_otp'),  # Route for resending OTP

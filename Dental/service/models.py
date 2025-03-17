@@ -1,5 +1,5 @@
 from utils.common_imports import models, ValidationError, transaction, IntegrityError
-from utils.validators import validate_image, validate_text, validate_title, validate_slug
+from utils.validators import validate_image, validate_length
 from django.utils.text import slugify
 from googletrans import Translator  # Importing Google Translate
 
@@ -7,20 +7,14 @@ class Service(models.Model):
     """
     Model representing a service with title, slug, description, and image.
     """
-    title = models.CharField(
-        max_length=200,
-        unique=True,
-        validators=[validate_title]
-    )
+    title = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(
         max_length=150,
         unique=True,
         blank=True,
-        null=True,
-        validators=[validate_slug]
     )
     description = models.TextField(
-        validators=[validate_text]
+        validators=[validate_length]
     )
     image = models.ImageField(
         upload_to='service_images/',

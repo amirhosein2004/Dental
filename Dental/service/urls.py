@@ -20,3 +20,5 @@ urlpatterns = [
     # URL pattern for removing an existing service
     path('remove/<int:pk>/', RemoveServiceView.as_view(), name='remove_service'),
 ]
+
+

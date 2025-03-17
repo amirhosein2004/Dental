@@ -8,7 +8,7 @@ class DetailClinicView(DoctorOrSuperuserRequiredMixin, View):
     View to display the details of a specific clinic.
     """
     template_name = 'core/detail_clinic.html'
-              
+    
     def get(self, request, *args, **kwargs):
         clinic = get_object_or_404(Clinic, pk=kwargs['pk'])
         context = {'clinic': clinic}

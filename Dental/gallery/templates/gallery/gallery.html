@@ -5,11 +5,13 @@
 <div class="container my-5">
 
     <!-- دکمه اضافه کردن گالری -->
+    {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
     <div class="text-center mb-4">
         <a href="{% url 'gallery:add_gallery' %}" class="btn btn-primary">
             <i class="fas fa-plus"></i> افزودن گالری جدید
         </a>
     </div>
+    {% endif %}
 
     <!-- باکس دسته‌بندی‌ها -->
     <div class="category-box mb-4 p-3 text-center bg-light rounded">

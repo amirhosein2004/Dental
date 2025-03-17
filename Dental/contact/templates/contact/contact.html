@@ -3,11 +3,13 @@
 {% block content %}
 
 <div class="container contact-container shadow-lg p-4 rounded bg-white">
+    {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
     <div class="d-flex justify-content-end mb-3">
         <a href="{% url 'contact:messages' %}" class="btn btn-outline-primary shadow-sm">
             <i class="fas fa-envelope-open-text"></i> مدیریت پیام‌ها
         </a>
     </div>
+    {% endif %}
     
     <div class="row">
         <!-- فرم تماس -->

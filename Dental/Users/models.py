@@ -2,7 +2,7 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin  
 
 # Project-specific imports from common_imports
-from utils.common_imports import models, RegexValidator
+from utils.common_imports import models
 from utils.validators import validate_image
 
 # Imports from local managers
@@ -13,23 +13,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     """
     Custom user model that extends AbstractBaseUser and PermissionsMixin.
     """
-    username = models.CharField(
-        max_length=150,
-        unique=True,
-        validators=[
-            RegexValidator(
-                regex=r'^(?![_\W])(?!(\d+$))[a-zA-Z0-9_@.+-]+$',
-                message="نام کاربری نباید با `_` یا کاراکتر خاص شروع شود، نباید فقط شامل اعداد باشد و فقط می‌تواند شامل حروف، اعداد و کاراکترهای `_@.+-` باشد"
-        )])
+    username = models.CharField(max_length=150, unique=True,)
     email = models.EmailField(max_length=254, unique=True)
-    first_name = models.CharField(
-        max_length=100,
-        validators=[RegexValidator(r'^[a-zA-Z\u0600-\u06FF\s]+$', 'فقط حروف فارسی یا انگلیسی')]
-    )
-    last_name = models.CharField(
-        max_length=100,
-        validators=[RegexValidator(r'^[a-zA-Z\u0600-\u06FF\s]+$', 'فقط حروف فارسی یا انگلیسی')]
-    )
+    first_name = models.CharField(max_length=100,)
+    last_name = models.CharField(max_length=100,)
     image = models.ImageField(
         upload_to='users',
         default='users/default.png',

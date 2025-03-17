@@ -1,5 +1,5 @@
 from utils.common_imports import models, get_user_model
-from utils.validators import validate_url, validate_text
+from utils.validators import validate_length
 
 User = get_user_model()
 
@@ -14,45 +14,14 @@ class Doctor(models.Model):
     )
     description = models.TextField(
         default="توضیحات پزشک هنوز ثبت نشده است",
-        validators=[validate_text],
-        help_text="Description of the doctor."
+        validators=[validate_length]
     )
-    twitter = models.URLField(
-        max_length=200,
-        blank=True,
-        default='',
-        validators=[validate_url],
-        help_text="Twitter profile URL of the doctor."
-    )
-    instagram = models.URLField(
-        max_length=200,
-        blank=True,
-        default='',
-        validators=[validate_url],
-        help_text="Instagram profile URL of the doctor."
-    )
-    telegram = models.URLField(
-        max_length=200,
-        blank=True,
-        default='',
-        validators=[validate_url],
-        help_text="Telegram profile URL of the doctor."
-    )
-    linkedin = models.URLField(
-        max_length=200,
-        blank=True,
-        default='',
-        validators=[validate_url],
-        help_text="LinkedIn profile URL of the doctor."
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        help_text="The date and time when the doctor record was created."
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        help_text="The date and time when the doctor record was last updated."
-    )
+    twitter = models.URLField(max_length=200, blank=True, default='')
+    instagram = models.URLField(max_length=200, blank=True, default='')
+    telegram = models.URLField(max_length=200, blank=True, default='')
+    linkedin = models.URLField(max_length=200, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-updated_at']

@@ -1,5 +1,11 @@
 # Project-specific imports from common_imports
-from utils.common_imports import View, render, redirect, get_object_or_404, messages, ValidationError, PermissionDenied  
+from utils.common_imports import (
+    View, render,
+    redirect, get_object_or_404,
+    messages, ValidationError,
+    PermissionDenied, cache_page,
+    method_decorator,
+)
 
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 # Imports from local models, forms, and filters
@@ -9,6 +15,7 @@ from .filters import BlogPostFilter
 
 # Imports from external applications
 from dashboard.models import Doctor  
+from utils.cache import get_cache_key
  
 
 class BlogView(View):
@@ -18,11 +25,12 @@ class BlogView(View):
     filter_class = BlogPostFilter
     template_name = 'blog/blog.html'
 
+    @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='blogview'))(func))  # Cache for 24 hours
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests to display the list of blog posts.
         """
-        blogs = BlogPost.objects.all()
+        blogs = BlogPost.objects.select_related('writer').prefetch_related('categories').all()
         blog_filter = self.filter_class(request.GET, queryset=blogs)
         context = {
             'blogs': blog_filter.qs,  # Filtered blog posts
@@ -35,6 +43,7 @@ class BlogDetailView(View):
     View to display the details of a single blog post.
     """
 
+    @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='blogdetailview'))(func))   # Cache for 24 hours
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests to display the details of a blog post.

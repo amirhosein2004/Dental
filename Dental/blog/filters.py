@@ -2,7 +2,8 @@
 from utils.common_imports import forms  
 
 # Imports from local models
-from .models import BlogPost, Category  
+from .models import BlogPost
+from core.models import Category  
 
 # Third-party imports
 import django_filters  
@@ -63,16 +64,3 @@ class BlogPostFilter(django_filters.FilterSet):
         if value:
             return queryset.filter(categories__in=value).distinct()
         return queryset
-
-    def filter_queryset(self, queryset):
-        """
-        Override the default filter_queryset method to optimize the queryset with select_related and prefetch_related.
-
-        Args:
-            queryset: The initial queryset of BlogPost objects.
-
-        Returns:
-            Optimized queryset with related writer and categories preloaded.
-        """
-        queryset = queryset.select_related('writer').prefetch_related('categories')
-        return super().filter_queryset(queryset)

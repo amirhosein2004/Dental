@@ -1,13 +1,14 @@
 # Project-specific imports from common_imports
 from utils.common_imports import (View, render, redirect,
         get_object_or_404, transaction,
-        messages, PermissionDenied
+        messages, PermissionDenied,
+        method_decorator, cache_page
     ) 
 
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 
 # Imports from local models
-from .models import Gallery, Image  
+from .models import Gallery, Image 
 from core.models import Category  
 from dashboard.models import Doctor  
 
@@ -17,6 +18,8 @@ from .forms import GalleryForm, ImageForm
 # Imports from local filters
 from .filters import GalleryFilter  
 
+from utils.cache import get_cache_key
+
 
 class GalleryView(RateLimitMixin, View):
     """
@@ -24,6 +27,7 @@ class GalleryView(RateLimitMixin, View):
     """
     template_name = 'gallery/gallery.html'
 
+    @method_decorator(lambda func: cache_page(21600, key_prefix=lambda request: get_cache_key(request, cache_view='galleryview'))(func))   # Cache for 6 hours
     def get(self, request, *args, **kwargs):
         categories = Category.objects.all()
         galleries = Gallery.objects.select_related('category', 'doctor__user').prefetch_related('images')

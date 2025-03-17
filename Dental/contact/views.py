@@ -1,9 +1,10 @@
-from utils.common_imports import View, render, redirect, get_object_or_404, messages  
+from utils.common_imports import View, render, redirect, get_object_or_404, messages, method_decorator, cache_page
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 
 from .models import WorkingHours, ContactMessage  
 from core.models import Clinic  
-from .forms import WorkingHoursForm, ContactMessageForm  
+from .forms import WorkingHoursForm, ContactMessageForm 
+from utils.cache import get_cache_key 
 
 class ContactView(RateLimitMixin, View):
     """View to handle contact form submissions and display contact information."""
@@ -16,6 +17,7 @@ class ContactView(RateLimitMixin, View):
         self.workinghours = WorkingHours.objects.all()
         return super().dispatch(request, *args, **kwargs)
 
+    @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='contactview'))(func))  # Cache for 24 hours
     def get(self, request, *args, **kwargs):
         form = self.form_class()
         context = {
@@ -75,7 +77,7 @@ class MarkAllAsReadView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
 class DetailWorkingHoursView(DoctorOrSuperuserRequiredMixin, View):
     """View to display details of specific working hours."""
     template_name = 'contact/detail_working_hours.html'
-        
+    
     def get(self, request, *args, **kwargs):
         working_hours = get_object_or_404(WorkingHours, id=kwargs['pk'])
         context = {'working_hours': working_hours}

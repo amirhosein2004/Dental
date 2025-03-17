@@ -4,7 +4,7 @@ from utils.common_imports import (
     View, timezone, get_object_or_404,
     PasswordChangeForm, transaction
 )
-from utils.email_utils import send_otp_email
+from utils.tasks import send_otp_email_task  # import send email task celery
 from utils.sessions import generate_otp_token
 from utils.mixins import RateLimitMixin, SessionValidatorMixin, DoctorOrSuperuserRequiredMixin, RedirectIfAuthenticatedMixin
 from accounts.forms import DoctorLoginForm, VerifyOTPForm 
@@ -47,7 +47,7 @@ class DoctorLoginView(RateLimitMixin, RedirectIfAuthenticatedMixin, View):
             request.session['otp_token'] = generate_otp_token(user)
 
             # Send the OTP to the user's email
-            if send_otp_email(user, otp.code):
+            if send_otp_email_task.delay(user.email, otp.code):
                 messages.success(request, "کد تأیید به ایمیل شما ارسال شد")
                 return redirect('accounts:verify_otp')
 
@@ -138,7 +138,7 @@ class ResendOTPView(RateLimitMixin, SessionValidatorMixin, View):
         otp, _ = OTP.objects.get_or_create(user=self.user)
         otp.generate_otp()
 
-        if send_otp_email(self.user, otp.code):
+        if send_otp_email_task.delay(self.user.email, otp.code):
             request.session['last_resend_time'] = current_time.isoformat()
             messages.success(request, "کد تأیید به ایمیل شما ارسال شد")
             return render(request, self.template_name, {

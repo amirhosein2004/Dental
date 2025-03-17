@@ -2,7 +2,7 @@
 import secrets
 
 # Project-specific imports from common_imports
-from utils.common_imports import models, get_user_model, RegexValidator, transaction
+from utils.common_imports import models, get_user_model, transaction
 
 # Third-party imports
 from django.utils.timezone import now, timedelta  

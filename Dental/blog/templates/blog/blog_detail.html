@@ -11,7 +11,7 @@
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger btn-sm mx-1">حذف</button>
                 </form>
-            {% elif user.is_doctor and request.user == blog.writer %}
+            {% elif user.is_doctor and user == blog.writer.user %}
                 <a href="{% url 'blog:update_blog' blog.pk %}" class="btn btn-warning btn-sm mx-1">ویرایش</a>
                 <form action="{% url 'blog:delete_blog' blog.pk %}" method="get" style="display: inline;">
                     {% csrf_token %}
@@ -32,7 +32,7 @@
             <h1 class="text-center mb-3 text-primary font-weight-bold">{{ blog.title }}</h1>
             <p class="text-muted text-center mb-4">آخرین بروز رسانی: {{ blog.updated_at|date:"Y/m/d" }}</p>
             <div class="blog-text">
-                {{ blog.content|linebreaks }}
+                {{ blog.content|safe }}
             </div>
         </div>
     </div>

@@ -1,17 +1,11 @@
 from utils.common_imports import models, transaction, RegexValidator
-from utils.validators import validate_phone, validate_image, validate_text
+from utils.validators import validate_phone, validate_image, validate_length
 
 class Category(models.Model):
     """
     Model for category.
     """
-    name = models.CharField(
-        max_length=150, unique=True,
-        validators=[RegexValidator(
-            regex=r'^[a-zA-Z0-9\u0600-\u06FF\s\.,!?():;"\'\-]+$',
-            message="نام فقط می‌تواند شامل حروف، اعداد و علائم نگارشی رایج باشد"
-        )]
-    )
+    name = models.CharField(max_length=150, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -34,26 +28,11 @@ class Clinic(models.Model):
     """
     Model for clinic.
     """
-    name = models.CharField(
-        max_length=100, unique=True,
-        validators=[RegexValidator(
-            regex=r'^[a-zA-Z0-9\u0600-\u06FF\s\.,!?():;"\'\-]+$',
-            message="نام فقط می‌تواند شامل حروف، اعداد و علائم نگارشی رایج باشد"
-        )]
-    )
-    address = models.CharField(
-        max_length=100,
-        validators=[RegexValidator(
-            regex=r'^[a-zA-Z0-9\u0600-\u06FF\s\.,!?():;"\'\-]+$',
-            message="آدرس فقط می‌تواند شامل حروف، اعداد و علائم نگارشی رایج باشد"
-        )]
-    )
-    phone = models.CharField(
-        max_length=20,
-        validators=[validate_phone]
-    )
+    name = models.CharField(max_length=100, unique=True)
+    address = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20, validators=[validate_phone])
     email = models.EmailField(max_length=254)
-    description = models.TextField(validators=[validate_text])
+    description = models.TextField(validators=[validate_length])
     image = models.ImageField(
         upload_to='clinic_images',
         validators=[validate_image]

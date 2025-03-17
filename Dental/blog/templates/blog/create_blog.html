@@ -11,6 +11,7 @@
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
+                        {{ form.media }}  <!-- این خط CKEditor 5 رو لود می‌کنه -->
                         <div class="form-group">
                             {% if form.errors %}
                             <div class="alert alert-danger">
@@ -104,5 +105,4 @@
         width: 100%;
     }
 </style>
-
 {% endblock %}

@@ -11,6 +11,7 @@
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
+                        {{ form.media }}  <!-- این خط رو اضافه کردیم -->
                         {% if form.errors %}
                         <div class="alert alert-danger">
                             <ul>
@@ -106,5 +107,4 @@
         box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     }
 </style>
-
 {% endblock %}

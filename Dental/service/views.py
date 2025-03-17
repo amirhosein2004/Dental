@@ -1,7 +1,11 @@
-from utils.common_imports import View, render, redirect, messages, get_object_or_404, ValidationError
+from utils.common_imports import (
+    View, render, redirect, messages, get_object_or_404,
+    ValidationError, method_decorator, cache_page
+)
 from .models import Service
 from .forms import ServiceForm
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
+from utils.cache import get_cache_key
 
 class ServiceView(View):
     """
@@ -9,6 +13,7 @@ class ServiceView(View):
     """
     template_name = 'service/service.html'
 
+    @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='serviceview'))(func))  # Cache for 24 hours
     def get(self, request, *args, **kwargs):
         services = Service.objects.all()
         context = {'services': services}
@@ -20,6 +25,7 @@ class ServiceDetailView(View):
     """
     template_name = 'service/service_detail.html'
 
+    @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='servicedetailview'))(func))   # Cache for 24 hours
     def get(self, request, *args, **kwargs):
         service = get_object_or_404(Service, slug=kwargs['slug'])
         context = {'service': service}

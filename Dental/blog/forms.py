@@ -1,5 +1,6 @@
 # Project-specific imports from common_imports
 from utils.common_imports import forms, ValidationError
+from django_ckeditor_5.widgets import CKEditor5Widget
 
 # Imports from local models
 from .models import BlogPost 
@@ -14,19 +15,17 @@ class BlogPostForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'عنوان پست',  
+                'placeholder': 'عنوان پست',
             }),
             'categories': forms.CheckboxSelectMultiple(attrs={
                 'class': 'form-check-input',
             }),
-            'content': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 5,
-                'placeholder': 'محتوای پست',  
-            }),
+            'content': CKEditor5Widget(attrs={  # add CKEditor 5 
+                'class': 'django_ckeditor_5',
+            }, config_name='default'),
             'image': forms.ClearableFileInput(attrs={
                 'class': 'form-control',
-                'accept': 'image/jpeg,image/png',  # Restrict file types in the browser
+                'accept': 'image/jpeg,image/png',
             }),
         }
         labels = {
