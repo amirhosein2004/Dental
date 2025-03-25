@@ -1,5 +1,5 @@
 from utils.common_imports import path
-from .views import BlogView, BlogDetailView, CreateBlogView, UpdateBlogView, DeleteBlogView
+from .views import BlogView, BlogDetailView, CreateBlogView, UpdateBlogView, DeleteBlogView, LoadMoreBlogsView
 
 # Define app namespace
 app_name = 'blog'
@@ -7,6 +7,9 @@ app_name = 'blog'
 urlpatterns = [
     # List all blog posts
     path('', BlogView.as_view(), name='blog_list'),
+
+    # Load more blog posts
+    path('load-more-blog/', LoadMoreBlogsView.as_view(), name='load_more_blogs'),
     
     # View a specific blog post (using slug for readability and SEO)
     path('detail/<slug:slug>/', BlogDetailView.as_view(), name='blog_detail'),

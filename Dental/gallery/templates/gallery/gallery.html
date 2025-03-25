@@ -1,191 +1,181 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'gallery/css/gallery.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+{% endblock %}
+
 {% block content %}
 <div class="container my-5">
-
-    <!-- دکمه اضافه کردن گالری -->
+    <header>
+        <div class="header-icons">
+            <img src="{% static 'img/tooth-left.png' %}" alt="آیکون دندان چپ" class="icon-left">
+            <img src="{% static 'img/tooth-right.png' %}" alt="آیکون دندان راست" class="icon-right">
+        </div>
+        <h1>نمونه‌کارهای حرفه‌ای ما</h1>
+        <p class="subtitle">این‌ها تنها بخشی از آثار هنری و حرفه‌ای ماست</p>
+        <p class="cta">برای مشاهده موارد بیشتر، ما را در اینستاگرام دنبال کنید</p>
+    </header>
+    
+    <!-- بخش دکمه و آیکون‌ها -->
     {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
-    <div class="text-center mb-4">
-        <a href="{% url 'gallery:add_gallery' %}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> افزودن گالری جدید
+    <div class="gallery-actions">
+        {% if doctors.0 %}
+        <div class="doctor-profile">
+            <span>دکتر {{ doctors.0.user.last_name }}</span>
+            <a href="{{ doctors.0.instagram }}" target="_blank" rel="noopener noreferrer">
+                <img src="{% static 'img/instagram.png' %}" alt="اینستاگرام دکتر {{ doctors.0.user.last_name }}">
+            </a>
+        </div>
+        {% endif %}
+    
+        <a href="{% url 'gallery:add_gallery' %}" class="btn-add-gallery">
+            <i class="fas fa-plus me-2"></i> افزودن گالری جدید
         </a>
+    
+        {% if doctors.1 %}
+        <div class="doctor-profile">
+            <a href="{{ doctors.1.instagram }}" target="_blank" rel="noopener noreferrer">
+                <img src="{% static 'img/instagram.png' %}" alt="اینستاگرام دکتر {{ doctors.1.user.last_name }}">
+            </a>
+            <span>دکتر {{ doctors.1.user.last_name }}</span>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
-
+    
     <!-- باکس دسته‌بندی‌ها -->
-    <div class="category-box mb-4 p-3 text-center bg-light rounded">
-        <a href="{% url 'gallery:gallery_list' %}?category=" 
-           class="btn btn-outline-primary {% if not request.GET.category %}active{% endif %}">
-            همه دسته‌بندی‌ها
-        </a>
-        {% for category in categories %}
-        <a href="{% url 'gallery:gallery_list' %}?category={{ category.id }}" 
-           class="btn btn-outline-primary {% if request.GET.category == category.id|stringformat:'s' %}active{% endif %}">
-            {{ category.name }}
-        </a>
-        {% endfor %}
+    <div class="category-box mb-4 p-3">
+        <nav class="d-flex flex-wrap justify-content-center gap-2" aria-label="فیلتر دسته‌بندی‌ها">
+            <a href="{% url 'gallery:gallery_list' %}"
+               class="btn btn-outline-primary {% if 'category' not in request.GET %}active{% endif %}"
+               aria-current="{% if 'category' not in request.GET %}page{% else %}false{% endif %}">
+                همه عکس‌ها
+            </a>
+            {% for category in categories %}
+                <a href="{% url 'gallery:gallery_list' %}?category={{ category.id }}"
+                   class="btn btn-outline-primary {% if request.GET.category == category.id|stringformat:'s' %}active{% endif %}"
+                   aria-current="{% if request.GET.category == category.id|stringformat:'s' %}page{% else %}false{% endif %}">
+                    {{ category.name }}
+                </a>
+            {% empty %}
+                <div class="text-muted py-2">دسته‌بندی‌ای یافت نشد</div>
+            {% endfor %}
+        </nav>
     </div>
 
     <!-- نمایش گالری‌ها -->
     <div class="row g-4">
         {% for gallery in galleries %}
             {% if gallery.images.all.count > 0 %}
-            <div class="col-md-4 col-sm-6">
-                <div class="gallery-box position-relative overflow-hidden p-3">
-                    <!-- عنوان گالری -->
-                    <div class="gallery-header text-center mb-2">
-                        <h5 class="fw-bold text-primary">{{ gallery.category|default:"گالری بدون عنوان" }}</h5>
-                    </div>
-    
-                    <!-- اسلایدر تصاویر -->
-                    <div class="swiper-container gallery-swiper">
-                        <div class="swiper-wrapper">
-                            {% for image in gallery.images.all %}
-                            <div class="swiper-slide">
-                                <div class="image-box">
-                                    <img src="{{ image.image.url }}" 
-                                         alt="{{ image.title|default:'تصویر' }}" 
-                                         class="img-fluid" loading="lazy">
+                <div class="col-md-6 col-sm-12">
+                    <div class="gallery-box position-relative overflow-hidden p-3">
+                        <!-- منوی سه نقطه -->
+                        <div class="gallery-header mb-2 position-relative">
+                            {% if user.is_authenticated and user.is_superuser or request.user == gallery.doctor.user %}
+                                <div class="dropdown position-absolute" style="top: 0; right: 0;">
+                                    <button class="btn btn-link p-0" type="button" 
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end" style="border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+                                        <li>
+                                            <a class="dropdown-item" 
+                                               href="{% url 'gallery:update_gallery' gallery.id %}" 
+                                               style="color: #495057; padding: 10px 15px; display: flex; align-items: center; transition: background-color 0.2s;"
+                                               onmouseover="this.style.backgroundColor='#e9ecef'" 
+                                               onmouseout="this.style.backgroundColor=''">
+                                                <i class="fas fa-edit me-2" style="color: #007bff;"></i> ویرایش
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item text-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal-{{ gallery.id }}"
+                                                    style="padding: 10px 15px; display: flex; align-items: center; transition: background-color 0.2s;"
+                                                    onmouseover="this.style.backgroundColor='#f8d7da'" 
+                                                    onmouseout="this.style.backgroundColor=''">
+                                                <i class="fas fa-trash me-2" style="color: #dc3545;"></i> حذف
+                                            </button>
+                                        </li>
+                                    </ul>
                                 </div>
-                            </div>
-                            {% endfor %}
+                            {% endif %}
                         </div>
-                        <!-- دکمه‌های ناوبری -->
-                        <div class="swiper-button-next"></div>
-                        <div class="swiper-button-prev"></div>
+
+                        <!-- اسلایدر تصاویر -->
+                        <div class="swiper-container gallery-swiper">
+                            <div class="swiper-wrapper">
+                                {% for image in gallery.images.all %}
+                                    <div class="swiper-slide">
+                                        <div class="image-box">
+                                            <img src="{{ image.image.url }}" 
+                                                 alt="{{ image.title|default:'تصویر' }}" 
+                                                 class="img-fluid" 
+                                                 loading="lazy">
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <!-- دکمه‌های ناوبری -->
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
+                        </div>
                     </div>
-    
-                    <!-- دکمه‌های عملیات -->
-                    {% if user.is_authenticated and user.is_superuser %}
-                    <div class="gallery-actions text-center mt-3">
-                        <a href="{% url 'gallery:update_gallery' gallery.id %}" class="btn btn-sm btn-outline-success">
-                            <i class="fas fa-edit"></i> ویرایش
-                        </a>
-                        <a href="{% url 'gallery:delete_gallery' gallery.id %}" class="btn btn-sm btn-outline-danger">
-                            <i class="fas fa-trash"></i> حذف
-                        </a>
-                    </div>
-                    {% elif user.is_doctor and request.user == gallery.doctor.user %}
-                    <div class="gallery-actions text-center mt-3">
-                        <a href="{% url 'gallery:update_gallery' gallery.id %}" class="btn btn-sm btn-outline-success">
-                            <i class="fas fa-edit"></i> ویرایش
-                        </a>
-                        <a href="{% url 'gallery:delete_gallery' gallery.id %}" class="btn btn-sm btn-outline-danger">
-                            <i class="fas fa-trash"></i> حذف
-                        </a>
-                    </div>
-                    {% endif %}
                 </div>
-            </div>
+
+                <!-- مدال تأیید حذف برای هر گالری -->
+                <div class="modal fade" id="deleteModal-{{ gallery.id }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ gallery.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content" style="border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+                            <div class="modal-header" style="background-color: #f8d7da; border-bottom: 1px solid #f5c6cb;">
+                                <h5 class="modal-title" id="deleteModalLabel-{{ gallery.id }}" style="color: #721c24; font-weight: bold;">تأیید حذف</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+                            </div>
+                            <div class="modal-body" style="font-size: 1.1rem; color: #333; padding: 20px;">
+                                آیا مطمئن هستید که می‌خواهید این گالری را حذف کنید؟
+                            </div>
+                            <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 15px;">
+                                <form method="post" action="{% url 'gallery:delete_gallery' gallery.id %}">
+                                    {% csrf_token %}
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                                            style="border-radius: 5px; padding: 8px 20px;">لغو</button>
+                                    <button type="submit" class="btn btn-danger" 
+                                            style="border-radius: 5px; padding: 8px 20px;">تأیید</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endif %}
         {% empty %}
-        <div class="col-12 text-center">
-            <p class="text-muted">گالری‌ای با این دسته‌بندی وجود ندارد.</p>
-        </div>
+            <div class="col-12 text-center py-5">
+                <p class="text-muted fs-5">گالری‌ای با این دسته‌بندی وجود ندارد。</p>
+            </div>
         {% endfor %}
     </div>
+    
+    <!-- دکمه بارگذاری بیشتر -->
+    {% if galleries %}
+    <div class="text-center mt-5">
+        <button id="load-more" 
+                class="btn btn-primary px-5 py-2 fw-medium" 
+                data-offset="{{ galleries|length }}" 
+                data-url="{% url 'gallery:load_more_galleries' %}"
+                aria-label="بارگذاری گالری‌های بیشتر">
+            بارگذاری بیشتر
+        </button>
+        <div id="no-more-galleries" class="text-muted mt-3" style="display: none;">
+            <p>پایان گالری‌ها</p>
+        </div>
+    </div>
+    {% endif %}
 </div>
+{% endblock %}
 
-<!-- لینک‌های ضروری -->
-<link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<style>
-    :root {
-        --primary-color: #4a90e2;
-    }
-    /* باکس دسته‌بندی‌ها */
-    .category-box {
-        background: #f8f9fa;
-    }
-    .category-box .btn {
-        margin: 0.3rem;
-        transition: transform 0.2s ease;
-    }
-    .category-box .btn:hover {
-        transform: scale(1.05);
-    }
-    .category-box .btn.active {
-        background: var(--primary-color);
-        border-color: var(--primary-color);
-        color: #fff;
-    }
-    /* باکس گالری */
-    .gallery-box {
-        background: #fff;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        padding: 15px;
-        text-align: center;
-    }
-    /* تنظیمات Swiper */
-    .gallery-swiper {
-        width: 100%;
-        height: 200px;
-    }
-    .swiper-container {
-        overflow: hidden !important; /* جلوگیری از نمایش بخش‌های اضافی */
-        width: 100% !important; 
-        max-width: 500px; /* کنترل اندازه اسلایدر */
-    }
-    
-    .swiper-slide {
-        text-align: center;
-        width: 100% !important; /* اطمینان از نمایش فقط یک عکس در هر اسلاید */
-    }
-    
-    /* باکس تصویر */
-    .image-box {
-        width: 100%;
-        height: 180px;
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    .image-box img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    /* دکمه‌های ناوبری Swiper */
-    .swiper-button-next,
-    .swiper-button-prev {
-        background: rgba(255, 255, 255, 0.9);
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    .swiper-button-next::after,
-    .swiper-button-prev::after {
-        font-size: 1rem;
-        color: var(--primary-color);
-    }
-</style>
-
-<script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const swiperOptions = {
-            loop: true,
-            speed: 600,
-            grabCursor: true,
-            autoplay: {
-                delay: 4000,
-                disableOnInteraction: false,
-            },
-            slidesPerView: 1,
-            spaceBetween: 10,
-        };
-
-        document.querySelectorAll('.gallery-swiper').forEach(swiperContainer => {
-            new Swiper(swiperContainer, Object.assign({}, swiperOptions, {
-                navigation: {
-                    nextEl: swiperContainer.querySelector('.swiper-button-next'),
-                    prevEl: swiperContainer.querySelector('.swiper-button-prev'),
-                }
-            }));
-        });
-    });
-</script>
+{% block extra_js %}
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script src="{% static 'gallery/js/gallery.js' %}"></script>
+    <script src="{% static 'gallery/js/load_more.js' %}"></script>
 {% endblock %}

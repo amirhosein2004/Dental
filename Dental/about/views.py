@@ -15,7 +15,7 @@ class AboutView(View):
         context = {
             'clinic': Clinic.objects.filter(is_primary=True).first(),
             'doctors': Doctor.objects.select_related('user').all(),
-            'services': Service.objects.all()[:5],
+            'services': Service.objects.all()[:4],
         }
         return render(request, self.template_name, context)
 

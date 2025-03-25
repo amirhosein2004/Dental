@@ -1,5 +1,5 @@
 from utils.common_imports import forms
-from .models import Category, Clinic
+from .models import Category, Clinic, WorkingHours
 
 class CategoryForm(forms.ModelForm):
     """
@@ -55,11 +55,10 @@ class ClinicForm(forms.ModelForm):
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 5,
-                'placeholder': 'توضیحات درباره مطب (اختیاری)',
+                'placeholder': 'توضیحات درباره مطب ',
             }),
             'image': forms.FileInput(attrs={
                 'class': 'form-control',
-                'accept': 'image/jpeg,image/png',  # Restrict file types in the browser
             }),
             'is_primary': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',
@@ -82,4 +81,92 @@ class ClinicForm(forms.ModelForm):
                 'required': "لطفاً ایمیل مطب را وارد کنید.",
                 'invalid': "لطفاً یک ایمیل معتبر وارد کنید.",
             },
+            'description': {
+                'required': "لطفا توضیحات خود را وارد کنبد",
+            },
+            'image': {
+                'required': "لطفا عکس خود را وارد کنید",
+            },
         }
+
+class WorkingHoursForm(forms.ModelForm):
+    """
+    Form for managing working hours with validation for morning and evening times.
+    """
+    class Meta:
+        model = WorkingHours
+        fields = ['day', 'morning_start', 'morning_end', 'evening_start', 'evening_end']
+        widgets = {
+            'day': forms.Select(attrs={'class': 'form-control'}),
+            'morning_start': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 0,
+                'max': 23,
+                'placeholder': 'اگر چیزی وارد نکنید تعطیل ثبت می‌شود'
+            }),
+            'morning_end': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 0,
+                'max': 23,
+                'placeholder': 'اگر چیزی وارد نکنید تعطیل ثبت می‌شود'
+            }),
+            'evening_start': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 0,
+                'max': 23,
+                'placeholder': 'اگر چیزی وارد نکنید تعطیل ثبت می‌شود'
+            }),
+            'evening_end': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 0,
+                'max': 23,
+                'placeholder': 'اگر چیزی وارد نکنید تعطیل ثبت می‌شود'
+            }),
+        }
+        labels = {
+            'day': 'روز هفته',
+            'morning_start': 'ساعت شروع صبح',
+            'morning_end': 'ساعت پایان صبح',
+            'evening_start': 'ساعت شروع عصر',
+            'evening_end': 'ساعت پایان عصر',
+        }
+        error_messages = {
+            'day': {
+                'required': "لطفاً روز هفته را انتخاب کنید.",
+            },
+        }
+
+    def clean(self):
+        """
+        Custom validation for the form to ensure that start times are before end times
+        and that both start and end times are provided if one is provided.
+        """
+        cleaned_data = super().clean()
+        morning_start = cleaned_data.get('morning_start')
+        morning_end = cleaned_data.get('morning_end')
+        evening_start = cleaned_data.get('evening_start')
+        evening_end = cleaned_data.get('evening_end')
+
+        # Validate morning shift
+        if morning_start is not None and morning_end is not None:
+            if morning_start >= morning_end:
+                self.add_error('morning_start', "ساعت شروع صبح باید کمتر از ساعت پایان باشد")
+                self.add_error('morning_end', "ساعت پایان صبح باید بیشتر از ساعت شروع باشد")
+
+        # Validate evening shift
+        if evening_start is not None and evening_end is not None:
+            if evening_start >= evening_end:
+                self.add_error('evening_start', "ساعت شروع عصر باید کمتر از ساعت پایان باشد")
+                self.add_error('evening_end', "ساعت پایان عصر باید بیشتر از ساعت شروع باشد")
+
+        # Ensure both start and end times are provided if one is provided
+        if morning_start is not None and morning_end is None:
+            self.add_error('morning_end', "لطفاً ساعت پایان صبح را وارد کنید")
+        if morning_end is not None and morning_start is None:
+            self.add_error('morning_start', "لطفاً ساعت شروع صبح را وارد کنید")
+        if evening_start is not None and evening_end is None:
+            self.add_error('evening_end', "لطفاً ساعت پایان عصر را وارد کنید")
+        if evening_end is not None and evening_start is None:
+            self.add_error('evening_start', "لطفاً ساعت شروع عصر را وارد کنید")
+
+        return cleaned_data

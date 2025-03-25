@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'captcha',  # Django reCAPTCHA integration
     'django_cleanup.apps.CleanupConfig',  # Django clean up module for removing suspended files
     'django_ckeditor_5',  # Django CKEditor 5 integration
+    'django.contrib.humanize',  # Django humanize module for human-readable data
 
 ]
 
@@ -92,12 +93,12 @@ DATABASES = {
     }
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',  # دیتابیس شماره 1
-    }
-}
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+#         'LOCATION': 'redis://127.0.0.1:6379/1',  # دیتابیس شماره 1
+#     }
+# }
 
 
 # تنظیمات Redis به‌عنوان بروکر برای Celery
@@ -121,8 +122,8 @@ MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = BASE_DIR / os.getenv('MEDIA_ROOT', 'media')
 
 STATIC_URL = os.getenv('STATIC_URL', '/static/')
-STATIC_ROOT = BASE_DIR / os.getenv('STATIC_ROOT', 'static')
-
+STATIC_ROOT = BASE_DIR / os.getenv('STATIC_ROOT', 'staticfiles')
+STATICFILES_DIRS = [BASE_DIR / "static"]
  
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

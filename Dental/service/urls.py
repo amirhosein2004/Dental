@@ -1,5 +1,5 @@
 from utils.common_imports import path
-from .views import ServiceView, ServiceDetailView, AddServiceView, UpdateServiceView, RemoveServiceView
+from .views import ServiceView, AddServiceView, UpdateServiceView, RemoveServiceView
 
 app_name = 'service'
 
@@ -7,9 +7,6 @@ app_name = 'service'
 urlpatterns = [
     # URL pattern for the service list view
     path('', ServiceView.as_view(), name='service_list'),
-
-    # URL pattern for the service detail view
-    path('detail/<slug:slug>/', ServiceDetailView.as_view(), name='service_detail'),
 
     # URL pattern for adding a new service
     path('add/', AddServiceView.as_view(), name='add_service'),

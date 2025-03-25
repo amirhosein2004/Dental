@@ -1,0 +1,177 @@
+/* استایل فوتر */
+footer {
+    background: linear-gradient(135deg, #1d65ad, #83abcc); /* هماهنگ با نوبار */
+    color: #fff;
+    padding: 2.5rem 0; /* پدینگ بیشتر برای فضای بهتر */
+    width: 100%;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2); /* سایه از بالا */
+  }
+  
+  .footer-container {
+    display: flex;
+    justify-content: space-between; /* چپ، وسط، راست */
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem; /* پدینگ بیشتر برای حاشیه */
+    flex-wrap: wrap;
+  }
+  
+  .footer-left {
+    display: flex;
+    gap: 25px; /* فاصله بیشتر بین آیکون‌های اینستاگرام */
+    align-items: center;
+  }
+  
+  .social-icon {
+    width: 80px; /* اندازه فعلی شما حفظ شده */
+    height: 80px;
+    transition: all 0.4s ease; /* انتقال نرم‌تر */
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3)); /* سایه جذاب */
+  }
+  
+  .social-icon:hover {
+    transform: scale(1.2) rotate(5deg); /* افکت چرخش اضافه شده */
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4));
+  }
+  
+  .footer-center {
+    text-align: center;
+  }
+  
+  .footer-logo {
+    width: 150px; /* لوگو بزرگ‌تر */
+    height: auto;
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3)); /* سایه قوی‌تر */
+    transition: transform 0.4s ease;
+  }
+  
+  .footer-logo:hover {
+    transform: scale(1.15); /* بزرگ شدن بیشتر */
+  }
+  
+  .footer-right {
+    display: flex;
+    flex-direction: column; /* شماره‌ها عمودی */
+    gap: 15px; /* فاصله بیشتر بین شماره‌ها */
+    align-items: flex-end; /* راست‌چین کردن */
+  }
+  
+  .phone-number {
+    color: #fff;
+    font-size: 1.1rem; /* فونت کمی بزرگ‌تر */
+    font-weight: 700; /* ضخامت بیشتر */
+    font-family: 'Arial', sans-serif;
+    background: rgba(255, 255, 255, 0.2); /* پس‌زمینه کمی پررنگ‌تر */
+    padding: 0.5rem 1.2rem; /* پدینگ بیشتر */
+    border-radius: 30px; /* گوشه‌های گردتر */
+    border: 1px solid rgba(255, 255, 255, 0.4); /* حاشیه واضح‌تر */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25); /* سایه نرم‌تر */
+    transition: all 0.4s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .phone-number:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateX(-8px) scale(1.05); /* جابجایی بیشتر به چپ */
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35); /* سایه قوی‌تر */
+  }
+  
+  .footer-bottom {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.4); /* خط کمی واضح‌تر */
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    opacity: 0.9; /* کمی شفاف‌تر */
+  }
+  
+  /* تنظیمات برای دسکتاپ بزرگ (1200px و بیشتر) */
+  @media (min-width: 1200px) {
+    .footer-container {
+      flex-wrap: nowrap;
+    }
+  }
+  
+  /* تنظیمات برای دسکتاپ متوسط (992px تا 1199px) */
+  @media (min-width: 992px) and (max-width: 1199px) {
+    .footer-container {
+      flex-wrap: nowrap;
+      padding: 0 1.5rem;
+    }
+    .phone-number {
+      font-size: 1rem;
+      padding: 0.4rem 1rem;
+    }
+    .footer-logo {
+      width: 130px; /* کمی کوچکتر از دسکتاپ بزرگ */
+    }
+    .social-icon {
+      width: 70px;
+      height: 70px;
+    }
+    .footer-left {
+      gap: 20px;
+    }
+    .footer-right {
+      gap: 12px;
+    }
+  }
+  
+  /* تنظیمات برای تبلت (768px تا 991px) */
+  @media (min-width: 768px) and (max-width: 991px) {
+    .footer-container {
+      flex-direction: column;
+      gap: 2rem; /* فاصله بیشتر بین بخش‌ها */
+      padding: 0 1rem;
+    }
+    .phone-number {
+      font-size: 0.95rem;
+      padding: 0.35rem 0.9rem;
+    }
+    .footer-logo {
+      width: 120px;
+    }
+    .social-icon {
+      width: 60px;
+      height: 60px;
+    }
+    .footer-left {
+      gap: 20px;
+    }
+    .footer-right {
+      gap: 10px;
+      align-items: center; /* وسط‌چین در تبلت */
+    }
+  }
+  
+  /* تنظیمات برای موبایل (کمتر از 768px) */
+  @media (max-width: 767px) {
+    .footer-container {
+      flex-direction: column;
+      gap: 1.5rem;
+      padding: 0 1rem;
+    }
+    .phone-number {
+      font-size: 0.9rem;
+      padding: 0.3rem 0.8rem;
+    }
+    .footer-logo {
+      width: 100px;
+    }
+    .social-icon {
+      width: 50px;
+      height: 50px;
+    }
+    .footer-left, .footer-right {
+      justify-content: center;
+      width: 100%;
+      text-align: center;
+      gap: 15px;
+    }
+    .footer-right {
+      align-items: center; /* وسط‌چین در موبایل */
+    }
+  }

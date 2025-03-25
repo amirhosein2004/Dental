@@ -1,14 +1,24 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'dashboard/css/dashboard_list.css' %}">
+{% endblock %}
 
 {% block content %}
-
-{% for doctor in doctors %}
-
-<div>
-<a href="{% url 'dashboard:dashboard_doctor' doctor.id %}">
-    {{ doctor }}
-</a>
-</div>
-{% endfor %}
-
+    <div class="doctor-list-container">
+        {% if doctors %}
+            {% for doctor in doctors %}
+                <div class="doctor-item">
+                    <a href="{% url 'dashboard:dashboard_doctor' doctor.id %}" class="doctor-link">
+                        {{ doctor }}
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-doctors">
+                <p>No doctors found.</p>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}

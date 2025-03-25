@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 animate__animated animate__fadeInUp">
+                <div class="card-header bg-danger text-white text-center py-4">
+                    <h3 class="mb-0">
+                        <i class="fas fa-sign-out-alt me-2"></i>خروج از سیستم
+                    </h3>
+                </div>
+                <div class="card-body text-center p-5">
+                    <h4 class="card-text mb-4 animate__animated animate__pulse animate__infinite">
+                        <i class="fas fa-question-circle me-2"></i>آیا مطمئن هستید که می‌خواهید خارج شوید؟
+                    </h4>
+
+                    <!-- فرم تأیید خروج -->
+                    <form method="POST" action="{% url 'accounts:doctor_logout' %}" class="mt-4" id="logoutForm">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-lg px-5" id="logoutBtn">
+                            <i class="fas fa-check me-2"></i>بله، خروج
+                        </button>
+                    </form>
+
+                    <!-- دکمه بازگشت -->
+                    <div class="mt-4">
+                        <a href="{% url 'home:home' %}" class="btn btn-outline-secondary btn-lg px-5">
+                            <i class="fas fa-arrow-right me-2"></i>بازگشت به صفحه اصلی
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- استایل و اسکریپت -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<style>
+    .card {
+        border-radius: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+    .btn-danger {
+        background: linear-gradient(45deg, #dc3545, #ff7582);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    .btn-danger:hover {
+        background: linear-gradient(45deg, #b02a37, #e04e5c);
+        transform: scale(1.1);
+    }
+    .btn-outline-secondary {
+        transition: all 0.3s ease;
+    }
+    .btn-outline-secondary:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.1);
+    }
+    .card-text {
+        color: #333;
+        font-weight: 500;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const logoutBtn = document.querySelector('#logoutBtn');
+        const logoutForm = document.querySelector('#logoutForm');
+
+        logoutForm.addEventListener('submit', function () {
+            logoutBtn.disabled = true;
+            logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>در حال خروج...';
+        });
+    });
+</script>
+{% endblock %}

@@ -45,7 +45,7 @@ class DashboardView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
 
         return super().dispatch(request, *args, **kwargs)
 
-    @method_decorator(lambda func: cache_page(28800, key_prefix=lambda request: get_cache_key(request, cache_view='dashboardview'))(func))  # Cache the view for 8 hours
+    # @method_decorator(lambda func: cache_page(28800, key_prefix=lambda request: get_cache_key(request, cache_view='dashboardview'))(func))  # Cache the view for 8 hours
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests and render the dashboard with forms.

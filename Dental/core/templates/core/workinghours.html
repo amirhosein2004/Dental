@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'core/css/workinghours.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container-workinghour">
+        <h2>لیست ساعات کاری</h2>
+        
+        <!-- دکمه افزودن ساعات کاری -->
+        <div class="add-button-container">
+            <a href="{% url 'core:add_workinghours' %}" class="btn btn-info btn-add">افزودن ساعت کاری جدید</a>
+        </div>
+
+        {% if workinghours %}
+            <table class="table working-hours-table">
+                <thead>
+                    <tr>
+                        <th>روز هفته</th>
+                        <th>ساعت شروع صبح</th>
+                        <th>ساعت پایان صبح</th>
+                        <th>ساعت شروع عصر</th>
+                        <th>ساعت پایان عصر</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wh in workinghours %}
+                        <!-- ردیف نمایش -->
+                        <tr id="row-{{ wh.id }}" class="display-row" {% if edit_workinghour_id == wh.id %}style="display:none;"{% endif %}>
+                            <td>{{ wh.get_day_display }}</td>
+                            <td class="morning-start">{{ wh.morning_start|default:"تعطیل" }}</td>
+                            <td class="morning-end">{{ wh.morning_end|default:"تعطیل" }}</td>
+                            <td class="evening-start">{{ wh.evening_start|default:"تعطیل" }}</td>
+                            <td class="evening-end">{{ wh.evening_end|default:"تعطیل" }}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-primary btn-sm edit-btn" data-id="{{ wh.id }}">ویرایش</button>
+                                <form method="post" action="{% url 'core:delete_workinghours' wh.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('آیا مطمئن هستید که می‌خواهید حذف کنید؟');">حذف</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <!-- ردیف ویرایش -->
+                        <tr id="edit-form-{{ wh.id }}" class="edit-row" {% if edit_workinghour_id != wh.id %}style="display:none;"{% endif %}>
+                            <td colspan="6">
+                                <form method="post" action="{% url 'core:update_workinghours' wh.id %}" class="w-100 edit-form">
+                                    {% csrf_token %}
+                                    <!-- فیلد مخفی برای روز هفته -->
+                                    <input type="hidden" name="day" value="{{ wh.day }}">
+                                    <!-- نمایش خطاها -->
+                                    {% if form and form.errors and edit_workinghour_id == wh.id %}
+                                        <div class="error-messages">
+                                            <ul>
+                                                {% for field in form %}
+                                                    {% for error in field.errors %}
+                                                        <li>{{ field.label }}: {{ error }}</li>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                                {% for error in form.non_field_errors %}
+                                                    <li>{{ error }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                    <table class="w-100">
+                                        <tr>
+                                            <td>{{ wh.get_day_display }}</td>
+                                            <td>
+                                                <input type="number" name="morning_start" 
+                                                       value="{% if edit_workinghour_id == wh.id and form.morning_start.value != None %}{{ form.morning_start.value }}{% else %}{{ wh.morning_start|default:'' }}{% endif %}" 
+                                                       class="form-control" min="0" max="23">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="morning_end" 
+                                                       value="{% if edit_workinghour_id == wh.id and form.morning_end.value != None %}{{ form.morning_end.value }}{% else %}{{ wh.morning_end|default:'' }}{% endif %}" 
+                                                       class="form-control" min="0" max="23">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="evening_start" 
+                                                       value="{% if edit_workinghour_id == wh.id and form.evening_start.value != None %}{{ form.evening_start.value }}{% else %}{{ wh.evening_start|default:'' }}{% endif %}" 
+                                                       class="form-control" min="0" max="23">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="evening_end" 
+                                                       value="{% if edit_workinghour_id == wh.id and form.evening_end.value != None %}{{ form.evening_end.value }}{% else %}{{ wh.evening_end|default:'' }}{% endif %}" 
+                                                       class="form-control" min="0" max="23">
+                                            </td>
+                                            <td class="action-buttons">
+                                                <button type="submit" class="btn btn-success btn-sm">تأیید</button>
+                                                <button type="button" class="btn btn-secondary btn-sm cancel-btn" data-id="{{ wh.id }}">لغو</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>هیچ ساعت کاری ثبت نشده است.</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'core/js/workinghour.js' %}"></script>
+{% endblock %}

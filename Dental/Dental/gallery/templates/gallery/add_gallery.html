@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">ایجاد گالری جدید</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        <!-- فرم گالری -->
+                        <div class="mb-3">
+                            <label for="category" class="form-label fw-bold">دسته‌بندی گالری</label>
+                            {{ gallery_form.category }}
+                        </div>
+
+                        <!-- آپلود تصاویر -->
+                        <div class="mb-3">
+                            <label for="image" class="form-label fw-bold">آپلود تصاویر</label>
+                            <input type="file" name="image" id="image" class="form-control" multiple required onchange="previewImages(event)">
+                        </div>
+
+                        <!-- نمایش پیش‌نمایش تصاویر آپلود شده -->
+                        <div id="image-preview" class="d-flex flex-wrap gap-2"></div>
+
+                        <!-- دکمه ارسال -->
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success btn-lg px-5">📸 ایجاد گالری</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 🌟 تنظیمات عمومی */
+body {
+    background-color: #f8f9fa;
+}
+
+/* 🌟 استایل کلی کارت */
+.card {
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 🌟 سربرگ کارت */
+.card-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* 🌟 استایل فرم و دکمه‌ها */
+.form-label {
+    font-weight: bold;
+    color: #333;
+}
+.form-control {
+    border-radius: 8px;
+    padding: 10px;
+}
+.btn-success {
+    background-color: #28a745;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn-success:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+/* 🌟 استایل پیش‌نمایش تصاویر */
+#image-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+#image-preview img {
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+#image-preview img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+</style>
+
+<!-- اسکریپت برای پیش‌نمایش تصاویر -->
+<script>
+    function previewImages(event) {
+        let previewContainer = document.getElementById("image-preview");
+        previewContainer.innerHTML = "";  // پاک کردن پیش‌نمایش قبلی
+        
+        Array.from(event.target.files).forEach(file => {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let img = document.createElement("img");
+                img.src = e.target.result;
+                img.className = "img-thumbnail rounded shadow-sm";
+                img.style = "width: 100px; height: 100px; object-fit: cover;";
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+</script>
+
+{% endblock %}

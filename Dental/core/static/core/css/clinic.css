@@ -1,0 +1,487 @@
+/* clinic.css */
+:root {
+    --primary: #2c7be5;
+    --success: #38c172;
+    --danger: #e74c3c;
+    --secondary: #6c757d;
+    --gray-100: #f8f9fa;
+    --gray-200: #e9ecef;
+    --gray-900: #212529;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --gradient: linear-gradient(135deg, #2c7be5, #216bc4);
+}
+
+.container-clinic {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* وسط‌چین کردن محتوای کانتینر */
+}
+
+/* عنوان و دکمه افزودن مطب */
+.header-section {
+    text-align: center;
+    margin-bottom: 3rem;
+    width: 100%;
+}
+
+h1 {
+    color: var(--gray-900);
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    position: relative;
+    display: inline-block;
+}
+
+h1::after {
+    content: '';
+    position: absolute;
+    width: 60%;
+    height: 4px;
+    background: var(--gradient);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+/* استایل دکمه افزودن مطب */
+.mb-3 .btn-primary {
+    background: var(--gradient);
+    border: none;
+    color: white;
+    padding: 0.85rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(44, 123, 229, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mb-3 .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(44, 123, 229, 0.5);
+    background: linear-gradient(135deg, #216bc4, #1a5aa3);
+}
+
+.clinic-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px var(--shadow);
+    margin-bottom: 3rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 800px; /* محدود کردن عرض کارت‌ها */
+}
+
+.clinic-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px var(--shadow);
+}
+
+.display-mode {
+    padding: 2.5rem;
+}
+
+.display-mode img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 20px 20px 0 0;
+    margin-bottom: 2rem;
+    transition: transform 0.3s ease;
+}
+
+.display-mode img:hover {
+    transform: scale(1.02);
+}
+
+.display-mode h2 {
+    color: var(--primary);
+    font-size: 1.85rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.display-mode h2::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 3px;
+    background: var(--gradient);
+    bottom: -10px;
+    right: 0;
+    border-radius: 2px;
+}
+
+.display-mode p {
+    margin: 1rem 0;
+    color: var(--gray-900);
+    line-height: 1.9;
+    font-size: 1.1rem;
+}
+
+.actions {
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn {
+    padding: 0.85rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 15px var(--shadow);
+}
+
+.update-btn {
+    background: var(--gradient);
+    color: white;
+}
+
+.update-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(44, 123, 229, 0.4);
+    background: linear-gradient(135deg, #216bc4, #1a5aa3);
+}
+
+.delete-btn {
+    background: var(--danger);
+    color: white;
+}
+
+.delete-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+    background: #c0392b;
+}
+
+.edit-mode {
+    padding: 2.5rem;
+    background: var(--gray-100);
+    border-radius: 0 0 20px 20px;
+}
+
+.edit-mode label {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: block;
+    color: var(--gray-900);
+    font-size: 1.05rem;
+}
+
+.form-control {
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 0.9rem 1.5rem;
+    margin-bottom: 1.75rem;
+    transition: all 0.3s ease;
+    background: white;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(44, 123, 229, 0.2);
+    outline: none;
+}
+
+.form-check {
+    margin-bottom: 1.75rem;
+}
+
+.form-check-input {
+    margin-top: 0.4rem;
+    margin-right: 0.75rem;
+    width: 1.35rem;
+    height: 1.35rem;
+    cursor: pointer;
+}
+
+.btn-success {
+    background: var(--success);
+    color: white;
+}
+
+.btn-success:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(56, 193, 114, 0.4);
+    background: #2d995b;
+}
+
+.btn-secondary {
+    background: var(--secondary);
+    color: white;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    background: #5a6268;
+}
+
+/* تنظیمات مدال */
+.modal-content {
+    border-radius: 20px;
+    box-shadow: 0 10px 30px var(--shadow);
+}
+
+.modal-header {
+    padding: 1.75rem 2.5rem;
+    background: var(--danger);
+    color: white;
+    border-radius: 20px 20px 0 0;
+}
+
+.modal-body {
+    padding: 1.75rem 2.5rem;
+    font-size: 1.15rem;
+}
+
+.modal-footer {
+    padding: 1.25rem 2.5rem 2.5rem;
+    gap: 1.25rem;
+}
+
+/* ریسپانسیو برای حالات مختلف صفحه */
+
+/* تبلت‌ها و صفحات متوسط (تا 1024px) */
+@media (max-width: 1024px) {
+    .container-clinic {
+        padding: 1.5rem;
+    }
+    
+    .clinic-card {
+        max-width: 600px;
+    }
+    
+    .display-mode img {
+        height: 240px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .mb-3 .btn-primary {
+        padding: 0.8rem 2.25rem;
+        font-size: 1.05rem;
+    }
+    
+    .display-mode {
+        padding: 2rem;
+    }
+    
+    .edit-mode {
+        padding: 2rem;
+    }
+    
+    .actions {
+        gap: 1rem;
+    }
+}
+
+/* موبایل‌های بزرگ (تا 768px) */
+@media (max-width: 768px) {
+    .container-clinic {
+        padding: 1rem;
+    }
+    
+    .clinic-card {
+        max-width: 100%;
+        margin-bottom: 2rem;
+    }
+    
+    .display-mode img {
+        height: 200px;
+    }
+    
+    .display-mode h2 {
+        font-size: 1.65rem;
+    }
+    
+    .display-mode p {
+        font-size: 1rem;
+    }
+    
+    h1 {
+        font-size: 1.75rem;
+    }
+    
+    .mb-3 .btn-primary {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+    }
+    
+    .display-mode {
+        padding: 1.75rem;
+    }
+    
+    .edit-mode {
+        padding: 1.75rem;
+    }
+    
+    .actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.75rem;
+    }
+    
+    .form-control {
+        padding: 0.8rem 1.25rem;
+    }
+}
+
+/* موبایل‌های کوچک (تا 480px) */
+@media (max-width: 480px) {
+    .container-clinic {
+        padding: 0.75rem;
+    }
+    
+    .header-section {
+        margin-bottom: 2rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h1::after {
+        width: 50%;
+        height: 3px;
+    }
+    
+    .mb-3 .btn-primary {
+        padding: 0.65rem 1.75rem;
+        font-size: 0.95rem;
+    }
+    
+    .clinic-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .display-mode img {
+        height: 160px;
+    }
+    
+    .display-mode h2 {
+        font-size: 1.45rem;
+    }
+    
+    .display-mode h2::after {
+        width: 30px;
+    }
+    
+    .display-mode p {
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+    
+    .display-mode {
+        padding: 1.25rem;
+    }
+    
+    .edit-mode {
+        padding: 1.25rem;
+    }
+    
+    .form-control {
+        padding: 0.7rem 1rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-check-input {
+        width: 1.2rem;
+        height: 1.2rem;
+    }
+    
+    .btn {
+        padding: 0.65rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .modal-header {
+        padding: 1.25rem 1.75rem;
+    }
+    
+    .modal-body {
+        padding: 1.25rem 1.75rem;
+        font-size: 1rem;
+    }
+    
+    .modal-footer {
+        padding: 1rem 1.75rem 1.75rem;
+    }
+}
+
+/* صفحات خیلی کوچک (تا 360px) */
+@media (max-width: 360px) {
+    h1 {
+        font-size: 1.35rem;
+    }
+    
+    .mb-3 .btn-primary {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .display-mode img {
+        height: 140px;
+    }
+    
+    .display-mode h2 {
+        font-size: 1.35rem;
+    }
+    
+    .display-mode p {
+        font-size: 0.9rem;
+    }
+    
+    .display-mode {
+        padding: 1rem;
+    }
+    
+    .edit-mode {
+        padding: 1rem;
+    }
+    
+    .form-control {
+        padding: 0.6rem 0.9rem;
+    }
+}
+/* استایل پیام‌های خطا در فرم ویرایش */
+.error-messages {
+    background: rgba(231, 76, 60, 0.1);
+    border: 2px solid var(--danger);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    color: var(--danger);
+    font-size: 1rem;
+}
+
+.error-messages ul {
+    list-style-type: disc;
+    margin-right: 1.25rem; /* برای راست‌چین بودن متن فارسی */
+    padding: 0;
+}
+
+.error-messages li {
+    margin-bottom: 0.5rem;
+}
+

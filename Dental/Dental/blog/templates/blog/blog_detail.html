@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-primary font-weight-bold">جزئیات بلاگ</h1>
+        {% if user.is_authenticated %}
+            {% if user.is_superuser %}
+                <a href="{% url 'blog:update_blog' blog.pk %}" class="btn btn-warning btn-sm mx-1">ویرایش</a>
+                <form action="{% url 'blog:delete_blog' blog.pk %}" method="get" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm mx-1">حذف</button>
+                </form>
+            {% elif user.is_doctor and user == blog.writer.user %}
+                <a href="{% url 'blog:update_blog' blog.pk %}" class="btn btn-warning btn-sm mx-1">ویرایش</a>
+                <form action="{% url 'blog:delete_blog' blog.pk %}" method="get" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm mx-1">حذف</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="blog-detail shadow-lg p-5 rounded bg-white">
+        {% if blog.image %}
+        <div class="blog-image text-center mb-4">
+            <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="img-fluid rounded shadow-sm">
+        </div>
+        {% endif %}
+
+        <div class="blog-content">
+            <h1 class="text-center mb-3 text-primary font-weight-bold">{{ blog.title }}</h1>
+            <p class="text-muted text-center mb-4">آخرین بروز رسانی: {{ blog.updated_at|date:"Y/m/d" }}</p>
+            <div class="blog-text">
+                {{ blog.content|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .blog-detail {
+        max-width: 850px;
+        margin: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 15px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .blog-image img {
+        max-height: 450px;
+        object-fit: cover;
+        border-radius: 15px;
+        transition: transform 0.3s ease-in-out;
+    }
+    .blog-image img:hover {
+        transform: scale(1.05);
+    }
+
+    .blog-content h1 {
+        font-size: 2.8rem;
+        color: #0056b3;
+        font-weight: 600;
+    }
+
+    .blog-text {
+        text-align: justify;
+        line-height: 1.8;
+        font-size: 1.15rem;
+        color: #333;
+        word-wrap: break-word;
+        word-break: break-word;
+        white-space: pre-line;
+    }
+
+    .btn-group .btn {
+        font-size: 1rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .btn-outline-success {
+        color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .btn-outline-warning {
+        color: #ffc107;
+        border-color: #ffc107;
+    }
+
+    .btn-outline-warning:hover {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+    .btn-lg {
+        font-size: 1.2rem;
+        padding: 0.8rem 1.5rem;
+    }
+</style>
+
+{% endblock %}

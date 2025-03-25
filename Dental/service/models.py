@@ -33,35 +33,7 @@ class Service(models.Model):
         Override the save method to add custom validation and slug generation.
         """
         self.full_clean()  # Validate the model
-        with transaction.atomic():
-            # Generate a new slug if it doesn't exist or if the title has changed
-            if not self.slug or (self.pk is None or self.title != Service.objects.get(pk=self.pk).title):
-                self.slug = self._generate_unique_slug()
-            try:
-                super().save(*args, **kwargs)
-            except IntegrityError:
-                raise ValidationError("عنوان تکراری است. لطفاً عنوان دیگری انتخاب کنید")
-
-    def _generate_unique_slug(self):
-        """
-        Generate a unique slug for the service based on the title.
-        """
-        try:
-            translator = Translator()
-            english_title = translator.translate(self.title, src='fa', dest='en').text
-        except Exception as e:
-            # Raise a validation error if translation fails
-            raise ValidationError("خطایی رخ داده است. لطفاً بعداً تلاش کنید")
-        
-        base_slug = slugify(english_title)[:150]  # Limit initial length
-        unique_slug = base_slug
-        counter = 1
-        
-        # Ensure the slug is unique by appending a counter if necessary
-        while Service.objects.filter(slug=unique_slug).exclude(pk=self.pk).exists():
-            unique_slug = f"{base_slug}-{counter}"
-            counter += 1
-        return unique_slug
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title[:50]

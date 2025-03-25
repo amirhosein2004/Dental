@@ -1,0 +1,213 @@
+:root {
+    --danger: #dc3545;
+    --danger-dark: #b02a37;
+    --danger-light: rgba(220, 53, 69, 0.1);
+    --gray-100: #f8f9fa;
+    --gray-200: #e9ecef;
+    --gray-600: #6c757d;
+    --white: #ffffff;
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.15);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced Card Container */
+.delete-card {
+    background: var(--gray-100);
+    border: none;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.delete-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+/* Animated Header */
+.card-header {
+    background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, 
+        transparent 20%, 
+        rgba(255, 255, 255, 0.15) 50%, 
+        transparent 80%);
+    animation: header-shine 6s infinite linear;
+}
+
+@keyframes header-shine {
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+.card-header h5 {
+    font-size: 1.8rem;
+    color: var(--white);
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Warning Icon Animation */
+.card-header .fas {
+    font-size: 1.8rem;
+    margin-left: 1rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+/* Enhanced Body Section */
+.card-body {
+    padding: 2.5rem;
+    text-align: center;
+}
+
+.card-body .lead {
+    font-size: 1.4rem;
+    color: #212529;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.text-muted {
+    background: var(--danger-light);
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    border-left: 4px solid var(--danger);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Modern Buttons */
+.card-footer {
+    background: var(--gray-200);
+    padding: 2rem;
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.cancel-btn,
+.delete-btn {
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cancel-btn {
+    border: 2px solid var(--gray-600);
+    color: var(--gray-600);
+    background: var(--white);
+}
+
+.cancel-btn:hover {
+    background: var(--gray-600);
+    color: var(--white);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-sm);
+}
+
+.delete-btn {
+    background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+    color: var(--white);
+    border: none;
+}
+
+.delete-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(220, 53, 69, 0.4);
+}
+
+.delete-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, 
+        transparent 20%, 
+        rgba(255, 255, 255, 0.15) 50%, 
+        transparent 80%);
+    animation: button-shine 4s infinite;
+}
+
+@keyframes button-shine {
+    100% { transform: translateX(-100%) rotate(45deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .delete-card {
+        border-radius: 1rem;
+        margin: 1rem;
+    }
+
+    .card-header {
+        padding: 1.5rem;
+    }
+
+    .card-header h5 {
+        font-size: 1.5rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .card-footer {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+    }
+
+    .cancel-btn,
+    .delete-btn {
+        width: 100%;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-header h5 {
+        font-size: 1.3rem;
+    }
+
+    .card-body .lead {
+        font-size: 1.2rem;
+    }
+
+    .text-muted {
+        font-size: 1rem;
+    }
+}

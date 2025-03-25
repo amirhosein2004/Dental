@@ -1,5 +1,5 @@
 from utils.common_imports import path
-from .views import GalleryView, AddGalleryView, UpdateGalleryView, DeleteGalleryView
+from .views import GalleryView, AddGalleryView, UpdateGalleryView, DeleteGalleryView, LoadMoreGalleriesView
 
 # Define the application namespace
 app_name = 'gallery'
@@ -8,6 +8,9 @@ app_name = 'gallery'
 urlpatterns = [
     # URL pattern for the gallery list view
     path('', GalleryView.as_view(), name='gallery_list'),
+
+    # URL pattern for the load more gallery
+    path('load-more-gallery/', LoadMoreGalleriesView.as_view(), name='load_more_galleries'),
     
     # URL pattern for adding a new gallery
     path('add/', AddGalleryView.as_view(), name='add_gallery'),

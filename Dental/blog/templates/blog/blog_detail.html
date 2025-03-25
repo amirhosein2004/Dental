@@ -1,121 +1,169 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'blog/css/blog_detail.css' %}" media="screen">
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="text-primary font-weight-bold">جزئیات بلاگ</h1>
-        {% if user.is_authenticated %}
-            {% if user.is_superuser %}
-                <a href="{% url 'blog:update_blog' blog.pk %}" class="btn btn-warning btn-sm mx-1">ویرایش</a>
-                <form action="{% url 'blog:delete_blog' blog.pk %}" method="get" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm mx-1">حذف</button>
-                </form>
-            {% elif user.is_doctor and user == blog.writer.user %}
-                <a href="{% url 'blog:update_blog' blog.pk %}" class="btn btn-warning btn-sm mx-1">ویرایش</a>
-                <form action="{% url 'blog:delete_blog' blog.pk %}" method="get" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm mx-1">حذف</button>
-                </form>
+<div class="container-detail-blog my-5">
+    <!-- هدر صفحه با طراحی واکنش‌گرا و دسترسی‌پذیر -->
+    <header class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <h1 class="text-primary fw-bold mb-0">جزئیات بلاگ</h1>
+        {% if user.is_authenticated and user.is_active %}
+            {% if user.is_superuser or user.is_doctor and user == blog.writer.user %}
+                <div class="action-buttons d-flex gap-2">
+                    <a href="{% url 'blog:update_blog' blog.pk %}" 
+                       class="btn btn-warning btn-sm"
+                       role="button"
+                       aria-label="ویرایش پست">
+                        <i class="fas fa-edit me-1"></i>ویرایش
+                    </a>
+                    <!-- دکمه حذف با اتصال به مودال -->
+                    <button type="button" 
+                            class="btn btn-danger btn-sm"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#deleteModal-{{ blog.pk }}"
+                            aria-label="حذف پست">
+                        <i class="fas fa-trash-alt me-1"></i>حذف
+                    </button>
+                </div>
             {% endif %}
         {% endif %}
-    </div>
+    </header>
 
-    <div class="blog-detail shadow-lg p-5 rounded bg-white">
-        {% if blog.image %}
-        <div class="blog-image text-center mb-4">
-            <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="img-fluid rounded shadow-sm">
-        </div>
-        {% endif %}
+    <!-- محتوای اصلی با نشانه‌گذاری معنایی -->
+    <article class="blog-detail shadow-lg p-3 p-md-5 rounded bg-white">
+        <section class="blog-content" aria-labelledby="blog-title">
+            <!-- دسته‌بندی‌ها (تگ‌ها) -->
+            {% if blog.categories.exists %}
+                <section class="text-center mb-4" aria-label="دسته‌بندی‌ها">
+                    <div class="badge-container">
+                        {% for category in blog.categories.all %}
+                            <span class="badge bg-primary mx-1 mb-1">
+                                {{ category.name|truncatechars:20 }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
 
-        <div class="blog-content">
-            <h1 class="text-center mb-3 text-primary font-weight-bold">{{ blog.title }}</h1>
-            <p class="text-muted text-center mb-4">آخرین بروز رسانی: {{ blog.updated_at|date:"Y/m/d" }}</p>
-            <div class="blog-text">
+            <!-- عنوان مقاله -->
+            <h1 id="blog-title" class="text-center mb-3 text-primary fw-bold">
+                {{ blog.title|truncatewords:10 }}
+            </h1>
+
+            <!-- اطلاعات متا (تاریخ به‌روزرسانی) -->
+            <div class="meta-info text-center mb-4">
+                <time datetime="{{ blog.updated_at|date:'c' }}" class="text-muted">
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    آخرین بروزرسانی: {{ blog.get_updated_at_jalali }}
+                </time>
+            </div>
+
+            <!-- تصویر مقاله (کوچک‌تر) -->
+            <figure class="blog-image text-center mb-4">
+                <img src="{{ blog.image.url }}"
+                     alt="{{ blog.title|escape }}"
+                     class="img-fluid rounded shadow-sm"
+                     loading="lazy"
+                     decoding="async"
+                     width="400"
+                     height="225">
+            </figure>
+
+            <!-- محتوای بلاگ -->
+            <div class="blog-text mt-4 content-html">
                 {{ blog.content|safe }}
             </div>
+
+            <!-- صفحات اجتماعی دکتر -->
+            <section class="doctor-social mt-5 pt-4 border-top" aria-label="صفحات اجتماعی دکتر">
+                <h2 class="h5 text-center mb-3">صفحات اجتماعی دکتر</h2>
+                <div class="d-flex flex-wrap justify-content-center gap-2">
+                    {% if blog.writer.twitter %}
+                        <a href="{{ blog.writer.twitter }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn btn-share btn-twitter"
+                           aria-label="توییتر دکتر">
+                            <i class="fab fa-twitter me-2"></i>توییتر
+                        </a>
+                    {% endif %}
+                    {% if blog.writer.telegram %}
+                        <a href="{{ blog.writer.telegram }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn btn-share btn-telegram"
+                           aria-label="تلگرام دکتر">
+                            <i class="fab fa-telegram-plane me-2"></i>تلگرام
+                        </a>
+                    {% endif %}
+                    {% if blog.writer.instagram %}
+                        <a href="{{ blog.writer.instagram }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn btn-share btn-instagram"
+                           aria-label="اینستاگرام دکتر">
+                            <i class="fab fa-instagram me-2"></i>اینستاگرام
+                        </a>
+                    {% endif %}
+                    {% if blog.writer.linkedin %}
+                        <a href="{{ blog.writer.linkedin }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn btn-share btn-linkedin"
+                           aria-label="لینکدین دکتر">
+                            <i class="fab fa-linkedin-in me-2"></i>لینکدین
+                        </a>
+                    {% endif %}
+                </div>
+            </section>
+        </section>
+    </article>
+
+    <!-- مودال حذف -->
+    {% if user.is_authenticated and user.is_active %}
+    {% if user.is_superuser or user.is_doctor and user == blog.writer.user %}
+        <div class="modal fade" 
+            id="deleteModal-{{ blog.pk }}" 
+            tabindex="-1" 
+            aria-labelledby="deleteModalLabel-{{ blog.pk }}" 
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="deleteModalLabel-{{ blog.pk }}">تأیید حذف</h5>
+                        <button type="button" class="btn-close btn-close-white" 
+                                data-bs-dismiss="modal" 
+                                aria-label="بستن"></button>
+                    </div>
+                    <form method="post" action="{% url 'blog:delete_blog' blog.pk %}">
+                        {% csrf_token %}
+                        <div class="modal-body text-center">
+                            <p class="mb-3">
+                                آیا مطمئن هستید که می‌خواهید مقاله <strong>{{ blog.title }}</strong> را حذف کنید؟
+                            </p>
+                            <p class="text-muted small">این عمل قابل بازگشت نیست!</p>
+                        </div>
+                        <div class="modal-footer justify-content-center gap-3">
+                            <button type="button" 
+                                    class="btn btn-outline-secondary px-4 py-2" 
+                                    data-bs-dismiss="modal"
+                                    aria-label="انصراف از حذف">
+                                <span class="fw-bold">انصراف</span>
+                            </button>
+                            <button type="submit" 
+                                    class="btn btn-danger px-4 py-2" 
+                                    aria-label="تأیید حذف">
+                                <span class="fw-bold">حذف</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
+    {% endif %}
+    {% endif %}
 </div>
-
-
-<style>
-    .blog-detail {
-        max-width: 850px;
-        margin: auto;
-        border: 1px solid #dee2e6;
-        border-radius: 15px;
-        background-color: #ffffff;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .blog-image img {
-        max-height: 450px;
-        object-fit: cover;
-        border-radius: 15px;
-        transition: transform 0.3s ease-in-out;
-    }
-    .blog-image img:hover {
-        transform: scale(1.05);
-    }
-
-    .blog-content h1 {
-        font-size: 2.8rem;
-        color: #0056b3;
-        font-weight: 600;
-    }
-
-    .blog-text {
-        text-align: justify;
-        line-height: 1.8;
-        font-size: 1.15rem;
-        color: #333;
-        word-wrap: break-word;
-        word-break: break-word;
-        white-space: pre-line;
-    }
-
-    .btn-group .btn {
-        font-size: 1rem;
-        padding: 0.6rem 1.2rem;
-        border-radius: 8px;
-        transition: all 0.3s ease-in-out;
-    }
-
-    .btn-outline-success {
-        color: #28a745;
-        border-color: #28a745;
-    }
-
-    .btn-outline-success:hover {
-        background-color: #28a745;
-        color: #fff;
-    }
-
-    .btn-outline-warning {
-        color: #ffc107;
-        border-color: #ffc107;
-    }
-
-    .btn-outline-warning:hover {
-        background-color: #ffc107;
-        color: #212529;
-    }
-
-    .btn-outline-danger {
-        color: #dc3545;
-        border-color: #dc3545;
-    }
-
-    .btn-outline-danger:hover {
-        background-color: #dc3545;
-        color: #fff;
-    }
-
-    .btn-lg {
-        font-size: 1.2rem;
-        padding: 0.8rem 1.5rem;
-    }
-</style>
-
 {% endblock %}

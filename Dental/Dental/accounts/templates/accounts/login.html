@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title text-center">ورود دکتر</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- نمایش فرم -->
+                        <div class="mb-3">
+                            {{ form.username.label_tag }}
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger">{{ form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- فیلد پسورد با قابلیت نمایش -->
+                        <div class="mb-3 position-relative">
+                            {{ form.password.label_tag }}
+                            <div class="input-group">
+                                {{ form.password }}
+                                <span class="input-group-text toggle-password" style="cursor: pointer;">
+                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                </span>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="text-danger">{{ form.password.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- کپچا -->
+                        <div class="mb-3">
+                            {{ form.captcha }}
+                            {% if form.captcha.errors %}
+                                <div class="text-danger">{{ form.captcha.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- هانی‌پات (مخفی) -->
+                        {{ form.honeypot }}
+
+                        <!-- دکمه ورود -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">ورود</button>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'accounts:password_reset' %}">فراموشی رمز عبور</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- اضافه کردن Font Awesome و اسکریپت -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const togglePassword = document.querySelector('.toggle-password');
+        const passwordInput = document.querySelector('#id_password');
+        const toggleIcon = document.querySelector('#toggleIcon');
+
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            toggleIcon.classList.toggle('fa-eye');
+            toggleIcon.classList.toggle('fa-eye-slash');
+        });
+    });
+</script>
+{% endblock %}

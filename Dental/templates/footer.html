@@ -1,0 +1,29 @@
+{% load static %}
+
+<footer>
+  <div class="footer-container">
+    <!-- آیکون‌های اینستاگرام (چپ) -->
+    <div class="footer-left">
+      <a href="https://instagram.com/your_profile1" target="_blank">
+        <img src="{% static 'img/instagram-babaee.png' %}" alt="اینستاگرام 1" class="social-icon">
+      </a>
+      <a href="https://instagram.com/your_profile2" target="_blank">
+        <img src="{% static 'img/instagram-behmadi.png' %}" alt="اینستاگرام 2" class="social-icon">
+      </a>
+    </div>
+
+    <!-- لوگو (وسط) -->
+    <div class="footer-center">
+      <img src="{% static 'img/site-logo.png' %}" alt="لوگوی سایت" class="footer-logo">
+    </div>
+
+    <!-- شماره‌های تلفن (راست) -->
+    <div class="footer-right">
+      <a href="tel:02112345678" class="phone-number">021-12345678</a>
+      <a href="tel:09123456789" class="phone-number">0912-3456789</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 همه حقوق متعلق به ما و محفوظ است</p>
+  </div>
+</footer>

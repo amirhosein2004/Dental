@@ -1,4 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="{% static 'accounts/css/logout.css' %}"
+{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -35,49 +42,9 @@
     </div>
 </div>
 
-<!-- استایل و اسکریپت -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-<style>
-    .card {
-        border-radius: 20px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-    }
-    .btn-danger {
-        background: linear-gradient(45deg, #dc3545, #ff7582);
-        border: none;
-        transition: all 0.3s ease;
-    }
-    .btn-danger:hover {
-        background: linear-gradient(45deg, #b02a37, #e04e5c);
-        transform: scale(1.1);
-    }
-    .btn-outline-secondary {
-        transition: all 0.3s ease;
-    }
-    .btn-outline-secondary:hover {
-        background-color: #f8f9fa;
-        transform: scale(1.1);
-    }
-    .card-text {
-        color: #333;
-        font-weight: 500;
-    }
-</style>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const logoutBtn = document.querySelector('#logoutBtn');
-        const logoutForm = document.querySelector('#logoutForm');
+{% endblock %}
 
-        logoutForm.addEventListener('submit', function () {
-            logoutBtn.disabled = true;
-            logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>در حال خروج...';
-        });
-    });
-</script>
+{% block extra_js %}
+    <script scr="{% static 'accounts/js/logout.js' %}"
 {% endblock %}

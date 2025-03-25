@@ -5,64 +5,6 @@ from utils.validators import validate_phone, validate_length
 # Third-party imports
 import jdatetime  
 
-
-# Constants for days of the week in Persian
-DAYS_OF_WEEK = (
-    (0, "شنبه"),
-    (1, "یک‌شنبه"),
-    (2, "دو‌شنبه"),
-    (3, "سه‌شنبه"),
-    (4, "چهارشنبه"),
-    (5, "پنج‌شنبه"),
-    (6, "جمعه"),
-)  
-
-class WorkingHours(models.Model):
-    """
-    Model to represent working hours for each day of the week.
-    """
-    day = models.IntegerField(
-        choices=DAYS_OF_WEEK,
-        help_text="روز هفته",
-    )
-    morning_start = models.IntegerField(
-        null=True, blank=True,
-        help_text="ساعت شروع شیفت صبح (0-23)"
-    )
-    morning_end = models.IntegerField(
-        null=True, blank=True,
-        help_text="ساعت پایان شیفت صبح (0-23)"
-    )
-    evening_start = models.IntegerField(
-        null=True, blank=True,
-        help_text="ساعت شروع شیفت عصر (0-23)"
-    )
-    evening_end = models.IntegerField(
-        null=True, blank=True,
-        help_text="ساعت پایان شیفت عصر (0-23)"
-    )
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['day'], name='unique_day')
-        ]
-        ordering = ['day']
-        verbose_name = "ساعت کاری"
-        verbose_name_plural = "ساعات کاری"
-
-    def save(self, *args, **kwargs):
-        """
-        Override save method to perform full clean before saving.
-        """
-        self.full_clean()
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        day_name = dict(DAYS_OF_WEEK).get(self.day, "نامشخص")
-        morning = f"{self.morning_start or '-'} تا {self.morning_end or '-'}" if self.morning_start and self.morning_end else "تعطیل"
-        evening = f"{self.evening_start or '-'} تا {self.evening_end or '-'}" if self.evening_start and self.evening_end else "تعطیل"
-        return f"{day_name}: صبح {morning} | عصر {evening}"
-
 class ContactMessage(models.Model):
     """
     Model to represent a contact message.

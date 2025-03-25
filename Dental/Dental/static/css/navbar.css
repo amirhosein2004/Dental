@@ -1,0 +1,92 @@
+/* استایل کلی نوار ناوبری
+.navbar {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    transition: all 0.3s ease;
+    border-radius: 0 0 20px 20px;
+}
+
+/* حالت چسبیده به بالا با اسکرول */
+.navbar.scrolled {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    padding: 0.75rem 0;
+}
+
+/* لوگو/برند */
+.navbar-brand {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    letter-spacing: -0.5px;
+    transition: color 0.3s ease;
+}
+
+.navbar-brand:hover {
+    color: #3b82f6;
+}
+
+/* دکمه همبرگر */
+.navbar-toggler {
+    border: none;
+    padding: 0.5rem;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(30, 58, 138, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* آیتم‌های منو */
+.nav-link {
+    font-size: 1rem;
+    color: #1e3a8a;
+    padding: 0.75rem 1.25rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #3b82f6;
+    transform: translateY(-2px);
+}
+
+/* خط انیمیشنی زیر لینک‌ها */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0.25rem;
+    left: 50%;
+    background: linear-gradient(to right, #3b82f6, #60a5fa);
+    transition: all 0.4s ease;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+    width: 70%;
+}
+
+/* خوش‌آمدگویی کاربر */
+.user-welcome {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    background: #e2e8f0;
+    border-radius: 20px;
+}
+
+/* تنظیمات موبایل */
+@media (max-width: 991px) {
+    .navbar-collapse {
+        background: #ffffff;
+        border-radius: 0 0 15px 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+    }
+    .nav-link {
+        padding: 0.75rem 1rem;
+    }
+} */

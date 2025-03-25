@@ -1,9 +1,10 @@
 # Project-specific imports from common_imports
-from utils.common_imports import (View, render, redirect,
-        get_object_or_404, transaction,
-        messages, PermissionDenied,
-        method_decorator, cache_page
-    ) 
+from utils.common_imports import (
+    View, render, redirect, JsonResponse,
+    get_object_or_404, transaction,
+    messages, PermissionDenied,
+    method_decorator, cache_page
+) 
 
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 
@@ -27,14 +28,54 @@ class GalleryView(RateLimitMixin, View):
     """
     template_name = 'gallery/gallery.html'
 
-    @method_decorator(lambda func: cache_page(21600, key_prefix=lambda request: get_cache_key(request, cache_view='galleryview'))(func))   # Cache for 6 hours
+    # @method_decorator(lambda func: cache_page(21600, key_prefix=lambda request: get_cache_key(request, cache_view='galleryview'))(func))   # Cache for 6 hours
     def get(self, request, *args, **kwargs):
+        doctors = Doctor.objects.all()
         categories = Category.objects.all()
-        galleries = Gallery.objects.select_related('category', 'doctor__user').prefetch_related('images')
+        galleries = Gallery.objects.select_related('category', 'doctor__user').prefetch_related('images').all()
         gallery_filter = GalleryFilter(request.GET, queryset=galleries)
-        context = {'galleries': gallery_filter.qs, 'filter': gallery_filter, 'categories': categories}
+        context = {'galleries': gallery_filter.qs[:4], 'filter': gallery_filter, 'categories': categories, 'doctors': doctors}
         return render(request, self.template_name, context)
     
+class LoadMoreGalleriesView(View):
+    """
+    View to handle loading more galley via AJAX requests.
+    """
+    # @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='loadmoregalleryview'))(func))  # Cache for 24 hours
+    def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests to load more galley.
+        """
+        # Check if the request is an AJAX request
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            # Get the offset value from the request and set the number of posts to load per request
+            offset = int(request.GET.get('offset', 0))
+            limit = 4  # Number of posts to load per request
+            
+            # Apply filters sent from the form
+            galleries = Gallery.objects.select_related('category', 'doctor__user').prefetch_related('images').all()
+            gallery_filter = GalleryFilter(request.GET, queryset=galleries)
+
+            # Retrieve more posts based on the offset and limit
+            more_galleries = gallery_filter.qs[offset:offset + limit]
+            
+            # Prepare the blog post data to send to the client
+            galleries_data = [
+                {
+                    'id': gallery.id,
+                    'can_edit': request.user.is_authenticated and (request.user.is_superuser or request.user == gallery.doctor.user),  # condition show menu
+                    'image': [img.image.url for img in gallery.images.all()], 
+
+                } for gallery in more_galleries
+            ]
+            
+            return JsonResponse({
+                'galleries': galleries_data,  
+                'has_more': len(more_galleries) == limit  
+            })
+        
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
 class AddGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     """
     View to handle adding a new gallery.
@@ -111,25 +152,24 @@ class UpdateGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        gallery_form = self.form_class_gallery(request.POST, instance=self.gallery)
-        image_form = self.form_class_image(request.POST, request.FILES)
+        gallery_form = self.form_class_gallery(instance=self.gallery)
+        image_form = self.form_class_image()
 
         if 'add_images' in request.POST:
+            # Only in this case the image form is initialized with the request data.
+            image_form = self.form_class_image(request.POST, request.FILES)
             if image_form.is_valid():
                 images = [
-                    Image(gallery=gallery_form, image=img)
+                    Image(gallery=self.gallery, image=img)
                     for img in request.FILES.getlist('image')
                 ]
                 Image.objects.bulk_create(images)
                 messages.success(request, "تصاویر جدید با موفقیت اضافه شدند")
                 return redirect('gallery:update_gallery', pk=self.gallery.id)
-
-        if 'delete_all_images' in request.POST:
-            self.gallery.images.all().delete()
-            messages.success(request, "تمامی تصاویر گالری حذف شدند")
-            return redirect('gallery:update_gallery', pk=self.gallery.id)
-
+            
         if 'change_category' in request.POST:
+            # Only in this case the gallery form is populated with requests.
+            gallery_form = self.form_class_gallery(request.POST, instance=self.gallery)
             if gallery_form.is_valid():
                 gallery_form.save()
                 messages.success(request, "دسته بندی گالری با موفقیت به‌روزرسانی شد")
@@ -141,6 +181,12 @@ class UpdateGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
             image.delete()
             messages.success(request, "تصویر با موفقیت حذف شد")
             return redirect('gallery:update_gallery', pk=self.gallery.id)
+        
+        if 'delete_all_images' in request.POST:
+            self.gallery.images.all().delete()
+            messages.success(request, "تمامی تصاویر گالری حذف شدند")
+            return redirect('gallery:update_gallery', pk=self.gallery.id)
+
 
         context = {
             'gallery_form': gallery_form,
@@ -164,11 +210,9 @@ class DeleteGalleryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
         if not(request.user.is_superuser or request.user == self.gallery.doctor.user):
             raise PermissionDenied("شما فقط می‌توانید گالری‌های خودتان را حذف کنید")
         return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        context = {'gallery': self.gallery}
-        return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
         self.gallery.delete()
-        return redirect('gallery:gallery_list')
+        messages.success(request, "'گالری با موفقیت حذف شد")
+        next_url = request.POST.get('next', 'gallery:gallery_list')  # برای وقتی کی میخواهیم ار داشبورد حذف کنیم به داشبورد ریدایرکت شویم
+        return redirect(next_url)

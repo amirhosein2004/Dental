@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="blog-header mb-5">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center bg-light p-4 rounded-3 shadow-sm">
+            <h1 class="display-5 fw-bold text-gradient-primary mb-4 mb-lg-0">
+                <i class="fas fa-blog me-3"></i> آخرین مقالات آموزشی
+            </h1>
+            {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
+            <a href="{% url 'core:category' %}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill shadow-hover">
+                <i class="fas fa-plus-circle me-2"></i> مدیریت دسته‌بندی
+            {% endif %}
+            </a>
+            {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
+            <a href="{% url 'blog:create_blog' %}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill shadow-hover">
+                <i class="fas fa-plus-circle me-2"></i> مقاله جدید
+            {% endif %}
+            </a>
+        </div>
+    </div>
+
+    <!-- فرم فیلتر -->
+    <form method="GET" class="filter-box p-4 mb-4 rounded-3 shadow-sm">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="{{ filter.form.text.id_for_label }}" class="form-label">عنوان مورد نظر</label>
+                {{ filter.form.title }}
+            </div>
+            <div class="col-md-4">
+                <label for="{{ filter.form.writer.id_for_label }}" class="form-label">نویسنده</label>
+                {{ filter.form.writer }}
+            </div>
+            <div class="col-md-4">
+                <label for="{{ filter.form.category.id_for_label }}" class="form-label">دسته‌بندی</label>
+                {{ filter.form.category }}
+            </div>
+            <div class="col-md-12 d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-hover">
+                    <i class="fas fa-search me-2"></i> فیلتر
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- لیست مقالات -->
+    <div class="row g-4">
+        {% for blog in blogs %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <article class="blog-card card h-100 border-0 shadow-hover overflow-hidden">
+                <div class="card-img-wrapper position-relative">
+                    {% if blog.image %}
+                    <img src="{{ blog.image.url }}" class="card-img-top object-fit-cover" alt="{{ blog.title }}" style="height: 250px;">
+                    <div class="img-overlay"></div>
+                    {% endif %}
+                    <div class="position-absolute top-0 start-0 m-3">
+                        <span class="badge bg-primary opacity-90">
+                            <i class="fas fa-calendar-alt me-2"></i>{{ blog.get_updated_at_jalali }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <p class="mb-0 small text-muted">نویسنده</p>
+                            <p class="mb-0 fw-bold">{{ blog.writer.user.first_name }} {{ blog.writer.user.last_name }}</p>
+                        </div>
+                        <div class="text-end">
+                            {% for category in blog.categories.all %}
+                                <span class="badge bg-primary-light text-primary rounded-pill">{{ category.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <h3 class="h5 fw-bold mb-3 text-dark">{{ blog.title }}</h3>
+                    <div class="blog-excerpt mb-4">
+                        {{ blog.content|truncatechars:200|safe }}
+                    </div>
+
+                    <a href="{% url 'blog:blog_detail' blog.slug %}" class="stretched-link read-more-btn">
+                        <span class="btn btn-primary rounded-pill px-4 py-2 shadow-hover">
+                            ادامه مطلب
+                            <i class="fas fa-arrow-left ms-2"></i>
+                        </span>
+                    </a>
+                </div>
+            </article>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="empty-state text-center py-5">
+                <img src="{% static 'images/empty-blog.svg' %}" class="mb-4" width="200" alt="بدون مقاله">
+                <h4 class="text-muted fw-bold">مقاله‌ای یافت نشد!</h4>
+                <a href="{% url 'blog:blog_list' %}" class="btn btn-secondary mt-3">نمایش همه مقالات</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<style>
+    :root {
+        --primary-hover: #0062cc;
+        --transition-speed: 0.3s;
+        --shadow-intensity: 0.15;
+    }
+
+    .text-gradient-primary {
+        background: linear-gradient(45deg, #007bff, #00b4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .blog-card {
+        transition: all var(--transition-speed) ease;
+        border-radius: 15px!important;
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    }
+
+    .shadow-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1)!important;
+    }
+
+    .card-img-wrapper {
+        overflow: hidden;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .img-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%);
+    }
+
+    .blog-excerpt {
+        position: relative;
+        line-height: 1.8;
+        color: #555;
+        max-height: 6em;
+        overflow: hidden;
+    }
+
+    .blog-excerpt::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2em;
+        background: linear-gradient(to bottom, transparent, white);
+    }
+
+    .read-more-btn .btn {
+        transition: all var(--transition-speed) ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .read-more-btn .btn::after {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: rgba(255,255,255,0.1);
+        transform: rotate(45deg) translateX(-20%);
+        transition: all 0.5s ease;
+    }
+
+    .read-more-btn .btn:hover::after {
+        transform: rotate(45deg) translateX(100%);
+    }
+
+    @media (max-width: 768px) {
+        .blog-header h1 {
+            font-size: 2rem;
+        }
+
+        .blog-excerpt {
+            font-size: 0.9rem;
+        }
+    }
+
+    form .form-label {
+        font-weight: bold;
+    }
+
+    form select, form input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    form button {
+        transition: background 0.3s ease;
+    }
+
+    form button:hover {
+        background: #0056b3;
+    }
+    .filter-box {
+        background: #f8f9fa;
+        border-left: 5px solid #007bff;
+    }
+    
+    .filter-box select, .filter-box input {
+        border-radius: 10px;
+        padding: 10px;
+    }
+    
+    .filter-box button {
+        transition: all 0.3s ease;
+    }
+    
+    .filter-box button:hover {
+        background: #0056b3;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // پاک کردن فیلترها هنگام لود اولیه صفحه
+        if(performance.navigation.type === 1) { // اگر صفحه رفرش شده باشد
+            if(window.location.search) {
+                window.location.replace(window.location.pathname);
+            }
+        }
+
+        // ریست کردن مقادیر فرم
+        const resetForm = () => {
+            document.querySelectorAll('form input, form select').forEach(element => {
+                if(element.tagName === 'INPUT') {
+                    element.value = '';
+                } else if(element.tagName === 'SELECT') {
+                    element.selectedIndex = 0;
+                }
+            });
+        }
+
+        // اگر پارامترهای GET وجود ندارند فرم را ریست کنید
+        if(!window.location.search) {
+            resetForm();
+        }
+
+        // مدیریت کلیک روی دکمه پاک کردن
+        document.querySelector('.btn-clear-filters')?.addEventListener('click', () => {
+            resetForm();
+        });
+    });
+</script>
+
+
+{% endblock %}

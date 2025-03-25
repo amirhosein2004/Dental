@@ -1,126 +1,94 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'gallery/css/update_gallery.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container my-5">
-    <h2 class="text-center mb-4">ویرایش گالری</h2>
+    <h2 class="text-center mb-5 fw-bold">ویرایش گالری</h2>
     
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <!-- فرم ویرایش گالری -->
-            <form method="POST" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-light">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label for="{{ gallery_form.category.id_for_label }}" class="form-label">دسته‌بندی</label>
-                    {{ gallery_form.category }}
-                    {% if gallery_form.category.errors %}
-                        <div class="text-danger">{{ gallery_form.category.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="text-center mb-4">
-                    <button type="submit" name="change_category" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save me-2"></i> ذخیره اطلاعات گالری
-                    </button>
-                </div>
-            </form>
-
-            <hr>
-
-            <!-- فرم آپلود تصاویر جدید -->
-            <form method="POST" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-light">
-                {% csrf_token %}
-                <h4>اضافه کردن تصاویر جدید</h4>
-                <div class="mb-3">
-                    <label for="{{ image_form.image.id_for_label }}" class="form-label">انتخاب تصاویر</label>
-                    {{ image_form.image }}
-                    {% if image_form.image.errors %}
-                        <div class="text-danger">{{ image_form.image.errors }}</div>
-                    {% endif %}
-                    <small class="form-text text-muted">می‌توانید چندین تصویر را انتخاب کنید.</small>
-                </div>
-
-                <div class="text-center">
-                    <button type="submit" name="add_images" class="btn btn-primary btn-lg">
-                        <i class="fas fa-upload me-2"></i> اضافه کردن تصاویر
-                    </button>
-                </div>
-            </form>
-
-            <hr>
-
-            <!-- نمایش تصاویر موجود و حذف آنها -->
-            <h4>تصاویر موجود</h4>
-            <div class="row">
-                {% for image in gallery.images.all %}
-                    <div class="col-md-4 mb-3">
-                        <div class="position-relative">
-                            <img src="{{ image.image.url }}" alt="image" class="img-fluid">
-                            <form method="POST" style="position: absolute; top: 0; right: 0;">
-                                {% csrf_token %}
-                                <input type="hidden" name="image_id" value="{{ image.id }}">
-                                <button type="submit" name="delete_image" class="btn btn-danger btn-sm" style="position: absolute; top: 0; right: 0;">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </form>
+        <div class="col-lg-10 col-md-12">
+            <!-- فرم ویرایش دسته‌بندی -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="{{ gallery_form.category.id_for_label }}" class="form-label fw-semibold">دسته‌بندی</label>
+                            {{ gallery_form.category }}
+                            {% if gallery_form.category.errors %}
+                                <div class="alert alert-danger mt-2">{{ gallery_form.category.errors }}</div>
+                            {% endif %}
                         </div>
-                    </div>
-                {% endfor %}
+                        <div class="text-center">
+                            <button type="submit" name="change_category" class="btn btn-primary btn-lg px-4">
+                                <i class="fas fa-save me-2"></i> ذخیره تغییرات
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <!-- دکمه حذف تمامی تصاویر -->
-            <form method="POST">
-                {% csrf_token %}
-                <div class="text-center mb-4">
-                    <button type="submit" name="delete_all_images" class="btn btn-danger btn-lg">
-                        <i class="fas fa-trash-alt me-2"></i> حذف تمامی تصاویر
-                    </button>
+            <!-- فرم آپلود تصاویر -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <h4 class="mb-4 fw-semibold">اضافه کردن تصاویر جدید</h4>
+                        <div class="mb-4">
+                            <label for="id_image" class="form-label fw-semibold">انتخاب تصاویر</label>
+                            <input type="file" name="image" id="id_image" class="form-control" multiple accept="image/*">
+                            {% if image_form.image.errors %}
+                                <div class="alert alert-danger mt-2">{{ image_form.image.errors }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted mt-2">پشتیبانی از فرمت‌های JPG, PNG و ... (حداکثر ۵ فایل)</div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" name="add_images" class="btn btn-primary btn-lg px-4">
+                                <i class="fas fa-upload me-2"></i> آپلود تصاویر
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
 
+            <!-- نمایش و مدیریت تصاویر -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="mb-4 fw-semibold">تصاویر موجود</h4>
+                    {% if gallery.images.all %}
+                        <div class="gallery-grid">
+                            {% for image in gallery.images.all %}
+                                <div class="gallery-item position-relative overflow-hidden">
+                                    <img src="{{ image.image.url }}" alt="تصویر گالری" class="img-fluid">
+                                    <form method="POST" class="position-absolute top-0 end-0 p-2">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="image_id" value="{{ image.id }}">
+                                        <button type="submit" name="delete_image" class="btn btn-danger btn-sm rounded-circle" title="حذف تصویر">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <form method="POST" class="mt-4">
+                            {% csrf_token %}
+                            <div class="text-center">
+                                <button type="submit" name="delete_all_images" class="btn btn-outline-danger px-4" 
+                                        onclick="return confirm('آیا از حذف همه تصاویر مطمئن هستید؟');">
+                                    <i class="fas fa-trash-alt me-2"></i> حذف همه تصاویر
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info text-center">هیچ تصویری در این گالری وجود ندارد.</div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<style>
-    /* استایل‌های سفارشی */
-    .form-control {
-        border-radius: 0.5rem;
-        padding: 0.75rem;
-    }
-
-    .form-label {
-        font-weight: bold;
-        margin-bottom: 0.5rem;
-    }
-
-    .btn-primary {
-        background-color: #007bff;
-        border: none;
-        padding: 0.75rem 2rem;
-        font-size: 1.1rem;
-    }
-
-    .btn-primary:hover {
-        background-color: #0056b3;
-    }
-
-    .bg-light {
-        background-color: #f8f9fa !important;
-    }
-
-    .btn-danger {
-        background-color: #dc3545;
-        border: none;
-    }
-
-    .btn-danger:hover {
-        background-color: #c82333;
-    }
-
-    hr {
-        margin-top: 3rem;
-        margin-bottom: 3rem;
-    }
-</style>
-
 {% endblock %}

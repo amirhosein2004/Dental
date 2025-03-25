@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'core/css/create_workinghours.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <h1 class="my-4 text-center" aria-label="فرم افزودن ساعت‌های کاری">
+                افزودن ساعت‌های کاری
+            </h1>
+
+            <form method="POST" novalidate class="needs-validation" dir="rtl">
+                {% csrf_token %}
+
+                <!-- Day Selection Section -->
+                <section class="form-section card">
+                    <header class="card-header">
+                        <h5 class="mb-0">انتخاب روز</h5>
+                    </header>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="{{ form.day.id_for_label }}" class="form-label">
+                                {{ form.day.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.day }}
+                            {% if form.day.errors %}
+                                <div class="invalid-feedback" role="alert">
+                                    {% for error in form.day.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Working Hours Section -->
+                <section class="form-section card">
+                    <header class="card-header">
+                        <h5 class="mb-0">ساعات کاری</h5>
+                    </header>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Morning Hours -->
+                            <div class="col-md-6 time-group">
+                                <label class="form-label">صبح</label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">شروع</span>
+                                    {{ form.morning_start }}
+                                    {% if form.morning_start.errors %}
+                                        <div class="invalid-feedback" role="alert">
+                                            {% for error in form.morning_start.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text">پایان</span>
+                                    {{ form.morning_end }}
+                                    {% if form.morning_end.errors %}
+                                        <div class="invalid-feedback" role="alert">
+                                            {% for error in form.morning_end.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Evening Hours -->
+                            <div class="col-md-6 time-group">
+                                <label class="form-label">عصر</label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">شروع</span>
+                                    {{ form.evening_start }}
+                                    {% if form.evening_start.errors %}
+                                        <div class="invalid-feedback" role="alert">
+                                            {% for error in form.evening_start.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text">پایان</span>
+                                    {{ form.evening_end }}
+                                    {% if form.evening_end.errors %}
+                                        <div class="invalid-feedback" role="alert">
+                                            {% for error in form.evening_end.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            نکته: اعداد بین ۰ تا ۲۳ وارد کنید. خالی گذاشتن به معنی تعطیل است.
+                        </small>
+                    </div>
+                </section>
+
+                <!-- Form Actions -->
+                <div class="d-flex justify-content-between btn-group mt-4">
+                    <a href="{% url 'core:workinghours' %}" 
+                       class="btn btn-secondary" 
+                       role="button"
+                       aria-label="بازگشت به لیست ساعت‌های کاری">
+                        بازگشت به لیست
+                    </a>
+                    <button type="submit" 
+                            class="btn btn-success"
+                            aria-label="ثبت ساعت‌های کاری">
+                        ثبت ساعت‌های کاری
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

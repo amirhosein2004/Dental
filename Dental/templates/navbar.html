@@ -1,161 +1,99 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
-  
+{% load static %}
+
+<nav class="navbar navbar-expand-lg shadow-sm py-3">
   <div class="container">
-    <!-- لوگو/نام سایت -->
-    <a class="navbar-brand fw-bold text-primary" href="{% url 'home:home' %}">
-      <i class="fas fa-star me-2"></i>
-      نام سایت
+    <!-- لوگو -->
+    <a class="navbar-brand ms-5" href="{% url 'home:home' %}">
+      <img src="{% static 'img/site-logo.png' %}" alt="لوگوی سایت" class="logo-img">
     </a>
 
-    <!-- دکمه همبرگر موبایل -->
-    <button class="navbar-toggler border-0" 
+    <!-- آیکون‌های اینستاگرام برای کاربران عادی -->
+    {% if not request.user.is_authenticated %}
+    <div class="d-flex align-items-center gap-5 instagram-icons">
+      <a href="https://instagram.com/your_profile1" target="_blank">
+        <img src="{% static 'img/instagram-babaee.png' %}" alt="اینستاگرام 1" class="instagram-icon">
+      </a>
+      <a href="https://instagram.com/your_profile2" target="_blank">
+        <img src="{% static 'img/instagram-behmadi.png' %}" alt="اینستاگرام 2" class="instagram-icon">
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- دکمه همبرگر -->
+    <button class="navbar-toggler" 
             type="button" 
             data-bs-toggle="collapse" 
-            data-bs-target="#navbarSupportedContent">
+            data-bs-target="#navContent" 
+            aria-controls="navContent" 
+            aria-expanded="false" 
+            aria-label="منو">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <!-- آیتم‌های منو -->
-        <li class="nav-item mx-2">
-          <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'home:home' %}">
-            <i class="fas fa-home me-2"></i>
-            خانه
-            <span class="nav-hover"></span>
-          </a>
+    <!-- منوها و شماره‌ها -->
+    <div class="collapse navbar-collapse justify-content-center" id="navContent">
+      <ul class="navbar-nav gap-3 align-items-center text-center">
+        <li class="nav-item">
+          <a class="nav-link text-dark fw-medium" href="{% url 'home:home' %}">خانه</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark fw-medium" href="{% url 'about:about' %}">درباره ما</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark fw-medium" href="{% url 'blog:blog_list' %}">وبلاگ</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark fw-medium" href="{% url 'service:service_list' %}">خدمات</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark fw-medium" href="{% url 'gallery:gallery_list' %}">گالری</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark fw-medium" href="{% url 'contact:contact' %}">تماس</a>
         </li>
 
-        <li class="nav-item mx-2">
-          <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'about:about' %}">
-            <i class="fas fa-info-circle me-2"></i>
-            درباره ما
-            <span class="nav-hover"></span>
-          </a>
-        </li>
-
-        <li class="nav-item mx-2">
-          <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'blog:blog_list' %}">
-            <i class="fas fa-blog me-2"></i>
-            وبلاگ
-            <span class="nav-hover"></span>
-          </a>
-        </li>
-
-        <li class="nav-item mx-2">
-          <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'service:service_list' %}">
-            <i class="fas fa-concierge-bell me-2"></i>
-            خدمات
-            <span class="nav-hover"></span>
-          </a>
-        </li>
-
-        <li class="nav-item mx-2">
-          <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'gallery:gallery_list' %}">
-            <i class="fas fa-images me-2"></i>
-            گالری
-            <span class="nav-hover"></span>
-          </a>
-        </li>
-
-        <li class="nav-item mx-2">
-          <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'contact:contact' %}">
-            <i class="fas fa-images me-2"></i>
-            تماس با ما
-            <span class="nav-hover"></span>
-          </a>
-        </li>
-
-        <!-- بخش مدیریت (شرطی) -->
-        {% if request.user.is_authenticated and request.user.is_doctor %}
-        <li class="nav-item mx-2">
-          <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'dashboard:dashboard_doctor' request.user.doctor.id %}">
-            <i class="fas fa-tasks me-2"></i>
-            {% if request.user.first_name == 'سعیده' %}
-            داشبوردت زنوک
-            {% elif request.user.first_name == 'سجاد' %}
-            داشبوردت مردک
-            {% else %}
-            داشبورک پزشک
-            {% endif %}
-            <span class="nav-hover"></span>
-          </a>
+        <!-- شماره‌های تلفن بعد از تماس -->
+        {% if not request.user.is_authenticated %}
+        <li class="nav-item phone-numbers">
+          <a href="tel:02112345678" class="phone-number">021-12345678</a>
+          <a href="tel:09123456789" class="phone-number">0912-3456789</a>
         </li>
         {% endif %}
 
-        {% if user.is_authenticated and user.is_superuser %}
-        <li class="nav-item mx-2">
-          <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'dashboard:dashboard_list' %}">
-            <i class="fas fa-tasks me-2"></i>
-            داشبور ها
-            <span class="nav-hover"></span>
-          </a>
-        </li>
-        {% endif %}
+        <!-- بخش شرطی برای کاربران وارد شده -->
+        {% if request.user.is_authenticated %}
+          {% if request.user.is_doctor or request.user.is_superuser %}
+            <li class="nav-item">
+              <a class="nav-link text-dark fw-medium" href="{% url 'core:manage' %}">
+                <i class="fas fa-cogs me-1"></i> مدیریت
+              </a>
+            </li>
+          {% endif %}
 
-        <!-- بخش مدیریت (شرطی) -->
-        {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
-        <li class="nav-item mx-2">
-          <a class="nav-link position-relative text-dark px-3" 
-             href="{% url 'core:manage' %}">
-            <i class="fas fa-tasks me-2"></i>
-            مدیریت 
-            <span class="nav-hover"></span>
-          </a>
-        </li>
-        {% endif %}
+          {% if request.user.is_doctor %}
+            <li class="nav-item">
+              <a class="nav-link text-dark fw-medium" href="{% url 'dashboard:dashboard_doctor' request.user.doctor.id %}">
+                {% if request.user.first_name == 'سعیده' %} داشبوردت زنوک
+                {% elif request.user.first_name == 'سجاد' %} داشبوردت مردک
+                {% else %} داشبورد پزشک {% endif %}
+              </a>
+            </li>
+          {% endif %}
 
+          {% if request.user.is_superuser %}
+            <li class="nav-item">
+              <a class="nav-link text-dark fw-medium" href="{% url 'dashboard:dashboard_list' %}">داشبوردها</a>
+            </li>
+          {% endif %}
+        {% endif %}
       </ul>
+
+      <!-- خوش‌آمدگویی -->
+      {% if request.user.is_authenticated %}
+        <div class="me-lg-5 me-6 d-flex align-items-center welcome-text">
+          <span class="navbar-text text-secondary fw-semibold">خوش آمدی، {{ request.user.get_full_name }}</span>
+        </div>
+      {% endif %}
     </div>
   </div>
-  
-  <div>
-    {% if request.user.is_authenticated %}
-      <p> Welcome {{request.user.get_full_name}} </p>
-    {% endif %}
-  </div>
-  
 </nav>
-
-<style>
-  /* استایل سفارشی */
-  .nav-hover {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
-    height: 2px;
-    background: #4a90e2;
-    transition: all 0.3s ease;
-  }
-
-  .nav-link:hover .nav-hover {
-    width: 80%;
-    left: 10%;
-  }
-
-  .navbar {
-    border-radius: 0 0 15px 15px;
-  }
-
-  .nav-link {
-    transition: all 0.2s ease;
-  }
-
-  .nav-link:hover {
-    transform: translateY(-2px);
-  }
-
-  .navbar-brand {
-    font-size: 1.5rem;
-    letter-spacing: -1px;
-  }
-</style>

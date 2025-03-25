@@ -4,7 +4,7 @@ from utils.common_imports import (
     redirect, get_object_or_404,
     messages, ValidationError,
     PermissionDenied, cache_page,
-    method_decorator,
+    method_decorator, JsonResponse
 )
 
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
@@ -16,6 +16,8 @@ from .filters import BlogPostFilter
 # Imports from external applications
 from dashboard.models import Doctor  
 from utils.cache import get_cache_key
+from django.core.paginator import Paginator
+
  
 
 class BlogView(View):
@@ -25,25 +27,68 @@ class BlogView(View):
     filter_class = BlogPostFilter
     template_name = 'blog/blog.html'
 
-    @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='blogview'))(func))  # Cache for 24 hours
+    # @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='blogview'))(func))  # Cache for 24 hours
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests to display the list of blog posts.
         """
         blogs = BlogPost.objects.select_related('writer').prefetch_related('categories').all()
         blog_filter = self.filter_class(request.GET, queryset=blogs)
+
         context = {
-            'blogs': blog_filter.qs,  # Filtered blog posts
+            'blogs': blog_filter.qs[:3],  # Paginated blog posts
             'filter': blog_filter,    # Filter object
         }
         return render(request, self.template_name, context)
+    
+class LoadMoreBlogsView(View):
+    """
+    View to handle loading more blog posts via AJAX requests.
+    """
+    filter_class = BlogPostFilter
+
+    # @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='loadmoreblogview'))(func))  # Cache for 24 hours
+    def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests to load more blog posts.
+        """
+        # Check if the request is an AJAX request
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            # Get the offset value from the request and set the number of posts to load per request
+            offset = int(request.GET.get('offset', 0))
+            limit = 3  # Number of posts to load per request
+            
+            # Apply filters sent from the form
+            blogs = BlogPost.objects.select_related('writer').prefetch_related('categories').all()
+            blog_filter = self.filter_class(request.GET, queryset=blogs)
+
+            # Retrieve more posts based on the offset and limit
+            more_blogs = blog_filter.qs[offset:offset + limit]
+            
+            # Prepare the blog post data to send to the client
+            blogs_data = [
+                {
+                    'title': blog.title,  
+                    'writer': f"{blog.writer.user.get_full_name}",  
+                    'image': blog.image.url, 
+                    'slug': blog.slug,  
+                    'categories': [cat.name for cat in blog.categories.all()[:3]]  
+                } for blog in more_blogs
+            ]
+            
+            return JsonResponse({
+                'blogs': blogs_data,  
+                'has_more': len(more_blogs) == limit  
+            })
+        
+        return JsonResponse({'error': 'Invalid request'}, status=400)
 
 class BlogDetailView(View):
     """
     View to display the details of a single blog post.
     """
 
-    @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='blogdetailview'))(func))   # Cache for 24 hours
+    # @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='blogdetailview'))(func))   # Cache for 24 hours
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests to display the details of a blog post.
@@ -151,17 +196,11 @@ class DeleteBlogView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
             raise PermissionDenied("شما فقط می‌توانید بلاگ‌های خودتان را حذف کنید")
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        """
-        Handle GET requests to display the blog post deletion confirmation.
-        """
-        context = {'blog': self.blog}
-        return render(request, self.template_name, context)
-
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests to delete the blog post.
         """
         self.blog.delete()
         messages.success(request, "بلاگ با موفقیت حذف شد")
-        return redirect('blog:blog_list')
+        next_url = request.POST.get('next', 'blog:blog_list')  # برای وقتی کی میخواهیم ار داشبورد حذف کنیم به داشبورد ریدایرکت شویم
+        return redirect(next_url)
