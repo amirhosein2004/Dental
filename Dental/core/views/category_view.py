@@ -104,14 +104,6 @@ class RemoveCategoryView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     """
     View to handle removing an existing category.
     """
-    template_name = 'core/remove_category.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Override dispatch to get the category object.
-        """
-        self.category = get_object_or_404(Category, pk=kwargs['pk'])
-        return super().dispatch(request, *args, **kwargs) 
     
     def post(self, request, *args, **kwargs):
         category = get_object_or_404(Category, pk=kwargs['pk'])

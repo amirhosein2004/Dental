@@ -77,7 +77,6 @@ class DeleteClinicView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     """
     View to handle the deletion of an existing clinic.
     """
-    template_name = 'core/delete_clinic.html'
     
     def post(self, request, *args, **kwargs):
         get_object_or_404(Clinic, pk=kwargs['pk']).delete()

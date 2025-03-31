@@ -22,7 +22,7 @@ body {
 
 /* انیمیشن‌ها */
 .animate-fade-in {
-    animation: fadeIn 1.5s ease-out;
+    animation: fadeIn 1s ease-out;
 }
 
 @keyframes fadeIn {
@@ -73,6 +73,11 @@ body {
 }
 
 /* فرم تماس */
+.custom-message {
+    font-size: 2rem;  /* متن را بزرگ‌تر می‌کند */
+    font-weight: bold;  /* متن را بولد می‌کند */
+    color: #2c3e50; /* رنگ متن را تغییر می‌دهد (قابل تنظیم) */
+}
 .form-group label {
     font-size: 18px;
     font-weight: 600;
@@ -291,26 +296,26 @@ h4 {
 }
 
 .bottom-left {
-    bottom: 20px;
+    bottom: 500px;
     left: 20px;
     transform: rotate(-5deg);
 }
 
 .bottom-right {
-    bottom: 20px;
+    bottom: 500px;
     right: 20px;
     transform: rotate(5deg);
 }
 
 .middle-left {
     top Ascendant;
-    top: 50%;
+    top: 40%;
     left: 20px;
     transform: translateY(-50%) rotate(-15deg);
 }
 
 .middle-right {
-    top: 50%;
+    top: 40%;
     right: 20px;
     transform: translateY(-50%) rotate(15deg);
 }

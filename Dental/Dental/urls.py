@@ -3,8 +3,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     # Admin interface
-    path('admin/', admin.site.urls),
-    
+    path(settings.SECURE_ADMIN_PANEL, admin.site.urls),
+
     # Home page and related routes
     path('', include('home.urls')),
     
@@ -34,7 +34,6 @@ urlpatterns = [
 
     # CKEditor 5 URL
     path('ckeditor_5/', include('django_ckeditor_5.urls')),
-
 ]
 
 # Serve static and media files during development

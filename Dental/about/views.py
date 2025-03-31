@@ -1,4 +1,4 @@
-from utils.common_imports import render, View , cache_page, method_decorator
+from utils.common_imports import render, View , cache
 from core.models import Clinic  
 from service.models import Service  
 from dashboard.models import Doctor  
@@ -9,13 +9,19 @@ class AboutView(View):
 
     template_name = 'about/about.html'  
 
-    # method decorator for class-based views for caching
-    @method_decorator(lambda func: cache_page(600, key_prefix=lambda request: get_cache_key(request, cache_view='aboutview'))(func))  
     def get(self, request, *args, **kwargs):
+        cache_key = get_cache_key(request, cache_view='aboutview')
+        cached_data = cache.get(cache_key)  # بررسی کش قبل از اجرای کوئری‌ها
+        if cached_data:
+            return cached_data
+        
         context = {
             'clinic': Clinic.objects.filter(is_primary=True).first(),
             'doctors': Doctor.objects.select_related('user').all(),
             'services': Service.objects.all()[:4],
         }
-        return render(request, self.template_name, context)
+        
+        response = render(request, self.template_name, context)
+        cache.set(cache_key, response, 86400)  # ذخیره کش برای 24 ساعت
+        return response
 

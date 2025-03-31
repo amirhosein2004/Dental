@@ -1,7 +1,5 @@
-from utils.common_imports import models, ValidationError, transaction, IntegrityError
+from utils.common_imports import models
 from utils.validators import validate_image, validate_length
-from django.utils.text import slugify
-from googletrans import Translator  # Importing Google Translate
 
 class Service(models.Model):
     """

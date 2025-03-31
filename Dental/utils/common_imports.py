@@ -60,5 +60,5 @@ from django.views import View
 # Built-in form for changing passwords
 from django.contrib.auth.forms import PasswordChangeForm
 
-# Cache page decorator
-from django.views.decorators.cache import cache_page
+# Cache page
+from django.core.cache import cache

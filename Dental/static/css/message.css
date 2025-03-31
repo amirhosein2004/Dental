@@ -1,54 +1,168 @@
-/* استایل پیام‌های کلی (مثلاً با Django messages) */
-.messages {
+/* متغیرهای رنگ */
+:root {
+    --success: #10b981;
+    --success-bg: #ecfdf5;
+    --error: #ef4444;
+    --error-bg: #fef2f2;
+    --warning: #f59e0b;
+    --warning-bg: #fffbeb;
+    --info: #3b82f6;
+    --info-bg: #eff6ff;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --radius: 12px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* استایل اصلی کانتینر پیام‌ها */
+.messages-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
     width: 100%;
-    max-width: 800px;
-    margin-bottom: 2rem;
 }
 
-.alert {
-    padding: 1rem 1.5rem;
-    border-radius: 10px;
-    font-size: 1rem;
-    margin-bottom: 1rem;
+/* استایل پایه پیام */
+.message {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    padding: 16px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    overflow: hidden;
+    transform: translateX(0);
+    opacity: 1;
 }
 
-.alert-error, .alert-danger {
-    background: rgba(231, 76, 60, 0.1);
-    border: 2px solid var(--danger);
-    color: var(--danger);
+/* انیمیشن خروج پیام */
+.message.hide {
+    transform: translateX(100%);
+    opacity: 0;
 }
 
-.alert-success {
-    background: rgba(56, 193, 114, 0.1);
-    border: 2px solid var(--success);
+/* آیکون پیام */
+.message-icon {
+    flex-shrink: 0;
+    margin-right: 12px;
+    margin-top: 2px;
+}
+
+/* محتوای پیام */
+.message-content {
+    flex-grow: 1;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1f2937;
+}
+
+.message-content p {
+    margin: 0;
+}
+
+/* دکمه بستن */
+.message-close {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 12px;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: var(--transition);
+}
+
+.message-close:hover {
+    color: #6b7280;
+}
+
+.message-close svg {
+    display: block;
+}
+
+/* انواع پیام‌ها */
+.message-success {
+    background-color: var(--success-bg);
+    border-left: 4px solid var(--success);
+}
+
+.message-success .message-icon {
     color: var(--success);
 }
 
-/* تنظیمات ریسپانسیو برای پیام‌های خطا */
-@media (max-width: 768px) {
-    .error-messages {
-        padding: 0.75rem;
-        font-size: 0.95rem;
+.message-error {
+    background-color: var(--error-bg);
+    border-left: 4px solid var(--error);
+}
+
+.message-error .message-icon {
+    color: var(--error);
+}
+
+.message-warning {
+    background-color: var(--warning-bg);
+    border-left: 4px solid var(--warning);
+}
+
+.message-warning .message-icon {
+    color: var(--warning);
+}
+
+.message-info {
+    background-color: var(--info-bg);
+    border-left: 4px solid var(--info);
+}
+
+.message-info .message-icon {
+    color: var(--info);
+}
+
+/* افکت‌های اضافی */
+.message::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+}
+
+/* ریسپانسیو */
+@media (max-width: 640px) {
+    .messages-container {
+        max-width: calc(100% - 40px);
+        left: 20px;
+        right: 20px;
+        top: 10px;
     }
     
-    .alert {
-        padding: 0.75rem 1rem;
-        font-size: 0.95rem;
+    .message {
+        padding: 12px;
     }
 }
 
-@media (max-width: 480px) {
-    .error-messages {
-        padding: 0.5rem;
-        font-size: 0.9rem;
+/* انیمیشن‌ها */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    
-    .error-messages ul {
-        margin-right: 1rem;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
-    
-    .alert {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
-    }
+}
+
+.animate__animated {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+.animate__fadeInUp {
+    animation-name: fadeInUp;
 }

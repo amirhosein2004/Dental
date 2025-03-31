@@ -1,6 +1,7 @@
 from utils.common_imports import admin, models
-from .models import Category, Clinic, WorkingHours
+from .models import Category, Clinic, WorkingHours, Banner
 from django.forms import TimeInput  
+
 
 
 # Register the Category model with the admin site
@@ -21,3 +22,6 @@ class WorkingHoursAdmin(admin.ModelAdmin):
 
 # Register the WorkingHours model with the custom admin class
 admin.site.register(WorkingHours, WorkingHoursAdmin)
+
+# Register the Banner model with the admin site
+admin.site.register(Banner)

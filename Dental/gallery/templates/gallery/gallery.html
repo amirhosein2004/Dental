@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %} گالری {% endblock %}
+
 {% block extra_static %}
     <link rel="stylesheet" href="{% static 'gallery/css/gallery.css' %}">
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
@@ -19,7 +21,6 @@
     </header>
     
     <!-- بخش دکمه و آیکون‌ها -->
-    {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
     <div class="gallery-actions">
         {% if doctors.0 %}
         <div class="doctor-profile">
@@ -30,9 +31,11 @@
         </div>
         {% endif %}
     
+        {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
         <a href="{% url 'gallery:add_gallery' %}" class="btn-add-gallery">
             <i class="fas fa-plus me-2"></i> افزودن گالری جدید
         </a>
+        {% endif %}
     
         {% if doctors.1 %}
         <div class="doctor-profile">
@@ -43,7 +46,6 @@
         </div>
         {% endif %}
     </div>
-    {% endif %}
     
     <!-- باکس دسته‌بندی‌ها -->
     <div class="category-box mb-4 p-3">

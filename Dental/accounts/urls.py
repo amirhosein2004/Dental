@@ -16,9 +16,9 @@ urlpatterns = [
     path('resend-otp/', ResendOTPView.as_view(), name='resend_otp'),  # Route for resending OTP
     path('change-password/<int:user_id>/', ChangePasswordView.as_view(), name='change_password'),  # Route for changing password
 
-    # Password reset routes using dynamic RESET_PREFIX from settings
-    path(f'{settings.RESET_PREFIX}/', CustomPasswordResetView.as_view(), name='password_reset'),
-    path(f'{settings.RESET_PREFIX}/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
-    path(f'{settings.RESET_PREFIX}/confirm/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path(f'{settings.RESET_PREFIX}/complete/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    # Password reset routes using dynamic RESET_PREFIX and RESET_SUFFIX from settings
+    path(f'{settings.RESET_PREFIX}/{settings.RESET_SUFFIX}', CustomPasswordResetView.as_view(), name='password_reset'),
+    path(f'{settings.RESET_PREFIX}/done/{settings.RESET_SUFFIX}/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path(f'{settings.RESET_PREFIX}/confirm/<uidb64>/<token>/{settings.RESET_SUFFIX}/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path(f'{settings.RESET_PREFIX}/complete/{settings.RESET_SUFFIX}/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]

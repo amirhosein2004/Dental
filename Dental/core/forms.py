@@ -1,5 +1,5 @@
 from utils.common_imports import forms
-from .models import Category, Clinic, WorkingHours
+from .models import Category, Clinic, WorkingHours, Banner
 
 class CategoryForm(forms.ModelForm):
     """
@@ -170,3 +170,29 @@ class WorkingHoursForm(forms.ModelForm):
             self.add_error('evening_start', "لطفاً ساعت شروع عصر را وارد کنید")
 
         return cleaned_data
+    
+class BannerForm(forms.ModelForm):
+    """
+    Form for creating and updating Banner instances.
+    """
+    class Meta:
+        model = Banner
+        fields = ['title', 'image']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'نام بنر'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'title': 'نام بنر',
+            'image': 'تصویر بنر',
+        }
+        error_messages = {
+            'title': {
+                'required': "لطفاً نام بنر را وارد کنید.",
+                'unique': "بنر با این نام قبلاً وجود دارد.",
+                'max_length': "عنوان نمی‌تواند بیشتر از 150 کاراکتر باشد",
+            },
+            'image': {
+                'required': "لطفا عکس را وارد کنید",
+            }
+        }

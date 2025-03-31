@@ -1,10 +1,9 @@
 # Project-specific imports from common_imports
 from utils.common_imports import (
-    View, render,
+    View, render, cache,
     redirect, get_object_or_404,
     messages, ValidationError,
-    PermissionDenied, cache_page,
-    method_decorator, JsonResponse
+    PermissionDenied, JsonResponse
 )
 
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
@@ -18,7 +17,6 @@ from dashboard.models import Doctor
 from utils.cache import get_cache_key
 from django.core.paginator import Paginator
 
- 
 
 class BlogView(View):
     """
@@ -27,11 +25,15 @@ class BlogView(View):
     filter_class = BlogPostFilter
     template_name = 'blog/blog.html'
 
-    # @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='blogview'))(func))  # Cache for 24 hours
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests to display the list of blog posts.
         """
+        cache_key = get_cache_key(request, cache_view='blogview')
+        cached_data = cache.get(cache_key)  # بررسی کش قبل از اجرای کوئری‌ها
+        if cached_data:
+            return cached_data
+        
         blogs = BlogPost.objects.select_related('writer').prefetch_related('categories').all()
         blog_filter = self.filter_class(request.GET, queryset=blogs)
 
@@ -39,7 +41,10 @@ class BlogView(View):
             'blogs': blog_filter.qs[:3],  # Paginated blog posts
             'filter': blog_filter,    # Filter object
         }
-        return render(request, self.template_name, context)
+        
+        response = render(request, self.template_name, context)
+        cache.set(cache_key, response, 86400)  # ذخیره کش برای 24 ساعت
+        return response
     
 class LoadMoreBlogsView(View):
     """
@@ -47,7 +52,6 @@ class LoadMoreBlogsView(View):
     """
     filter_class = BlogPostFilter
 
-    # @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='loadmoreblogview'))(func))  # Cache for 24 hours
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests to load more blog posts.

@@ -1,9 +1,8 @@
 from utils.common_imports import (
     View, render, redirect, messages, get_object_or_404,
-    ValidationError, method_decorator, cache_page
+    ValidationError, cache
 )
 from .models import Service
-from dashboard.models import Doctor
 from .forms import ServiceForm
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 from utils.cache import get_cache_key
@@ -14,11 +13,18 @@ class ServiceView(View):
     """
     template_name = 'service/service.html'
 
-    # @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='serviceview'))(func))  # Cache for 24 hours
     def get(self, request, *args, **kwargs):
+        cache_key = get_cache_key(request, cache_view='serviceview')
+        cached_data = cache.get(cache_key)  # بررسی کش قبل از اجرای کوئری‌ها
+        if cached_data:
+            return cached_data
+        
         services = Service.objects.all()
         context = {'services': services}
-        return render(request, self.template_name, context)
+
+        response = render(request, self.template_name, context)
+        cache.set(cache_key, response, 86400)  # ذخیره کش برای 24 ساعت
+        return response
 
 class AddServiceView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     """

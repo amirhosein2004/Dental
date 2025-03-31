@@ -1,4 +1,4 @@
-from utils.common_imports import View, render, redirect, get_object_or_404, messages, method_decorator, cache_page
+from utils.common_imports import View, render, redirect, get_object_or_404, messages, cache
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 
 from .models import ContactMessage  
@@ -12,27 +12,28 @@ class ContactView(RateLimitMixin, View):
     template_name = 'contact/contact.html'
     form_class = ContactMessageForm
 
-    def dispatch(self, request, *args, **kwargs):
-        """Fetch clinic and working hours before handling the request."""
-        self.clinic = Clinic.objects.filter(is_primary=True).first()
-        self.workinghours = WorkingHours.objects.all()
-        return super().dispatch(request, *args, **kwargs)
-
-    # @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='contactview'))(func))  # Cache for 24 hours
     def get(self, request, *args, **kwargs):
+        cache_key = get_cache_key(request, cache_view='coontactview')
+        cached_data = cache.get(cache_key)  # بررسی کش قبل از اجرای کوئری‌ها
+        if cached_data:
+            return cached_data
+        
         form = self.form_class()
         context = {
-            'clinic': self.clinic,
-            'workinghours': self.workinghours,
+            'clinic': Clinic.objects.filter(is_primary=True).first(),
+            'workinghours': WorkingHours.objects.all(),
             'form': form, 
         }
-        return render(request, self.template_name, context)    
+
+        response = render(request, self.template_name, context)
+        cache.set(cache_key, response, 86400)  # ذخیره کش برای 24 ساعت
+        return response     
     
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         context = {
-            'clinic': self.clinic,
-            'workinghours': self.workinghours,
+            'clinic': Clinic.objects.filter(is_primary=True).first(),
+            'workinghours': WorkingHours.objects.all(),
             'form': form,
         }
         if form.is_valid():

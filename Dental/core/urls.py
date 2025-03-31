@@ -2,6 +2,7 @@ from utils.common_imports import path
 from .views.clinic_view import ClinicView, AddClinicView, UpdateClinicView, DeleteClinicView
 from .views.category_view import CategoryView, AddCategoryView, UpdateCategoryView, RemoveCategoryView
 from .views.workinghours_view import WorkingHoursView, AddWorkingHoursView, UpdateWorkingHoursView, DeleteWorkingHoursView
+from .views.banner_view import BannerView, AddBannerView, RemoveBannerView
 from .views.manage_view import ManageView
 
 app_name = 'core'
@@ -30,7 +31,14 @@ workinghours_patterns = [
     path('workinghours/delete/<int:pk>/', DeleteWorkingHoursView.as_view(), name='delete_workinghours'),  # Path for deleting working hours
 ]
 
+banner_pattern = [
+    # banner related paths
+    path('banner/', BannerView.as_view(), name='banner'),
+    path('banner/add', AddBannerView.as_view(), name='add_banner'),
+    path('banner/remove/<int:pk>', RemoveBannerView.as_view(), name='remove_banner'),
+]
+
 # Main URL patterns
 urlpatterns = [
     path('manage/', ManageView.as_view(), name='manage'),
-] + clinic_patterns + category_patterns + workinghours_patterns
+] + clinic_patterns + category_patterns + workinghours_patterns + banner_pattern

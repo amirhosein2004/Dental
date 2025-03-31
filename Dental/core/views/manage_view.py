@@ -1,7 +1,5 @@
-from utils.common_imports import View, render, method_decorator, cache_page
+from utils.common_imports import View, render
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
-from utils.cache import get_cache_key
-
 
 class ManageView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     """

@@ -3,29 +3,30 @@ from pathlib import Path
 from dotenv import load_dotenv
 import secrets
 
-# بارگذاری فایل .env
+# Load environment variables from a .env file
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Define the base directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-# متغیرهای محیطی عمومی
-SECRET_KEY = os.getenv('SECRET_KEY', secrets.token_urlsafe(50))  # مقدار پیش‌فرض برای مواقع تست
+# General environment variables
+SECRET_KEY = os.getenv('SECRET_KEY', secrets.token_urlsafe(50))  # Default value for testing
+DEBUG = os.getenv('DEBUG', 'False') == 'True'  # Enable/disable debug mode
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')  # List of allowed hosts
 
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-
-# Application definition
+# Installed apps for the Django project
 INSTALLED_APPS = [
+    # Default Django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Custom apps
     'home',
     'blog',
-    'django_jalali',
     'users',
     'about',
     'core',
@@ -36,14 +37,14 @@ INSTALLED_APPS = [
     'accounts',
 
     # Third-party apps
-    'django_filters',  # Django filters for querysets
-    'captcha',  # Django reCAPTCHA integration
-    'django_cleanup.apps.CleanupConfig',  # Django clean up module for removing suspended files
-    'django_ckeditor_5',  # Django CKEditor 5 integration
-    'django.contrib.humanize',  # Django humanize module for human-readable data
-
+    'django_filters',  # For filtering querysets
+    'captcha',  # Google reCAPTCHA integration
+    'django_cleanup.apps.CleanupConfig',  # Automatically delete unused files
+    'django_ckeditor_5',  # CKEditor 5 integration for rich text editing
+    'axes',  # Brute force protection
 ]
 
+# Middleware configuration
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,14 +53,19 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Axes middleware for brute force protection
+    'axes.middleware.AxesMiddleware',
 ]
 
+# Root URL configuration
 ROOT_URLCONF = 'Dental.urls'
 
+# Template settings
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'templates' ],
+        'DIRS': [BASE_DIR / 'templates'],  # Custom template directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -72,8 +78,10 @@ TEMPLATES = [
     },
 ]
 
+# WSGI application
 WSGI_APPLICATION = 'Dental.wsgi.application'
 
+# Password validation settings
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -81,60 +89,62 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Dental/settings/base.py
+# Database configuration
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),  # Default to SQLite
         'NAME': os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3'),
         'USER': os.getenv('DB_USER', ''),
         'PASSWORD': os.getenv('DB_PASSWORD', ''),
         'HOST': os.getenv('DB_HOST', ''),
         'PORT': os.getenv('DB_PORT', ''),
+        'CONN_MAX_AGE': 600,  # Persistent connections
     }
 }
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-#         'LOCATION': 'redis://127.0.0.1:6379/1',  # دیتابیس شماره 1
-#     }
-# }
+# Caching configuration using Redis
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',  # Redis database 1
+    }
+}
 
+# Celery configuration for task queue
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Redis broker
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Redis result backend
+CELERY_ACCEPT_CONTENT = ['json']  # Accepted content types
+CELERY_TASK_SERIALIZER = 'json'  # Task serializer
+CELERY_RESULT_SERIALIZER = 'json'  # Result serializer
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True  # Retry broker connection on startup
 
-# تنظیمات Redis به‌عنوان بروکر برای Celery
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # آدرس Redis (پیش‌فرض localhost و پورت 6379)
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # برای ذخیره نتایج تسک‌ها
-CELERY_ACCEPT_CONTENT = ['json']  # فرمت داده‌های قابل قبول
-CELERY_TASK_SERIALIZER = 'json'   # سریالایزر تسک‌ها
-CELERY_RESULT_SERIALIZER = 'json' # سریالایزر نتایج
-# تنظیمات Celery برای تلاش مجدد اتصال بروکر در زمان راه‌اندازی
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+# Password reset timeout (30 minutes)
+PASSWORD_RESET_TIMEOUT = 1800
 
-
-PASSWORD_RESET_TIMEOUT = 1800  # ۳۰ دقیقه (۱۸۰۰ ثانیه)
-
+# Localization settings
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', 'en-us')
 TIME_ZONE = os.getenv('TIME_ZONE', 'UTC')
 USE_I18N = os.getenv('USE_I18N', 'False') == 'True'
 USE_TZ = os.getenv('USE_TZ', 'False') == 'True'
 
+# Static and media file settings
 MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = BASE_DIR / os.getenv('MEDIA_ROOT', 'media')
-
 STATIC_URL = os.getenv('STATIC_URL', '/static/')
 STATIC_ROOT = BASE_DIR / os.getenv('STATIC_ROOT', 'staticfiles')
-STATICFILES_DIRS = [BASE_DIR / "static"]
- 
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Custom User Model
+# Custom user model
 AUTH_USER_MODEL = 'users.CustomUser'
 
-# Google ReCaptcha
-RECAPTCHA_PUBLIC_KEY = "6LdwEtsqAAAAADzdwgPOrMVPUbbMkKfkyqMIcr55"
-RECAPTCHA_PRIVATE_KEY = "6LdwEtsqAAAAAGmybZkNo-FV-hCmaLsbCc9dpwg3"
+# Google reCAPTCHA keys
+RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY', "6LdwEtsqAAAAADzdwgPOrMVPUbbMkKfkyqMIcr55")
+RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY', "6LdwEtsqAAAAAGmybZkNo-FV-hCmaLsbCc9dpwg3")
 
-# email
+# Email configuration
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
@@ -142,24 +152,33 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'amirhoosenbabai82@gmail.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', None)
 
+# OTP and URL settings
 OTP_SECRET_KEY = os.getenv('OTP_SECRET_KEY', secrets.token_urlsafe(50))
-RESET_PREFIX = os.getenv('RESET_PREFIX', 'amir-amiir-amiiir')
+RESET_PREFIX = os.getenv('RESET_PREFIX', secrets.token_urlsafe(8))
+RESET_SUFFIX = os.getenv('RESET_SUFFIX', secrets.token_urlsafe(4))
+SECURE_ADMIN_PANEL = os.getenv('SECURE_ADMIN_PANEL', secrets.token_urlsafe(4))
 
-# SESSION_COOKIE_SECURE = True  # فقط HTTPS
-# SESSION_COOKIE_HTTPONLY = True  # جلوگیری از دسترسی جاوااسکریپت
-# SESSION_COOKIE_SAMESITE = 'Strict'  # جلوگیری از CSRF
-# CSRF_COOKIE_SECURE = True
-# SECURE_SSL_REDIRECT = True  # همه درخواست‌ها به HTTPS ریدایرکت بشن
+# Axes configuration for brute force protection
+AXES_ONLY_ADMIN_SITE = True  # Restrict Axes to admin site only
+AXES_FAILURE_LIMIT = 4  # Lock account after 4 failed attempts
+AXES_COOLOFF_TIME = 48  # Unlock account after 48 hours
+AXES_LOCK_OUT_AT_FAILURE = True  # Enable account lockout
+AXES_VERBOSE = True  # Log login attempts
 
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Default authentication backend
+]
 
+# CKEditor 5 configuration
 CKEDITOR_5_CONFIGS = {
     'default': {
         'toolbar': [
             'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 
             'numberedList', 'blockQuote', 'imageUpload', 'undo', 'redo',
-            'fontColor', 'fontBackgroundColor'  # اضافه کردن گزینه‌های رنگ
+            'fontColor', 'fontBackgroundColor'  # Add color options
         ],
-        'language': 'fa',  
+        'language': 'fa',  # Set language to Persian
         'height': '300px',
         'width': '100%',
     },
@@ -246,4 +265,3 @@ CKEDITOR_5_CONFIGS = {
         },
     },
 }
-

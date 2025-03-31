@@ -71,7 +71,6 @@ class UpdateWorkingHoursView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, Vie
     
 class DeleteWorkingHoursView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     """View to delete existing working hours."""
-    template_name = 'core/delete_working_hours.html'
     
     def post(self, request, *args, **kwargs):
         get_object_or_404(WorkingHours, id=kwargs['pk']).delete()

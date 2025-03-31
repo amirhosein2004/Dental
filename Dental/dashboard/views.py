@@ -1,9 +1,10 @@
 # Project-specific imports from common_imports
-from utils.common_imports import (render, Http404, messages,
-        View, get_user_model, get_object_or_404,
-        transaction, PasswordChangeForm, PermissionDenied,
-        method_decorator, cache_page
-    )
+from utils.common_imports import (
+    render, Http404, messages, cache,
+    View, get_user_model, get_object_or_404,
+    transaction, PasswordChangeForm, PermissionDenied,
+        
+)
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
 # Imports from local models
 from .models import Doctor  
@@ -45,11 +46,15 @@ class DashboardView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
 
         return super().dispatch(request, *args, **kwargs)
 
-    # @method_decorator(lambda func: cache_page(28800, key_prefix=lambda request: get_cache_key(request, cache_view='dashboardview'))(func))  # Cache the view for 8 hours
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests and render the dashboard with forms.
         """
+        cache_key = get_cache_key(request, cache_view='dashboardview')
+        cached_data = cache.get(cache_key)  # بررسی کش قبل از اجرای کوئری‌ها
+        if cached_data:
+            return cached_data
+        
         doctor_form = self.form_class_doctor(instance=self.doctor)
         user_form = self.form_class_user(instance=self.doctor.user)
         password_form = self.form_class_password(user=self.doctor.user)  # Password change form
@@ -61,7 +66,10 @@ class DashboardView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
             'user_form': user_form,
             'password_form': password_form,  
         }
-        return render(request, self.template_name, context)
+
+        response = render(request, self.template_name, context)
+        cache.set(cache_key, response, 86400)  # ذخیره کش برای 24 ساعت
+        return response
     
     def post(self, request, *args, **kwargs):
         """

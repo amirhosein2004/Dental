@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_static %}
+    <link href="{% static 'accounts/css/verify_otp.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -49,7 +54,7 @@
                         <p class="mb-2">کد دریافت نکردید؟</p>
                         <form action="{% url 'accounts:resend_otp' %}" method="post" style="display:inline;" id="resendForm">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-link text-primary fw-bold" id="resendBtn">
+                            <button type="submit" class="btn btn-link text-primary fw-bold" id="resendBtn" data-remaining-seconds="{{ remaining_seconds }}">
                                 <i class="fas fa-redo-alt me-1"></i>
                                 <span id="resendText">
                                     {% if remaining_seconds > 0 %}
@@ -78,54 +83,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- استایل و اسکریپت -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-<style>
-    .card { border-radius: 15px; transition: transform 0.3s ease; }
-    .card:hover { transform: translateY(-5px); }
-    .btn-primary { background: linear-gradient(45deg, #007bff, #00b4db); border: none; transition: all 0.3s ease; }
-    .btn-primary:hover { background: linear-gradient(45deg, #0056b3, #0081a7); transform: scale(1.05); }
-    .btn-link { transition: color 0.3s ease; }
-    .btn-link:hover { color: #0056b3 !important; text-decoration: none; }
-    .form-control:focus { border-color: #00b4db; box-shadow: 0 0 5px rgba(0, 180, 219, 0.5); }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const submitBtn = document.querySelector('#submitBtn');
-        const resendBtn = document.querySelector('#resendBtn');
-        const resendText = document.querySelector('#resendText');
-
-        // غیرفعال کردن دکمه تأیید هنگام ارسال
-        document.querySelector('#otpForm').addEventListener('submit', function () {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>در حال بررسی...';
-        });
-
-        // تایمر زنده برای ارسال مجدد
-        document.querySelector('#resendForm').addEventListener('submit', function (e) {
-            resendBtn.disabled = true;
-            resendText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>در حال ارسال...';
-        });
-
-        // شروع تایمر اگه remaining_seconds از سرور اومده باشه
-        {% if remaining_seconds > 0 %}
-            let timeLeft = {{ remaining_seconds }};
-            resendBtn.disabled = true;
-            resendText.textContent = `صبر کنید (${timeLeft} ثانیه)`;
-
-            const timer = setInterval(() => {
-                timeLeft--;
-                resendText.textContent = `صبر کنید (${timeLeft} ثانیه)`;
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    resendBtn.disabled = false;
-                    resendText.textContent = 'ارسال مجدد کد';
-                }
-            }, 1000);
-        {% endif %}
-    });
-</script>
+{% block extra_js %}
+<script src="{% static 'accounts/js/verify_otp.js' %}"></script>
 {% endblock %}

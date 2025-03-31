@@ -120,3 +120,21 @@ class WorkingHours(models.Model):
         morning = f"{self.morning_start or '-'} تا {self.morning_end or '-'}" if self.morning_start and self.morning_end else "تعطیل"
         evening = f"{self.evening_start or '-'} تا {self.evening_end or '-'}" if self.evening_start and self.evening_end else "تعطیل"
         return f"{day_name}: صبح {morning} | عصر {evening}"
+    
+    
+class Banner(models.Model):
+    """
+    Model represent banner in home page
+    """
+    title = models.CharField(max_length=200, unique=True)
+    image = models.ImageField(upload_to='banner_images/%Y/%m/%d', validators=[validate_image])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = "بنر"
+        verbose_name_plural = "بنرها"
+
+    def __str__(self):
+        return self.title
+    

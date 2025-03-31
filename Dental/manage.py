@@ -7,13 +7,8 @@ import sys
 def main():
     """Run administrative tasks."""
     # بررسی متغیر محیطی DJANGO_ENV برای تعیین تنظیمات مناسب
-    env = os.environ.get('DJANGO_ENV', 'development')  # پیش‌فرض به 'development' تنظیم می‌شود
-    if env == 'production':
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Dental.settings.prod')
-    elif env == 'test':
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Dental.settings.test')
-    else:
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Dental.settings.dev')
+    env = os.environ.get('DJANGO_ENV', 'dev')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', f'Dental.settings.{env}')
     
     try:
         from django.core.management import execute_from_command_line
