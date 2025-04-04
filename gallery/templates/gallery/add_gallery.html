@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load compress %}
+
+{% block title %} افزودن گالری {% endblock %}
+
+{% block extra_static %}
+{% compress css %}
+    <link rel="stylesheet" href="{% static 'gallery/css/create_gallery.css' %}">
+{% endcompress %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 animate__animated animate__fadeIn">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0 fw-bold">ایجاد گالری جدید</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        <!-- فرم گالری -->
+                        <div class="mb-4">
+                            <label for="{{ gallery_form.category.id_for_label }}" class="form-label fw-semibold">
+                                {{ gallery_form.category.label }}
+                            </label>
+                            {{ gallery_form.category }}
+                            {% if gallery_form.category.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ gallery_form.category.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- آپلود تصاویر با راهنما -->
+                        <div class="mb-4">
+                            <label for="{{ image_form.image.id_for_label }}" class="form-label fw-semibold">
+                                {{ image_form.image.label }} (می‌توانید چندین تصویر انتخاب کنید)
+                            </label>
+                            <input type="file" name="{{ image_form.image.name }}" id="{{ image_form.image.id_for_label }}"
+                                   class="form-control" multiple required>
+                            <div class="form-text text-muted mt-2">
+                                <span class="d-block">حداکثر حجم مجاز برای هر تصویر: ۵ مگابایت</span>
+                                <span class="d-block">فرمت‌های مجاز: JPG, PNG</span>
+                            </div>
+                            {% if image_form.image.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ image_form.image.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- نمایش پیش‌نمایش تصاویر آپلود شده -->
+                        <div id="image-preview" class="preview-container d-flex flex-wrap gap-3 mb-4"></div>
+
+                        <!-- دکمه ارسال -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success btn-submit px-5 py-2">
+                                <span class="me-2">📸</span>ایجاد گالری
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- فایل جاوااسکریپت سفارشی -->
+    {% compress js %}
+    <script src="{% static 'gallery/js/create_gallery.js' %}"></script>
+    {% endcompress %}
+{% endblock %}

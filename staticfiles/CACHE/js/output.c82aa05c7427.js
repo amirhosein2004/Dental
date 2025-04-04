@@ -1,0 +1,2 @@
+document.addEventListener('DOMContentLoaded',function(){if('scrollRestoration'in history){history.scrollRestoration='manual';}
+const url=new URL(window.location.href);const hasFilters=url.searchParams.size>0;if(hasFilters&&window.performance.navigation.type===1){url.search='';window.location.href=url.toString();return;}});;

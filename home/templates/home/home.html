@@ -1,0 +1,445 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load compress %}
+
+{% block title %} دندان پزشکی {% endblock %}
+
+{% block extra_static %}
+{% compress css %}
+    <link rel="stylesheet" href="{% static 'home/css/home.css' %}">
+{% endcompress %}
+{% endblock %}
+
+{% block content %}
+    <!-- Home Page Welcome Header -->
+    <header class="hero-section">
+        <div class="hero-overlay"></div> <!-- لایه پس‌زمینه برای جذابیت بصری -->
+        <div class="container hero-content">
+            <div class="tooth-icon animate-float"></div> <!-- آیکون دندان با انیمیشن شناور -->
+            <div class="welcome-text-box">
+                <h1 class="hero-title">به کلینیک دندانپزشکی دکتر بابایی و بهمدی خوش آمدید</h1>
+                <p class="hero-subtitle">
+                    تجربه‌ای متفاوت از دندان‌پزشکی با تیمی حرفه‌ای و فناوری روز دنیا
+                </p>
+                <a href="{% url 'contact:contact' %}" class="btn btn-primary hero-cta animate-pulse">
+                    همین حالا نوبت رزرو کنید
+                </a>
+            </div>
+        </div>
+        <div class="trust-bar">
+            <span><i class="fas fa-check-circle"></i> بیش از ۲۰۰۰ بیمار راضی</span>
+            <span><i class="fas fa-tools"></i> تجهیزات پیشرفته</span>
+            <span><i class="fas fa-user-md"></i> متخصصین مجرب</span>
+        </div>
+    </header>
+
+    <!-- Premium Quality Section -->
+    <section class="home-advantages-section">
+        <div class="advantages-container">
+            <h2 class="advantages-title">تجربه‌ای متفاوت در دندانپزشکی</h2>
+            <p class="advantages-subtitle">ما با استانداردهای جهانی به شما خدمات ارائه می‌دهیم</p>
+            
+            <div class="advantages-grid">
+                <!-- Feature 1: Quality -->
+                <div class="advantage-item">
+                    <div class="icon-wrapper">
+                        <svg class="advantage-icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12 1L3 5v14l9 4 9-4V5l-9-4zm0 2.18L19 6.3v11.4L12 20.82 5 17.7V6.3L12 3.18zM11 7h2v6h-2V7zm0 8h2v2h-2v-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">کیفیت در سطح جهانی</h3>
+                    <p class="feature-desc">استفاده از پیشرفته‌ترین تجهیزات و مواد تایید شده FDA</p>
+                    <div class="feature-badge">تضمین کیفیت</div>
+                </div>
+    
+                <!-- Feature 2: Affordability -->
+                <div class="advantage-item">
+                    <div class="icon-wrapper">
+                        <svg class="advantage-icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">قیمت‌گذاری شفاف</h3>
+                    <p class="feature-desc">هزینه‌های کاملا رقابتی با تضمین بهترین قیمت</p>
+                    <div class="feature-badge">تضمین قیمت</div>
+                </div>
+    
+                <!-- Feature 3: Installments -->
+                <div class="advantage-item">
+                    <div class="icon-wrapper">
+                        <svg class="advantage-icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                            <path fill="currentColor" d="M11.5 13.5h1V15h-1zm-3 0h1V15h-1zm6 0h1V15h-1z"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">پرداخت انعطاف‌پذیر</h3>
+                    <p class="feature-desc">امکان پرداخت قسطی بدون بهره</p>
+                    <div class="feature-badge">اقساط راحت</div>
+                </div>
+    
+                <!-- Feature 4: Experts -->
+                <div class="advantage-item">
+                    <div class="icon-wrapper">
+                        <svg class="advantage-icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">تیم متخصص</h3>
+                    <p class="feature-desc">مجرب‌ترین دندانپزشکان با مدارک معتبر</p>
+                    <div class="feature-badge">مهارت تضمینی</div>
+                </div>
+    
+                <!-- Feature 5: Free Consultation -->
+                <div class="advantage-item">
+                    <div class="icon-wrapper">
+                        <svg class="advantage-icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                            <path fill="currentColor" d="M11 12h2v2h-2zm0-4h2v2h-2zm0-4h2v2h-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">مشاوره رایگان</h3>
+                    <p class="feature-desc">ارزیابی اولیه رایگان توسط کارشناسان ما</p>
+                    <div class="feature-badge">رایگان</div>
+                </div>
+    
+                <!-- Feature 6: Advanced Technology -->
+                <div class="advantage-item">
+                    <div class="icon-wrapper">
+                        <svg class="advantage-icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/>
+                            <path fill="currentColor" d="M8 13h2.55v3h2.9v-3H16l-4-4z"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">فناوری پیشرفته</h3>
+                    <p class="feature-desc">درمان با جدیدترین تکنولوژی‌های روز دنیا</p>
+                    <div class="feature-badge">مدرن</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- introduction Docs -->
+    <section class="doctors-section">
+        <header class="section-header">
+            <h2 class="section-title">متخصصین مجرب ما</h2>
+            <div class="section-divider">
+                <svg viewBox="0 0 100 10" class="divider-wave" aria-hidden="true">
+                    <path d="M0,5 Q25,10 50,5 T100,5" fill="none" stroke="#0284c7" stroke-width="2"/>
+                </svg>
+            </div>
+            <p class="section-subtitle">با تیم حرفه‌ای دندانپزشکی ما آشنا شوید</p>
+        </header>
+    
+        <div class="doctors-container">
+            {% for doctor in doctors|slice:":2" %}
+                <article class="doctor-card {% if forloop.first %}right-aligned{% else %}left-aligned{% endif %}">
+                    <div class="doctor-image-container">
+                        <div class="image-frame" aria-hidden="true"></div>
+                        <img src="{{ doctor.user.image.url }}" 
+                             alt="دکتر {{ doctor.user.get_full_name }}" 
+                             class="doctor-image" 
+                             loading="lazy">
+                    </div>
+                    <div class="doctor-info">
+                        <h3 class="doctor-name">دکتر {{ doctor.user.get_full_name }}</h3>
+                        <p class="doctor-description">{{ doctor.description }}</p>
+                        <div class="doctor-actions">
+                            <a href="{% url 'contact:contact' %}" 
+                               class="appointment-btn" 
+                               aria-label="دریافت نوبت برای {{ doctor.user.get_full_name }}">
+                                دریافت نوبت
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="no-doctors">در حال حاضر اطلاعاتی از متخصصین موجود نیست.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Services Header and Container -->
+    <header class="services-header">
+        <div class="header-content">
+            <h1 class="services-title">خدمات ما</h1>
+            <div class="header-divider">
+                <svg viewBox="0 0 120 10" class="divider-wave" aria-hidden="true">
+                    <path d="M0,5 Q30,10 60,5 T120,5" fill="none" stroke="#0284c7" stroke-width="2"/>
+                </svg>
+            </div>
+            <p class="services-subtitle">خدمات حرفه‌ای ما برای لبخندی سالم و زیبا</p>
+        </div>
+    </header>
+
+    <section class="services-section">
+        <div class="services-container">
+            {% for service in services %}
+                <article class="service-item">
+                    <div class="service-image-wrapper">
+                        <img src="{{ service.image.url }}" 
+                            alt="تصویر {{ service.title }}" 
+                            class="service-image" 
+                            loading="lazy">
+                    </div>
+                    <div class="service-content">
+                        <h2 class="service-title">{{ service.title }}</h2>
+                        <p class="service-description">{{ service.description }}</p>
+                        <a href="{% url 'service:service_list' %}" 
+                        class="service-link" 
+                        aria-label="جزئیات بیشتر درباره {{ service.title }}">
+                            خدمات بیشتر
+                        </a>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="no-services">در حال حاضر خدماتی موجود نیست.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Contact Link Container -->
+    <section class="contact-section">
+        <div class="contact-container">
+            <span class="contact-text contact-text-left">برای اطلاعات بیشتر</span>
+            <a href="{% url 'contact:contact' %}" class="contact-btn">ارتباط با ما</a>
+            <span class="contact-text contact-text-right">با ما تماس بگیرید</span>
+        </div>
+    </section>
+
+    <!-- Professional Clinic Section -->
+    <section class="clinic-section">
+        <div class="section-pattern"></div>
+        <div class="container-home-clinc">
+            {% if clinic %}
+            <div class="clinic-card">
+                <div class="clinic-image-container">
+                    <img src="{{ clinic.image.url }}" 
+                        alt="تصویر کلینیک {{ clinic.name }}" 
+                        class="clinic-image"
+                        loading="lazy">
+                    <div class="image-overlay"></div>
+                    <div class="clinic-badge">
+                        <i class="fas fa-medal"></i>
+                        <span>کلینیک تخصصی</span>
+                    </div>
+                </div>
+                
+                <div class="clinic-content">
+                    <div class="section-header">
+                        <span class="section-tag">آشنایی با ما</span>
+                        <h2 class="section-title">کلینیک دندانپزشکی {{ clinic.name }}</h2>
+                        <div class="divider">
+                            <span class="divider-line"></span>
+                            <span class="divider-dot"></span>
+                            <span class="divider-line"></span>
+                        </div>
+                    </div>
+                    
+                    <p class="clinic-description">
+                        {{ clinic.description }}
+                    </p>
+                    
+                    <div class="clinic-features">
+                        <div class="feature-item">
+                            <i class="fas fa-user-md"></i>
+                            <span>کادر مجرب تخصصی</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-teeth-open"></i>
+                            <span>تجهیزات مدرن</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-heart"></i>
+                            <span>مراقبت اختصاصی</span>
+                        </div>
+                    </div>
+                    
+                    <div class="clinic-info">
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h4>آدرس کلینیک</h4>
+                                <p>{{ clinic.address }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <h4>تلفن تماس</h4>
+                                <p>{{ clinic.phone }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4>ایمیل</h4>
+                                <p>{{ clinic.email }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'contact:contact' %}" class="cta-button">
+                        دریافت نوبت آنلاین
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-clinic-medical"></i>
+                <h3>اطلاعات کلینیک در حال حاضر موجود نیست</h3>
+                <p>لطفاً در زمان دیگری مراجعه فرمایید</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Banner Header and Container -->
+    <section class="banner-section">
+        <div class="banner-container">
+            {% for banner in banners %}
+                <div class="banner-item">
+                    <img src="{{ banner.image.url }}" 
+                        alt="بنر {{ forloop.counter }}" 
+                        class="banner-image" 
+                        loading="lazy">
+                </div>
+            {% empty %}
+                <div class="banner-empty-state">
+                    <p>در حال حاضر بنری موجود نیست.</p>
+                </div>
+            {% endfor %}
+            <!-- دکمه‌های ناوبری -->
+            <button class="banner-nav banner-nav--prev" aria-label="بنر قبلی">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M15 18l-6-6 6-6" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <button class="banner-nav banner-nav--next" aria-label="بنر بعدی">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <!-- نقاط ناوبری (Dots) -->
+            <div class="banner-dots">
+                {% for banner in banners %}
+                    <span class="banner-dot" data-index="{{ forloop.counter0 }}"></span>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Home Blog Header -->
+    <header class="home-blog-header">
+        <h1 class="home-blog-header-title">مقالات آموزشی ما</h1>
+    </header>
+
+    <!-- Home Blog Section -->
+    <section class="home-blog-container">
+        <div class="home-blog-grid">
+            {% for blog in blogs|slice:":3" %}
+                <article class="home-blog-card">
+                    <a href="{% url 'blog:blog_detail' blog.slug %}" class="home-blog-image-link">
+                        <div class="home-blog-image-wrapper">
+                            <img src="{{ blog.image.url }}" alt="{{ blog.title }}" loading="lazy" class="home-blog-image">
+                        </div>
+                    </a>
+                    <div class="home-blog-content-wrapper">
+                        <h3 class="home-blog-title">{{ blog.title }}</h3>
+                        <div class="home-blog-categories">
+                            {% for category in blog.categories.all|slice:":3" %}
+                                <span class="home-blog-category">{{ category }}</span>
+                            {% empty %}
+                                <span class="home-blog-category empty">بدون دسته‌بندی</span>
+                            {% endfor %}
+                        </div>
+                        <a href="{% url 'blog:blog_detail' blog.slug %}" class="home-blog-link">ادامه مطلب <i class="fas fa-arrow-left"></i></a>
+                    </div>
+                </article>
+            {% empty %}
+                <div class="home-empty-message">
+                    <i class="fas fa-book-open"></i>
+                    <h3>مطلبی برای نمایش نیست</h3>
+                    <p>در حال حاضر مقاله‌ای موجود نیست.</p>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- Home Blog Footer -->
+        <div class="home-blog-footer">
+            <div class="home-btn-wrapper">
+                <img src="{% static 'img/left-icon-blog-home.png' %}" alt="Left Icon" class="home-btn-icon-left">
+                <a href="{% url 'blog:blog_list' %}" class="home-btn">مشاهده مقالات بیشتر <i class="fas fa-arrow-left"></i></a>
+                <img src="{% static 'img/right-icon-blog-home.png' %}" alt="Right Icon" class="home-btn-icon-right">
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Link Container -->
+    <section class="contact-section">
+        <div class="contact-container">
+            <span class="contact-text contact-text-left">برای اطلاعات بیشتر</span>
+            <a href="{% url 'contact:contact' %}" class="contact-btn"> رزرو نوبت </a>
+            <span class="contact-text contact-text-right">با ما تماس بگیرید</span>
+        </div>
+    </section>
+
+    <!-- Portfolio Gallery Section -->
+    <section class="portfolio-gallery">
+        <header class="portfolio-gallery__header">
+            <h1 class="portfolio-gallery__title">نمونه کارهای ما</h1>
+            <h2 class="portfolio-gallery__subtitle">جهانی از خلاقیت را کاوش کنید</h2>
+        </header>
+        
+        <div class="portfolio-gallery__container">
+            {% for gallery in galleries %}
+                <article class="portfolio-gallery__item">
+                    <div class="portfolio-gallery__images">
+                        {% for img in gallery.images.all %}
+                            <figure class="portfolio-gallery__figure {% if forloop.counter > 2 %}portfolio-gallery__figure--teaser{% endif %}">
+                                <img src="{{ img.image.url }}" 
+                                    alt="{{ img.alt_text|default:'نمونه کار ما' }}" 
+                                    class="portfolio-gallery__image"
+                                    loading="lazy">
+                            </figure>
+                        {% empty %}
+                            <p class="portfolio-gallery__empty">تصویری در این گالری وجود ندارد.</p>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'gallery:gallery_list' %}" class="portfolio-gallery__button">
+                        <span>کاوش کامل گالری </span>
+                        <svg class="portfolio-gallery__button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2"/>
+                        </svg>
+                    </a>
+                </article>
+            {% empty %}
+                <p class="portfolio-gallery__empty-message">در حال حاضر گالری‌ای موجود نیست.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Final Word -->
+    <footer class="page-footer">
+        <div class="final-word">
+            <h3 class="final-word__title">لبخندی که شایسته شماست</h3>
+            <p class="final-word__text">
+                در کلینیک دندان‌پزشکی ما، هنر و علم در کنار هم قرار گرفته‌اند تا لبخندی بی‌نقص برای شما خلق کنند. با بهره‌گیری از فناوری پیشرفته و تیمی متعهد، تجربه‌ای آرامش‌بخش و متمایز را به شما هدیه می‌دهیم. از طراحی لبخند رویاهایتان تا مراقبت‌های روزمره، ما همراهتان هستیم تا هر لحظه با اطمینان و زیبایی لبخند بزنید. همین حالا با ما تماس بگیرید و سفری به سوی لبخندی درخشان را آغاز کنید!
+            </p>
+            <a href="{% url 'contact:contact' %}" class="final-word__cta">
+                <span>تماس با ما</span>
+                <svg class="final-word__cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </a>
+        </div>
+    </footer>
+
+{% endblock %}
+
+{% block extra_js %}
+{% compress js %}
+    <script src="{% static 'home/js/home.js' %}"></script>
+{% endcompress %}
+{% endblock %}

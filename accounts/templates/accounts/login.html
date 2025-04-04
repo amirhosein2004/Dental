@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load compress %}
+
+{% block extra_static %}
+{% compress css %}
+    <link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+{% endcompress %}
+{% endblock %}
+
+{% block content %}
+<div class="container-login">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5 shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="card-title mb-0">ورود دکتر</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+
+                        <!-- فیلد نام کاربری -->
+                        <div class="mb-3">
+                            {{ form.username.label_tag }}
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger">{{ form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- فیلد پسورد با قابلیت نمایش -->
+                        <div class="mb-3">
+                            {{ form.password.label_tag }}
+                            <div class="input-group">
+                                {{ form.password }}
+                                <button type="button" class="btn btn-outline-secondary toggle-password">
+                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="text-danger">{{ form.password.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- کپچا -->
+                        <div class="mb-3">
+                            {{ form.captcha }}
+                            {% if form.captcha.errors %}
+                                <div class="text-danger">{{ form.captcha.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- هانی‌پات (مخفی) -->
+                        {{ form.honeypot }}
+
+                        <!-- دکمه ورود -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">ورود</button>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'accounts:password_reset' %}">فراموشی رمز عبور؟</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% compress js %}
+    <script src="{% static 'accounts/js/login.js' %}" defer></script>
+{% endcompress %}
+{% endblock %}

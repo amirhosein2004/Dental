@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load compress %}
+
+{% block title %} داشبورد پزشکان {% endblock %}
+
+{% block extra_static %}
+{% compress css %}
+    <link rel="stylesheet" href="{% static 'dashboard/css/dashboard_list.css' %}">
+{% endcompress %}
+{% endblock %}
+
+{% block content %}
+    <div class="doctor-list-container">
+        {% if doctors %}
+            {% for doctor in doctors %}
+                <div class="doctor-item">
+                    <a href="{% url 'dashboard:dashboard_doctor' doctor.id %}" class="doctor-link">
+                        {{ doctor }}
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-doctors">
+                <p>No doctors found.</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

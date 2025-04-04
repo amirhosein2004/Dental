@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded',function(){const sliders=document.querySelectorAll('.gallery-swiper');sliders.forEach(slider=>{new Swiper(slider,{loop:true,slidesPerView:1,spaceBetween:0,autoplay:{delay:3000,disableOnInteraction:false,},navigation:{nextEl:'.swiper-button-next',prevEl:'.swiper-button-prev',},breakpoints:{768:{slidesPerView:1,},},});});});;

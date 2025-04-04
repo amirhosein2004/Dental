@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load compress %}
+
+{% block title %} مدیریت {% endblock %}
+
+{% block extra_static %}
+{% compress css %}
+    <link rel="stylesheet" href="{% static 'core/css/manage.css' %}" media="screen">
+{% endcompress %}
+{% endblock %}
+
+{% block content %}
+    <div class="layout-wrapper" role="main">
+        <div class="layout-container" aria-label="Management Dashboard">
+            <div class="layout-row layout-row--double" role="row">
+                <a href="{% url 'core:clinic' %}" class="layout-box-link" aria-label="Clinic Management">
+                    <section class="layout-box layout-box--clinic">کلینیک</section>
+                </a>
+                <a href="{% url 'core:category' %}" class="layout-box-link" aria-label="Categories Management">
+                    <section class="layout-box layout-box--categories">دسته‌بندی</section>
+                </a>
+            </div>
+            <div class="layout-row layout-row--single" role="row">
+                <a href="{% url 'core:banner' %}" class="layout-box-link" aria-label="Banners Management">
+                    <section class="layout-box layout-box--center layout-box--banners">بنرها</section>
+                </a>
+            </div>
+            <div class="layout-row layout-row--double" role="row">
+                <a href="{% url 'core:workinghours' %}" class="layout-box-link" aria-label="Working Hours Management">
+                    <section class="layout-box layout-box--hours">ساعات کاری</section>
+                </a>
+                <a href="{% url 'contact:messages'%}" class="layout-box-link" aria-label="Messages Management">
+                    <section class="layout-box layout-box--messages">پیام‌ها</section>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load compress %}
+
+{% block title %} داشبورد پزشک {% endblock %}
+
+{% block extra_static %}
+{% compress css %}
+    <link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}">
+{% endcompress %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3>پنل پزشک</h3>
+            <button class="sidebar-toggle" aria-label="باز و بسته کردن منو">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="#" class="menu-link active" data-target="profile-section">
+                        <i class="fas fa-user-md"></i>
+                        <span>پروفایل پزشک</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="menu-link" data-target="password-section">
+                        <i class="fas fa-key"></i>
+                        <span>تغییر رمز عبور</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="menu-link" data-target="blog-section">
+                        <i class="fas fa-blog"></i>
+                        <span>بلاگ‌های من</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="menu-link" data-target="gallery-section">
+                        <i class="fas fa-images"></i>
+                        <span>گالری من</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+        <!-- Profile Section -->
+        <section id="profile-section" class="content-section active">
+            <header class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-user-md"></i>
+                    پروفایل پزشک
+                </h2>
+            </header>
+            
+            <!-- Sub-menu for Profile -->
+            <nav class="profile-subnav">
+                <ul>
+                    <li>
+                        <a href="#" class="sub-menu-link active" data-target="account-info">
+                            <i class="fas fa-user-circle"></i>
+                            اطلاعات کاربری
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sub-menu-link" data-target="self-intro">
+                            <i class="fas fa-file-alt"></i>
+                            معرفی خود
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sub-menu-link" data-target="social-media">
+                            <i class="fas fa-share-alt"></i>
+                            شبکه‌های اجتماعی
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Profile Update Form -->
+            <div id="profile-form-container">
+                <form id="profile-form" class="profile-form" data-url="{% url 'dashboard:dashboard_doctor' doctor.pk %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Account Information Sub-section -->
+                    <div id="account-info" class="sub-content-section active" data-section="account-info">
+                        <div class="profile-info">
+                            <div class="profile-image-container">
+                                {% if doctor.user.image %}
+                                    <img id="profile-preview" src="{{ doctor.user.image.url }}" alt="عکس پروفایل" class="profile-image">
+                                {% else %}
+                                    <img id="profile-preview" src="{% static 'users/default.png' %}" alt="عکس پیش‌فرض" class="profile-image">
+                                {% endif %}
+                                <label for="id_image" class="image-upload-btn">
+                                    <i class="fas fa-camera"></i> تغییر عکس
+                                    {{ user_form.image }}
+                                </label>
+                            </div>
+                            <div class="profile-details">
+                                <div class="form-group">
+                                    <label for="{{ user_form.username.id_for_label }}">نام کاربری</label>
+                                    {{ user_form.username }}
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ user_form.email.id_for_label }}">ایمیل</label>
+                                    {{ user_form.email }}
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ user_form.first_name.id_for_label }}">نام</label>
+                                    {{ user_form.first_name }}
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ user_form.last_name.id_for_label }}">نام خانوادگی</label>
+                                    {{ user_form.last_name }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Self Introduction Sub-section -->
+                    <div id="self-intro" class="sub-content-section" data-section="self-intro">
+                        <div class="intro-box">
+                            <h3><i class="fas fa-file-signature"></i> معرفی تخصصی</h3>
+                            {{ doctor_form.description }}
+                        </div>
+                    </div>
+
+                    <!-- Social Links Sub-section -->
+                    <div id="social-media" class="sub-content-section" data-section="social-media">
+                        <div class="social-links">
+                            <h3><i class="fas fa-share-alt"></i> شبکه‌های اجتماعی</h3>
+                            <div class="form-group">
+                                <label for="{{ doctor_form.twitter.id_for_label }}"><i class="fab fa-twitter"></i> Twitter</label>
+                                {{ doctor_form.twitter }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ doctor_form.instagram.id_for_label }}"><i class="fab fa-instagram"></i> Instagram</label>
+                                {{ doctor_form.instagram }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ doctor_form.telegram.id_for_label }}"><i class="fab fa-telegram"></i> Telegram</label>
+                                {{ doctor_form.telegram }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ doctor_form.linkedin.id_for_label }}"><i class="fab fa-linkedin"></i> LinkedIn</label>
+                                {{ doctor_form.linkedin }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> ذخیره تغییرات
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Password Change Section -->
+        <section id="password-section" class="content-section">
+            <div class="form-container">
+                <header class="section-header-password">
+                    <h2 class="section-title-password">
+                        <i class="fas fa-key"></i>
+                        تغییر رمز عبور
+                    </h2>
+                </header>
+                <form id="password-form" novalidate class="password-form" method="post" data-url="{% url 'accounts:change_password' doctor.user.id %}">
+                    {% csrf_token %}
+                    <div class="form-group-password">
+                        <label for="{{ password_form.old_password.id_for_label }}">رمز عبور فعلی</label>
+                        <div class="password-wrapper">
+                            {{ password_form.old_password }}
+                            <i class="fas fa-eye toggle-password" data-target="{{ password_form.old_password.id_for_label }}"></i>
+                        </div>
+                    </div>
+                    <div class="form-group-password">
+                        <label for="{{ password_form.new_password1.id_for_label }}">رمز عبور جدید</label>
+                        <div class="password-wrapper">
+                            {{ password_form.new_password1 }}
+                            <i class="fas fa-eye toggle-password" data-target="{{ password_form.new_password1.id_for_label }}"></i>
+                        </div>
+                    </div>
+                    <div class="form-group-password">
+                        <label for="{{ password_form.new_password2.id_for_label }}">تکرار رمز عبور جدید</label>
+                        <div class="password-wrapper">
+                            {{ password_form.new_password2 }}
+                            <i class="fas fa-eye toggle-password" data-target="{{ password_form.new_password2.id_for_label }}"></i>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-key"></i> تغییر رمز
+                        </button>
+                    </div>
+                </form>
+                <div id="password-messages" class="alert-message"></div>
+            </div>
+</section>
+
+        <!-- Blog Section -->
+        <section id="blog-section" class="content-section">
+            <header class="section-header-blog">
+                <h2 class="section-title-blog">
+                    <i class="fas fa-blog"></i>
+                    آخرین مقالات
+                </h2>
+                <a href="{% url 'blog:create_blog' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> افزودن مقاله جدید
+                </a>
+            </header>
+            {% if blogs %}
+                <div class="blog-list">
+                    {% for blog in blogs %}
+                        <article class="blog-card">
+                            <div class="blog-content">
+                                <h3 class="blog-title">{{ blog.title }}</h3>
+                                <div class="blog-meta">
+                                    <span class="blog-date"><i class="far fa-calendar-alt"></i> {{ blog.created_at|date:"Y/m/d" }}</span>
+                                </div>
+                                <a href="{% url 'blog:blog_detail' blog.slug %}" class="read-more">
+                                    ادامه مطلب <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </div>
+                            <div class="blog-actions">
+                                <a href="{% url 'blog:update_blog' blog.pk %}" class="btn btn-warning">
+                                    <i class="fas fa-edit"></i> ویرایش
+                                </a>
+                                <button type="button" class="btn btn-danger delete-btn" 
+                                        data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
+                                        data-url="{% url 'blog:delete_blog' blog.pk %}" 
+                                        data-title="{{ blog.title }}">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="far fa-newspaper"></i>
+                    <h3>مقاله‌ای یافت نشد</h3>
+                    <p>هنوز مقاله‌ای منتشر نکرده‌اید!</p>
+                    <a href="{% url 'blog:create_blog' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> ایجاد اولین مقاله
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery-section" class="content-section" aria-labelledby="gallery-title">
+            <header class="section-header-gallery">
+                <h2 class="section-title-gallery" id="gallery-title">
+                    <i class="fas fa-images" aria-hidden="true"></i>
+                    گالری تصاویر
+                </h2>
+                <a href="{% url 'gallery:add_gallery' %}" class="btn btn-primary" aria-label="افزودن تصویر جدید">
+                    <i class="fas fa-plus" aria-hidden="true"></i> 
+                    افزودن تصویر جدید
+                </a>
+            </header>
+            {% if galleries %}
+                <div class="gallery-container">
+                    {% for gallery in galleries %}
+                        <article class="gallery-item" aria-label="گالری {{ gallery.id }}">
+                            <header class="gallery-header">
+                                <h3 class="gallery-title sr-only">گالری شماره {{ gallery.id }}</h3>
+                                <div class="gallery-actions">
+                                    <a href="{% url 'gallery:update_gallery' gallery.id %}" 
+                                       class="btn btn-primary" 
+                                       aria-label="ویرایش گالری {{ gallery.id }}">
+                                        <i class="fas fa-edit" aria-hidden="true"></i> 
+                                        ویرایش
+                                    </a>
+                                    <button type="button" class="btn btn-danger delete-btn" 
+                                            data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
+                                            data-url="{% url 'gallery:delete_gallery' gallery.id %}" 
+                                            data-title="گالری شماره {{ gallery.id }}">
+                                        <i class="fas fa-trash" aria-hidden="true"></i> 
+                                        حذف
+                                    </button>
+                                </div>
+                            </header>
+                            <div class="gallery-images" role="region" aria-label="تصاویر گالری">
+                                {% for image in gallery.images.all %}
+                                    <div class="gallery-image">
+                                        <img src="{{ image.image.url }}" 
+                                             alt="تصویر گالری {{ gallery.id }} - {{ forloop.counter }}" 
+                                             loading="lazy">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state" role="alert">
+                    <i class="far fa-images" aria-hidden="true"></i>
+                    <h3>گالری خالی است</h3>
+                    <p>هنوز تصویری در گالری خود ندارید!</p>
+                    <a href="{% url 'gallery:add_gallery' %}" 
+                       class="btn btn-primary" 
+                       aria-label="افزودن اولین تصویر به گالری">
+                        <i class="fas fa-plus" aria-hidden="true"></i> 
+                        افزودن اولین تصویر
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+</div>
+
+<!-- مودال عمومی برای تأیید حذف -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">تأیید حذف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">لغو</button>
+                <form id="deleteForm" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{% url 'dashboard:dashboard_doctor' doctor.id %}">
+                    <button type="submit" class="btn btn-danger">بله، حذف کن</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% compress js %}
+    <script src="{% static 'dashboard/js/dashboard.js' %}"></script>
+{% endcompress %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
