@@ -92,7 +92,7 @@ class BlogDetailView(View):
     View to display the details of a single blog post.
     """
 
-    # @method_decorator(lambda func: cache_page(86400, key_prefix=lambda request: get_cache_key(request, cache_view='blogdetailview'))(func))   # Cache for 24 hours
+    # Cache for 24 hours
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests to display the details of a blog post.

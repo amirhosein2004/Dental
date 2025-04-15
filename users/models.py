@@ -19,7 +19,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=100,)
     image = models.ImageField(
         upload_to='users',
-        default='users/default.png',
         blank=True,
         validators=[validate_image]
     )

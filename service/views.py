@@ -1,6 +1,6 @@
 from utils.common_imports import (
     View, render, redirect, messages, get_object_or_404,
-    ValidationError, cache
+    cache
 )
 from .models import Service
 from .forms import ServiceForm
@@ -42,13 +42,9 @@ class AddServiceView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
         form = self.form_class(request.POST, request.FILES)
         context = {'form': form}
         if form.is_valid():
-            try:
-                form.save()
-                messages.success(request, "سرویس جدید با موفقیت ایجاد شد")
-                return redirect('service:service_list')
-            except ValidationError as ve:
-                # Display error message related to title translation or other model errors
-                messages.error(request, ve.message)
+            form.save()
+            messages.success(request, "سرویس جدید با موفقیت ایجاد شد")
+            return redirect('service:service_list')
         return render(request, self.template_name, context)
 
 class UpdateServiceView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
@@ -74,13 +70,9 @@ class UpdateServiceView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
         form = self.form_class(request.POST, request.FILES, instance=self.service)
         context = {'form': form, 'service': self.service}
         if form.is_valid():
-            try:
-                form.save()
-                messages.success(request, "سرویس با موفقیت ویرایش شد")
-                return redirect('service:service_list')
-            except ValidationError as ve:
-                # Display error message related to title translation or other model errors
-                messages.error(request, ve.message)
+            form.save()
+            messages.success(request, "سرویس با موفقیت ویرایش شد")
+            return redirect('service:service_list')
         return render(request, self.template_name, context)
 
 class RemoveServiceView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):

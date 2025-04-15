@@ -1,5 +1,9 @@
 import os
 from django.core.wsgi import get_wsgi_application
+from dotenv import load_dotenv
+
+# Load environment variables from a .env file
+load_dotenv()
 
 # بررسی متغیر محیطی DJANGO_ENV برای تعیین فایل تنظیمات مناسب
 env = os.environ.get('DJANGO_ENV', 'dev')  # پیش‌فرض به 'development' تنظیم می‌شود

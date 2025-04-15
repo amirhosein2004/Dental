@@ -365,6 +365,7 @@
         flex-wrap: wrap;
         gap: 20px;
         padding: 25px;
+        bottom: -30px;
     }
 }
 
@@ -390,6 +391,7 @@
     .trust-bar {
         font-size: 0.9rem;
         gap: 5px;
+        bottom: -30px;
     }
     .hero-title::after {
         width: 80px;

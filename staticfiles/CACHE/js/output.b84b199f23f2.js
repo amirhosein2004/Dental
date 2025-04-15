@@ -1,1 +1,0 @@
-document.addEventListener('DOMContentLoaded',()=>{const serviceCards=document.querySelectorAll('.service-card');serviceCards.forEach(card=>{const arrowBtn=card.querySelector('.btn-arrow');arrowBtn.addEventListener('click',()=>{card.classList.toggle('active');});});});;

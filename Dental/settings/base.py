@@ -39,10 +39,10 @@ INSTALLED_APPS = [
     # Third-party apps
     'django_filters',  # For filtering querysets
     'captcha',  # Google reCAPTCHA integration
-    'django_cleanup.apps.CleanupConfig',  # Automatically delete unused files
     'django_ckeditor_5',  # CKEditor 5 integration for rich text editing
     'axes',  # Brute force protection
-    'compressor',  # minify static
+    'compressor',  # For compressing CSS and JavaScript files
+    'storages', # For using cloud storage backends (e.g., AWS S3, Google Cloud Storage)
 ]
 
 # Middleware configuration
@@ -105,16 +105,16 @@ DATABASES = {
 
 
 # Caching configuration using Redis
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-#         'LOCATION': 'redis://127.0.0.1:6379/1',  # Redis database 1
-#     }
-# }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),  # Redis database 1
+    }
+}
 
 # Celery configuration for task queue
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Redis broker
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Redis result backend
+CELERY_BROKER_URL = os.getenv('REDIS_URL_CELERY', 'redis://localhost:6379/0')  # Redis broker
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL_CELERY', 'redis://localhost:6379/0')  # Redis result backend
 CELERY_ACCEPT_CONTENT = ['json']  # Accepted content types
 CELERY_TASK_SERIALIZER = 'json'  # Task serializer
 CELERY_RESULT_SERIALIZER = 'json'  # Result serializer
@@ -143,8 +143,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # Google reCAPTCHA keys
-RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY', "6LdwEtsqAAAAADzdwgPOrMVPUbbMkKfkyqMIcr55")
-RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY', "6LdwEtsqAAAAAGmybZkNo-FV-hCmaLsbCc9dpwg3")
+RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY')
 
 # Email configuration
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
@@ -307,6 +307,6 @@ STATICFILES_FINDERS = [
     'compressor.finders.CompressorFinder',  # Required for django-compressor to work
 ]
 
-# Django Compressor settings
+# # Django Compressor settings
 COMPRESS_ENABLED = True  # Enable compression
 COMPRESS_OFFLINE = True  # Set to False for development, True for production

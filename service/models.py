@@ -6,11 +6,6 @@ class Service(models.Model):
     Model representing a service with title, slug, description, and image.
     """
     title = models.CharField(max_length=200, unique=True)
-    slug = models.SlugField(
-        max_length=150,
-        unique=True,
-        blank=True,
-    )
     description = models.TextField(
         validators=[validate_length]
     )

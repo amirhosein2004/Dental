@@ -1,0 +1,75 @@
+services:
+  # سرویس وب (Django + Gunicorn)
+  web:
+    build: .
+    container_name: django_app
+    restart: always
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env  # بارگذاری متغیرها از .env
+    volumes:
+      - static_files:/app/staticfiles
+    command: ["gunicorn", "--bind", "0.0.0.0:8000", "Dental.wsgi:application"]
+
+  # سرویس پایگاه داده (PostgreSQL)
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # سرویس Redis
+  redis:
+    image: redis:latest
+    container_name: redis_cache
+    restart: always
+
+  # سرویس Celery Worker
+  celery:
+    build: .
+    image: dental-celery
+    container_name: celery_worker
+    restart: always
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - .env
+    command: ["celery", "-A", "Dental", "worker", "--loglevel=info"]
+
+  # سرویس Celery Beat (برای وظایف زمان‌بندی‌شده)
+  celery-beat:
+    build: .
+    image: dental-celery-beat
+    container_name: celery_beat
+    restart: always
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - .env
+    command: ["celery", "-A", "Dental", "beat", "--loglevel=info"]
+
+  # سرویس Nginx (پروکسی معکوس)
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    restart: always
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_files:/app/staticfiles
+
+volumes:
+  postgres_data:
+  static_files:

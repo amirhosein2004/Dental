@@ -7,14 +7,14 @@ ENV PYTHONUNBUFFERED=1
 # ایجاد دایرکتوری برای اپلیکیشن
 WORKDIR /app
 
+# کپی کردن فقط فایل requirements.txt
+COPY requirements.txt /app/
+
+# نصب وابستگی‌ها (در این مرحله فقط نصب پکیج‌ها)
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+
 # کپی کردن فایل‌های پروژه
 COPY . /app/
-
-# نصب وابستگی‌ها
-RUN pip install --no-cache-dir -r requirements.txt
-
-# جمع‌آوری فایل‌های استاتیک
-RUN python manage.py collectstatic --noinput
 
 # باز کردن پورت مورد نیاز
 EXPOSE 8000
