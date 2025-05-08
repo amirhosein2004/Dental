@@ -10,18 +10,25 @@ class AboutView(View):
     template_name = 'about/about.html'  
 
     def get(self, request, *args, **kwargs):
-        cache_key = get_cache_key(request, cache_view='aboutview')
-        cached_data = cache.get(cache_key)  # بررسی کش قبل از اجرای کوئری‌ها
-        if cached_data:
-            return cached_data
         
-        context = {
-            'clinic': Clinic.objects.filter(is_primary=True).first(),
-            'doctors': Doctor.objects.select_related('user').all(),
-            'services': Service.objects.all()[:4],
+        # cache data and queries
+        cache_key = get_cache_key(request, cache_view='aboutview_data')
+        cached_data = cache.get(cache_key)
+
+        if cached_data is None:
+            cached_data = {
+                'clinic': Clinic.objects.filter(is_primary=True).first(),
+                'doctors': Doctor.objects.select_related('user').all(),
+                'services': Service.objects.all()[:4],
+            }    
+            cache.set(cache_key, cached_data, 86400)
+
+        context = {    # If the cache key exists, the cached_data was previously stored under that key and is now being retrieved from it.
+            'clinic': cached_data['clinic'],
+            'doctors': cached_data['doctors'],
+            'services': cached_data['services'],
         }
         
-        response = render(request, self.template_name, context)
-        cache.set(cache_key, response, 86400)  # ذخیره کش برای 24 ساعت
-        return response
+        return render(request, self.template_name, context)
+
 

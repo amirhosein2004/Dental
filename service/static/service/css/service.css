@@ -1,8 +1,8 @@
 /* Base Styles */
 body {
-    background: linear-gradient(135deg, #ffffff, #ffffff); /* گرادیانت پس‌زمینه */
+    background: linear-gradient(135deg, #ffffff, #ffffff);
     color: #333;
-    min-height: 100vh; /* اطمینان از پوشش کل صفحه */
+    min-height: 100vh;
 }
 
 /* Service Header Styles */
@@ -25,16 +25,16 @@ body {
     background: linear-gradient(45deg, #007bff, #00d4ff, #28a745);
     background-size: 200% 200%;
     -webkit-background-clip: text;
-    background-clip: text; /* سازگاری بهتر با مرورگرها */
+    background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-fill-color: transparent; /* سازگاری بهتر */
+    text-fill-color: transparent;
 }
 
 /* Icon Shape Styles */
 .icon-shape {
     align-items: center;
     background-color: rgba(0, 123, 255, 0.1);
-    border-radius: 50%; /* اطمینان از دایره بودن */
+    border-radius: 50%;
     display: inline-flex;
     height: 4rem;
     justify-content: center;
@@ -66,7 +66,7 @@ body {
 
 /* Button Styles */
 .btn-hover-scale {
-    border-radius: 50px; /* هماهنگی با طراحی مدرن */
+    border-radius: 50px;
     font-size: 1.25rem;
     font-weight: 600;
     padding: 0.75rem 2.5rem;
@@ -116,7 +116,7 @@ body {
         width: 3rem;
     }
     .icon-shape i {
-        font-size: 1.5rem; /* کاهش اندازه آیکون */
+        font-size: 1.5rem;
     }
     .btn-hover-scale {
         font-size: 1rem;
@@ -126,11 +126,11 @@ body {
 
 @media (max-width: 768px) {
     .hero-content h1 {
-        font-size: 2.5rem; /* کوچکتر برای موبایل */
+        font-size: 2.5rem;
     }
     .hero-content .lead {
         font-size: 1rem;
-        padding-left: 1.5rem; /* کاهش فاصله در موبایل */
+        padding-left: 1.5rem;
     }
     .hero-content .border-start {
         padding-left: 1.5rem;
@@ -147,7 +147,7 @@ body {
         padding: 0.5rem 1.5rem;
     }
     .service-header {
-        margin-top: 2rem; /* کاهش فاصله در موبایل */
+        margin-top: 2rem;
         padding: 1rem 0;
     }
 }
@@ -177,7 +177,7 @@ body {
 
 @media (min-width: 1200px) {
     .hero-content h1 {
-        font-size: 5rem; /* بزرگتر برای صفحه‌های عریض */
+        font-size: 5rem;
     }
     .hero-content .lead {
         font-size: 2rem;
@@ -226,7 +226,7 @@ body {
 
 .service-image img {
     height: 100%;
-    object-fit: cover; /* اطمینان از پر شدن کامل */
+    object-fit: cover;
     transition: all 0.5s ease;
     width: 100%;
 }
@@ -244,24 +244,23 @@ body {
 
 /* Content Container Styles */
 .service-content-container {
-    height: 100%;
+    display: none; /* به‌صورت پیش‌فرض مخفی */
+    flex-direction: column;
     opacity: 0;
-    overflow: hidden;
-    transition: all 0.5s ease;
-    visibility: hidden;
-    width: 0;
+    transition: opacity 0.3s ease;
 }
 
 .service-card.active .service-content-container {
+    display: flex; /* نمایش در حالت active */
     opacity: 1;
-    visibility: visible;
-    width: 70%;
+    width: 70%; /* عرض محتوا در حالت باز */
 }
 
 .service-content-container .p-4 {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    height: 100%;
 }
 
 .service-description p {
@@ -495,14 +494,14 @@ body {
         height: 250px;
     }
     .service-card.active .service-image-container {
-        width: 100%; /* در موبایل کوچک فقط تصویر */
-    }
-    .service-card.active .service-content-container {
-        height: auto;
-        width: 100%; /* محتوا زیر تصویر */
+        width: 100%;
     }
     .service-card {
-        flex-direction: column; /* چیدمان عمودی */
+        flex-direction: column;
+    }
+    .service-card.active .service-content-container {
+        display: flex;
+        width: 100%;
     }
     .btn-arrow {
         bottom: 100px;
@@ -550,4 +549,3 @@ body {
         font-size: 1.25rem;
     }
 }
-

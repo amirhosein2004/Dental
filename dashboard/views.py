@@ -49,12 +49,7 @@ class DashboardView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests and render the dashboard with forms.
-        """
-        cache_key = get_cache_key(request, cache_view='dashboardview')
-        cached_data = cache.get(cache_key)  # بررسی کش قبل از اجرای کوئری‌ها
-        if cached_data:
-            return cached_data
-        
+        """ 
         doctor_form = self.form_class_doctor(instance=self.doctor)
         user_form = self.form_class_user(instance=self.doctor.user)
         password_form = self.form_class_password(user=self.doctor.user)  # Password change form
@@ -67,9 +62,7 @@ class DashboardView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
             'password_form': password_form,  
         }
 
-        response = render(request, self.template_name, context)
-        cache.set(cache_key, response, 86400)  # ذخیره کش برای 24 ساعت
-        return response
+        return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
         """

@@ -52,3 +52,4 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')  # Secret key for Lia
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')  # Name of the bucket in Liara
 AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')  # Endpoint URL for Liara S3
 AWS_S3_FILE_OVERWRITE = False  # Prevent overwriting files with the same name
+AWS_QUERYSTRING_AUTH = False  # Disable query string authentication for S3 URLs

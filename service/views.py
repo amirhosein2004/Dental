@@ -14,17 +14,19 @@ class ServiceView(View):
     template_name = 'service/service.html'
 
     def get(self, request, *args, **kwargs):
-        cache_key = get_cache_key(request, cache_view='serviceview')
-        cached_data = cache.get(cache_key)  # بررسی کش قبل از اجرای کوئری‌ها
-        if cached_data:
-            return cached_data
-        
-        services = Service.objects.all()
-        context = {'services': services}
+        # cache data and queries
+        cache_key = get_cache_key(request, cache_view='serviceview_data')
+        cached_data = cache.get(cache_key)
 
-        response = render(request, self.template_name, context)
-        cache.set(cache_key, response, 86400)  # ذخیره کش برای 24 ساعت
-        return response
+        if cached_data is None:
+            cached_data = {
+                'services': Service.objects.all(),
+            }    
+            cache.set(cache_key, cached_data, 86400)
+        
+        context = {'services': cached_data['services']}
+
+        return render(request, self.template_name, context)
 
 class AddServiceView(RateLimitMixin, DoctorOrSuperuserRequiredMixin, View):
     """

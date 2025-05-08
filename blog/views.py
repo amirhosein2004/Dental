@@ -91,8 +91,6 @@ class BlogDetailView(View):
     """
     View to display the details of a single blog post.
     """
-
-    # Cache for 24 hours
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests to display the details of a blog post.

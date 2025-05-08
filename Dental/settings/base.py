@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'axes',  # Brute force protection
     'compressor',  # For compressing CSS and JavaScript files
     'storages', # For using cloud storage backends (e.g., AWS S3, Google Cloud Storage)
+    'debug_toolbar',
 ]
 
 # Middleware configuration
@@ -57,6 +58,8 @@ MIDDLEWARE = [
 
     # Axes middleware for brute force protection
     'axes.middleware.AxesMiddleware',
+    # Debug toolbar middleware for development
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 # Root URL configuration
@@ -300,13 +303,7 @@ CKEDITOR_5_CONFIGS = {
     }
 }
 
-# Static files finders configuration
-STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',  # Finds static files in the filesystem
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',  # Finds static files in app directories
-    'compressor.finders.CompressorFinder',  # Required for django-compressor to work
+# Debug toolbar settings
+INTERNAL_IPS = [
+    '127.0.0.1',
 ]
-
-# # Django Compressor settings
-COMPRESS_ENABLED = True  # Enable compression
-COMPRESS_OFFLINE = True  # Set to False for development, True for production

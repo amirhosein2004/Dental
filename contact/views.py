@@ -1,6 +1,5 @@
 from utils.common_imports import View, render, redirect, get_object_or_404, messages, cache
 from utils.mixins import DoctorOrSuperuserRequiredMixin, RateLimitMixin
-
 from .models import ContactMessage  
 from core.models import WorkingHours
 from core.models import Clinic  
@@ -13,21 +12,26 @@ class ContactView(RateLimitMixin, View):
     form_class = ContactMessageForm
 
     def get(self, request, *args, **kwargs):
-        cache_key = get_cache_key(request, cache_view='coontactview')
-        cached_data = cache.get(cache_key)  # بررسی کش قبل از اجرای کوئری‌ها
-        if cached_data:
-            return cached_data
         
+        # cache data and queries
+        cache_key = get_cache_key(request, cache_view='contactview_data')
+        cached_data = cache.get(cache_key)
+
+        if cached_data is None:
+            cached_data = {
+                'clinic': Clinic.objects.filter(is_primary=True).first(),
+                'workinghours': WorkingHours.objects.all(),
+            }
+            cache.set(cache_key, cached_data, 86400)
+
         form = self.form_class()
         context = {
-            'clinic': Clinic.objects.filter(is_primary=True).first(),
-            'workinghours': WorkingHours.objects.all(),
+            'clinic': cached_data['clinic'],
+            'workinghours': cached_data['workinghours'],
             'form': form, 
         }
 
-        response = render(request, self.template_name, context)
-        cache.set(cache_key, response, 86400)  # ذخیره کش برای 24 ساعت
-        return response     
+        return render(request, self.template_name, context)    
     
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
