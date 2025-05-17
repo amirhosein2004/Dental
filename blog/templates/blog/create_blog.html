@@ -1,13 +1,10 @@
 {% extends 'base.html' %}
 {% load static i18n %}
-{% load compress %}
 
 {% block title %} ساختن مفاله {% endblock %}
 
 {% block extra_static %}
-{% compress css %}
     <link rel="stylesheet" href="{% static 'blog/css/create_update_blog.css' %}">
-{% endcompress %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
 
@@ -108,7 +105,5 @@
 
 {% block extra_js %}
     {{ form.media }}
-    {% compress js %}
     <script src="{% static 'blog/js/create_update_blog.js' %}" defer></script>
-    {% endcompress %}
 {% endblock %}

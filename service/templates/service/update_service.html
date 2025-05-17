@@ -1,13 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load compress %}
 
 {% block title %} بروز رسانی خدمات {% endblock %}
 
 {% block extra_static %}
-{% compress css %}
-    <link rel="stylesheet" href="{% static 'service/css/create_update_service.css' %}">
-{% endcompress %}
+<link rel="stylesheet" href="{% static 'service/css/create_update_service.css' %}">
 {% endblock %}
 
 {% block content %}

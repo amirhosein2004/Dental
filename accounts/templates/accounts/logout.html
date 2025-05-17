@@ -1,11 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load compress %}
 
 {% block extra_static %}
-{% compress css %}
     <link rel="stylesheet" href="{% static 'accounts/css/logout.css' %}">
-{% endcompress %}
 {% endblock %}
 
 {% block content %}
@@ -47,7 +44,5 @@
 {% endblock %}
 
 {% block extra_js %}
-{% compress js %}
-    <script scr="{% static 'accounts/js/logout.js' %}"></script>
-{% endcompress %}
+<script scr="{% static 'accounts/js/logout.js' %}"></script>
 {% endblock %}

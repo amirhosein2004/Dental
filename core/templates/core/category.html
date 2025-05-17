@@ -1,13 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load compress %}
 
 {% block title %} دسته‌بندی ها {% endblock %}
 
 {% block extra_static %}
-{% compress css %}
-    <link rel="stylesheet" href="{% static 'core/css/category.css' %}">
-{% endcompress %}
+<link rel="stylesheet" href="{% static 'core/css/category.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -52,7 +49,5 @@
 {% endblock %}
 
 {% block extra_js %}
-{% compress js %}
-    <script src="{% static 'core/js/category.js' %}"></script>
-{% endcompress %}
+<script src="{% static 'core/js/category.js' %}"></script>
 {% endblock %}

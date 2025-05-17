@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'captcha',  # Google reCAPTCHA integration
     'django_ckeditor_5',  # CKEditor 5 integration for rich text editing
     'axes',  # Brute force protection
-    'compressor',  # For compressing CSS and JavaScript files
     'storages', # For using cloud storage backends (e.g., AWS S3, Google Cloud Storage)
     'debug_toolbar',
 ]
@@ -108,16 +107,16 @@ DATABASES = {
 
 
 # Caching configuration using Redis
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),  # Redis database 1
-    }
-}
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+#         'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),  # Redis database 1
+#     }
+# }
 
-# Celery configuration for task queue
-CELERY_BROKER_URL = os.getenv('REDIS_URL_CELERY', 'redis://localhost:6379/0')  # Redis broker
-CELERY_RESULT_BACKEND = os.getenv('REDIS_URL_CELERY', 'redis://localhost:6379/0')  # Redis result backend
+# # Celery configuration for task queue
+# CELERY_BROKER_URL = os.getenv('REDIS_URL_CELERY', 'redis://localhost:6379/0')  # Redis broker
+# CELERY_RESULT_BACKEND = os.getenv('REDIS_URL_CELERY', 'redis://localhost:6379/0')  # Redis result backend
 CELERY_ACCEPT_CONTENT = ['json']  # Accepted content types
 CELERY_TASK_SERIALIZER = 'json'  # Task serializer
 CELERY_RESULT_SERIALIZER = 'json'  # Result serializer

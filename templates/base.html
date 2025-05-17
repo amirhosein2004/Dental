@@ -1,5 +1,4 @@
 {% load static %}
-{% load compress %}
 
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -7,7 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge"> <!-- برای سازگاری بهتر با مرورگرها -->
-    <title>SB DENTALS{% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
+    {% block meta_tags %}{% endblock %}
 
     <!-- icon web -->
     <link rel="icon" type="image/png" href="{% static 'img/site-logo.png' %}">
@@ -25,11 +25,9 @@
           crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <!-- استایل‌های استاتیک مشترک -->
-    {% compress css %}
         <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
         <link rel="stylesheet" href="{% static 'css/message.css' %}">
         <link rel="stylesheet" href="{% static 'css/footer.css' %}">
-    {% endcompress %}
         
     <!-- استایل‌های اضافی برای صفحات خاص -->
     {% block extra_static %}{% endblock %}
@@ -54,11 +52,9 @@
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
             crossorigin="anonymous"></script>
     <!-- جایگزینی Font Awesome Kit با CDN (در صورت عدم نیاز به Kit) -->
-    {% compress js %}
     <script src="{% static 'js/navbar.js' %}"></script>
     <script src="{% static 'js/base.js' %}"></script>
     <script src="{% static 'js/message.js' %}"></script>
-    {% endcompress %}
 
     <!-- اسکریپت‌های اضافی برای صفحات خاص -->
     {% block extra_js %}{% endblock %}

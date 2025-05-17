@@ -1,13 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load compress %}
 
 {% block title %} پیام ها {% endblock %}
 
 {% block extra_static %}
-{% compress css %}
     <link rel="stylesheet" href="{% static 'contact/css/contact_massages.css' %}">
-{% endcompress %}
 {% endblock %}
 
 {% block content %}
@@ -177,7 +174,5 @@
 {% endblock %}
 
 {% block extra_js %}
-{% compress js %}
     <script src="{% static 'contact/js/contact_messages.js' %}"></script>
-{% endcompress %}
 {% endblock %}

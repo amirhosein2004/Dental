@@ -1,11 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load compress %}
 
 {% block extra_static %}
-{% compress css %}
     <link rel="stylesheet" href="{% static 'accounts/css/verify_otp.css' %}">
-{% endcompress %}
 {% endblock %}
 
 {% block content %}
@@ -89,7 +86,5 @@
 {% endblock %}
 
 {% block extra_js %}
-{% compress js %}
 <script src="{% static 'accounts/js/verify_otp.js' %}"></script>
-{% endcompress %}
 {% endblock %}

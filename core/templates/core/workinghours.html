@@ -1,13 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load compress %}
 
 {% block title %} ساعات کاری {% endblock %}
 
 {% block extra_static %}
-{% compress css %}
-    <link rel="stylesheet" href="{% static 'core/css/workinghours.css' %}">
-{% endcompress %}
+<link rel="stylesheet" href="{% static 'core/css/workinghours.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -112,7 +109,5 @@
 {% endblock %}
 
 {% block extra_js %}
-{% compress js %}
-    <script src="{% static 'core/js/workinghour.js' %}"></script>
-{% endcompress %}
+<script src="{% static 'core/js/workinghour.js' %}"></script>
 {% endblock %}

@@ -1,13 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load compress %}
 
-{% block title %} خدمات {% endblock %}
+{% block title %}خدمات دندانپزشکی | درمان، زیبایی و ایمپلنت در کلینیک دکتر بابایی و بهمدی{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="لیست خدمات تخصصی دندانپزشکی شامل درمان، زیبایی، ایمپلنت، ارتودنسی و مشاوره در کلینیک دکتر بابایی و بهمدی.">
+    <meta name="keywords" content="خدمات دندانپزشکی, درمان دندان, زیبایی دندان, ایمپلنت, ارتودنسی, کلینیک دندانپزشکی, دکتر بابایی, دکتر بهمدی">
+    <meta property="og:title" content="خدمات دندانپزشکی | کلینیک دکتر بابایی و بهمدی">
+    <meta property="og:description" content="لیست خدمات تخصصی دندانپزشکی شامل درمان، زیبایی، ایمپلنت و ارتودنسی.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sbdental.ir/services/">
+    <meta property="og:image" content="https://sbdental.ir/static/img/site-logo.png">
+{% endblock %}
 
 {% block extra_static %}
-{% compress css %}
-    <link rel="stylesheet" href="{% static 'service/css/service.css' %}">
-{% endcompress %}
+<link rel="stylesheet" href="{% static 'service/css/service.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -60,7 +67,7 @@
                     <figure class="service-image m-0 h-100">
                         <img src="{{ service.image.url }}"
                             class="img-fluid object-fit-cover w-100 h-100"
-                            alt="{{ service.title }}"
+                            alt="خدمت دندانپزشکی: {{ service.title }}"
                             loading="lazy">
                         <div class="image-overlay gradient-overlay"></div>
                     </figure>
@@ -159,7 +166,5 @@
 {% endblock %}
 
 {% block extra_js %}
-{% compress js %}
-    <script src="{% static 'service/js/service.js' %}"></script>
-{% endcompress %}
+<script src="{% static 'service/js/service.js' %}"></script>
 {% endblock %}

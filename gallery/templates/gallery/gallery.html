@@ -1,13 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load compress %}
 
-{% block title %} گالری {% endblock %}
+{% block title %}گالری تصاویر کلینیک دندانپزشکی | نمونه کارها و خدمات تخصصی{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="گالری تصاویر کلینیک دندانپزشکی دکتر بابایی و بهمدی؛ مشاهده نمونه کارها، خدمات تخصصی و محیط کلینیک.">
+    <meta name="keywords" content="گالری دندانپزشکی, نمونه کار دندانپزشکی, تصاویر کلینیک, خدمات دندانپزشکی, دکتر بابایی, دکتر بهمدی">
+    <meta property="og:title" content="گالری تصاویر کلینیک دندانپزشکی">
+    <meta property="og:description" content="مشاهده نمونه کارها و خدمات تخصصی کلینیک دندانپزشکی دکتر بابایی و بهمدی.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourdomain.com/gallery/">
+    <meta property="og:image" content="https://yourdomain.com/static/img/site-logo.png">
+{% endblock %}
 
 {% block extra_static %}
-{% compress css %}
     <link rel="stylesheet" href="{% static 'gallery/css/gallery.css' %}">
-{% endcompress %}
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
 {% endblock %}
 
@@ -15,8 +22,8 @@
 <div class="container my-5">
     <header>
         <div class="header-icons">
-            <img src="{% static 'img/tooth-left.png' %}" alt="آیکون دندان چپ" class="icon-left">
-            <img src="{% static 'img/tooth-right.png' %}" alt="آیکون دندان راست" class="icon-right">
+            <img src="{% static 'img/tooth-left.png' %}" alt="آیکون دندان چپ کلینیک دندانپزشکی" class="icon-left">
+            <img src="{% static 'img/tooth-right.png' %}" alt="آیکون دندان راست کلینیک دندانپزشکی" class="icon-right">
         </div>
         <h1>نمونه‌کارهای حرفه‌ای ما</h1>
         <p class="subtitle">این‌ها تنها بخشی از آثار هنری و حرفه‌ای ماست</p>
@@ -29,7 +36,7 @@
         <div class="doctor-profile">
             <span>دکتر {{ doctors.0.user.last_name }}</span>
             <a href="{{ doctors.0.instagram }}" target="_blank" rel="noopener noreferrer">
-                <img src="{% static 'img/instagram.png' %}" alt="اینستاگرام دکتر {{ doctors.0.user.last_name }}">
+                <img src="{% static 'img/instagram.png' %}" alt="اینستاگرام دکتر {{ doctors.0.user.last_name }} - کلینیک دندانپزشکی">
             </a>
         </div>
         {% endif %}
@@ -43,7 +50,7 @@
         {% if doctors.1 %}
         <div class="doctor-profile">
             <a href="{{ doctors.1.instagram }}" target="_blank" rel="noopener noreferrer">
-                <img src="{% static 'img/instagram.png' %}" alt="اینستاگرام دکتر {{ doctors.1.user.last_name }}">
+                <img src="{% static 'img/instagram.png' %}" alt="اینستاگرام دکتر {{ doctors.1.user.last_name }} - کلینیک دندانپزشکی">
             </a>
             <span>دکتر {{ doctors.1.user.last_name }}</span>
         </div>
@@ -116,7 +123,7 @@
                                     <div class="swiper-slide">
                                         <div class="image-box">
                                             <img src="{{ image.image.url }}" 
-                                                 alt="{{ image.title|default:'تصویر' }}" 
+                                                 alt="نمونه کار دندانپزشکی: {{ image.gallery.category|default:'تصویر گالری' }}" 
                                                  class="img-fluid" 
                                                  loading="lazy">
                                         </div>
@@ -181,10 +188,6 @@
 
 {% block extra_js %}
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-    {% compress js %}
     <script src="{% static 'gallery/js/gallery.js' %}" defer></script>
-    {% endcompress %}
-    {% compress js %}
     <script src="{% static 'gallery/js/load_more.js' %}" defer></script>
-    {% endcompress %}
 {% endblock %}

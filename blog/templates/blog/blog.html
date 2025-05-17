@@ -1,13 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load compress %}
 
-{% block title %} مقالات {% endblock %}
+{% block title %}مقالات دندانپزشکی | نکات، آموزش و تازه‌های کلینیک{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="جدیدترین مقالات و آموزش‌های دندانپزشکی، نکات مراقبت از دندان، ایمپلنت، ارتودنسی و زیبایی توسط تیم کلینیک دکتر بابایی و بهمدی.">
+    <meta name="keywords" content="مقالات دندانپزشکی, آموزش دندانپزشکی, نکات دندانپزشکی, ایمپلنت, ارتودنسی, زیبایی دندان, کلینیک دندانپزشکی">
+    <meta property="og:title" content="مقالات دندانپزشکی | کلینیک دکتر بابایی و بهمدی">
+    <meta property="og:description" content="جدیدترین مقالات و آموزش‌های دندانپزشکی توسط تیم متخصص کلینیک.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sbdental.ir/blog/">
+    <meta property="og:image" content="https://sbdental.ir/static/img/site-logo.png">
+{% endblock %}
 
 {% block extra_static %}
-{% compress css %}
     <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}" media="screen">
-{% endcompress %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" 
           integrity="sha384-DyZ88mC6Up2uqS6tI4v8fJ7gA1J9X9pJ6c5gD5z5h5kJ9L8mN7pQ8A6c5v5n6kJ" 
           crossorigin="anonymous" 
@@ -115,7 +122,7 @@
                                 <img 
                                     src="{{ blog.image.url }}" 
                                     class="card-img-top object-fit-cover" 
-                                    alt="{{ blog.title|default:'تصویر مقاله' }}" 
+                                    alt="تصویر مقاله: {{ blog.title|default:'مقاله دندانپزشکی' }}" 
                                     loading="lazy" 
                                     decoding="async"
                                     itemprop="image">
@@ -173,10 +180,6 @@
 
 {% block extra_js %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    {% compress js %}
     <script src="{% static 'blog/js/blog.js' %}"></script>
-    {% endcompress %}
-    {% compress js %}
     <script src="{% static 'blog/js/load_more.js' %}"></script>
-    {% endcompress %}
 {% endblock %}

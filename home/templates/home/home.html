@@ -1,13 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load compress %}
 
-{% block title %} دندان پزشکی {% endblock %}
+{% block title %}کلینیک دندانپزشکی دکتر بابایی و بهمدی | خدمات تخصصی، زیبایی و ایمپلنت دندان{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="کلینیک دندانپزشکی دکتر بابایی و بهمدی؛ ارائه‌دهنده خدمات تخصصی دندانپزشکی، زیبایی، ایمپلنت و ارتودنسی با تیمی حرفه‌ای و تجهیزات مدرن در قوچان.">
+    <meta name="keywords" content="دندانپزشکی, کلینیک دندانپزشکی, ایمپلنت, ارتودنسی, زیبایی دندان, دکتر بابایی, دکتر بهمدی, خدمات دندانپزشکی, قوچان">
+    <meta property="og:title" content="کلینیک دندانپزشکی دکتر بابایی و بهمدی">
+    <meta property="og:description" content="خدمات تخصصی دندانپزشکی، زیبایی و ایمپلنت با تیمی حرفه‌ای و تجهیزات مدرن در قوچان.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sbdental.ir/">
+    <meta property="og:image" content="https://sbdental.ir/static/img/site-logo.png">
+{% endblock %}
 
 {% block extra_static %}
-{% compress css %}
     <link rel="stylesheet" href="{% static 'home/css/home.css' %}">
-{% endcompress %}
 {% endblock %}
 
 {% block content %}
@@ -15,9 +22,9 @@
     <header class="hero-section">
         <div class="hero-overlay"></div> <!-- لایه پس‌زمینه برای جذابیت بصری -->
         <div class="container hero-content">
-            <div class="tooth-icon animate-float"></div> <!-- آیکون دندان با انیمیشن شناور -->
+
             <div class="welcome-text-box">
-                <h1 class="hero-title">به کلینیک دندانپزشکی دکتر بابایی و بهمدی خوش آمدید</h1>
+                <h1 class="hero-title">کلینیک دندانپزشکی دکتر بابایی و بهمدی</h1>
                 <p class="hero-subtitle">
                     تجربه‌ای متفاوت از دندان‌پزشکی با تیمی حرفه‌ای و فناوری روز دنیا
                 </p>
@@ -26,17 +33,12 @@
                 </a>
             </div>
         </div>
-        <div class="trust-bar">
-            <span><i class="fas fa-check-circle"></i> بیش از ۲۰۰۰ بیمار راضی</span>
-            <span><i class="fas fa-tools"></i> تجهیزات پیشرفته</span>
-            <span><i class="fas fa-user-md"></i> متخصصین مجرب</span>
-        </div>
     </header>
 
     <!-- Premium Quality Section -->
     <section class="home-advantages-section">
         <div class="advantages-container">
-            <h2 class="advantages-title">تجربه‌ای متفاوت در دندانپزشکی</h2>
+            <h2 class="section-title">تجربه‌ای متفاوت در دندانپزشکی</h2>
             <p class="advantages-subtitle">ما با استانداردهای جهانی به شما خدمات ارائه می‌دهیم</p>
             
             <div class="advantages-grid">
@@ -136,7 +138,7 @@
                     <div class="doctor-image-container">
                         <div class="image-frame" aria-hidden="true"></div>
                         <img src="{{ doctor.user.image.url }}" 
-                             alt="دکتر {{ doctor.user.get_full_name }}" 
+                             alt="دکتر دندانپزشک: {{ doctor.user.get_full_name }}" 
                              class="doctor-image" 
                              loading="lazy">
                     </div>
@@ -177,7 +179,7 @@
                 <article class="service-item">
                     <div class="service-image-wrapper">
                         <img src="{{ service.image.url }}" 
-                            alt="تصویر {{ service.title }}" 
+                            alt="خدمت دندانپزشکی: {{ service.title }}" 
                             class="service-image" 
                             loading="lazy">
                     </div>
@@ -302,7 +304,7 @@
             {% for banner in banners %}
                 <div class="banner-item">
                     <img src="{{ banner.image.url }}" 
-                        alt="بنر {{ forloop.counter }}" 
+                        alt="بنر تبلیغاتی کلینیک دندانپزشکی" 
                         class="banner-image" 
                         loading="lazy">
                 </div>
@@ -343,7 +345,7 @@
                 <article class="home-blog-card">
                     <a href="{% url 'blog:blog_detail' blog.slug %}" class="home-blog-image-link">
                         <div class="home-blog-image-wrapper">
-                            <img src="{{ blog.image.url }}" alt="{{ blog.title }}" loading="lazy" class="home-blog-image">
+                            <img src="{{ blog.image.url }}" alt="تصویر مقاله: {{ blog.title }}" loading="lazy" class="home-blog-image">
                         </div>
                     </a>
                     <div class="home-blog-content-wrapper">
@@ -380,7 +382,7 @@
     <section class="contact-section">
         <div class="contact-container">
             <span class="contact-text contact-text-left">برای اطلاعات بیشتر</span>
-            <a href="{% url 'contact:contact' %}" class="contact-btn"> رزرو نوبت </a>
+            <a href="{% url 'contact:contact' %}" class="contact-btn">رزرو نوبت</a>
             <span class="contact-text contact-text-right">با ما تماس بگیرید</span>
         </div>
     </section>
@@ -388,8 +390,8 @@
     <!-- Portfolio Gallery Section -->
     <section class="portfolio-gallery">
         <header class="portfolio-gallery__header">
-            <h1 class="portfolio-gallery__title">نمونه کارهای ما</h1>
-            <h2 class="portfolio-gallery__subtitle">جهانی از خلاقیت را کاوش کنید</h2>
+            <h2 class="portfolio-gallery__title">نمونه کارهای ما</h2>
+            <h3 class="portfolio-gallery__subtitle">جهانی از خلاقیت را کاوش کنید</h3>
         </header>
         
         <div class="portfolio-gallery__container">
@@ -399,9 +401,10 @@
                         {% for img in gallery.images.all %}
                             <figure class="portfolio-gallery__figure {% if forloop.counter > 2 %}portfolio-gallery__figure--teaser{% endif %}">
                                 <img src="{{ img.image.url }}" 
-                                    alt="{{ img.alt_text|default:'نمونه کار ما' }}" 
+                                    alt="{{ img.alt_text|default:'نمونه کار دندانپزشکی - '|add:gallery.category }}" 
                                     class="portfolio-gallery__image"
-                                    loading="lazy">
+                                    loading="lazy"
+                                    title="{{ img.title|default:'نمونه کار دندانپزشکی - '|add:gallery.category }}">
                             </figure>
                         {% empty %}
                             <p class="portfolio-gallery__empty">تصویری در این گالری وجود ندارد.</p>
@@ -423,7 +426,7 @@
     <!-- Final Word -->
     <footer class="page-footer">
         <div class="final-word">
-            <h3 class="final-word__title">لبخندی که شایسته شماست</h3>
+            <h2 class="final-word__title">لبخندی که شایسته شماست</h2>
             <p class="final-word__text">
                 در کلینیک دندان‌پزشکی ما، هنر و علم در کنار هم قرار گرفته‌اند تا لبخندی بی‌نقص برای شما خلق کنند. با بهره‌گیری از فناوری پیشرفته و تیمی متعهد، تجربه‌ای آرامش‌بخش و متمایز را به شما هدیه می‌دهیم. از طراحی لبخند رویاهایتان تا مراقبت‌های روزمره، ما همراهتان هستیم تا هر لحظه با اطمینان و زیبایی لبخند بزنید. همین حالا با ما تماس بگیرید و سفری به سوی لبخندی درخشان را آغاز کنید!
             </p>
@@ -439,7 +442,5 @@
 {% endblock %}
 
 {% block extra_js %}
-{% compress js %}
     <script src="{% static 'home/js/home.js' %}"></script>
-{% endcompress %}
 {% endblock %}

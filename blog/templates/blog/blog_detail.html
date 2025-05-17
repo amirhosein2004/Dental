@@ -1,13 +1,20 @@
 {% extends "base.html" %}
 {% load static %}
-{% load compress %}
 
-{% block title %} جزئیات مقاله {% endblock %}
+{% block title %}{{ blog.title|default:'مقاله دندانپزشکی' }} | کلینیک دندانپزشکی دکتر بابایی و بهمدی{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="{{ blog.content|default:blog.title|truncatewords:20 }}">
+    <meta name="keywords" content="مقاله دندانپزشکی, {{ blog.title }}, آموزش دندانپزشکی, کلینیک دندانپزشکی, ایمپلنت, ارتودنسی, زیبایی دندان">
+    <meta property="og:title" content="{{ blog.title }} | کلینیک دندانپزشکی دکتر بابایی و بهمدی">
+    <meta property="og:description" content="{{ blog.content|default:blog.title|truncatewords:20 }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://sbdental.ir{{ request.path }}">
+    <meta property="og:image" content="{{ blog.image.url }}">
+{% endblock %}
 
 {% block extra_static %}
-{% compress css %}
-    <link rel="stylesheet" href="{% static 'blog/css/blog_detail.css' %}" media="screen">
-{% endcompress %}
+<link rel="stylesheet" href="{% static 'blog/css/blog_detail.css' %}" media="screen">
 {% endblock %}
 
 {% block content %}
@@ -69,7 +76,7 @@
             <!-- تصویر مقاله (کوچک‌تر) -->
             <figure class="blog-image text-center mb-4">
                 <img src="{{ blog.image.url }}"
-                     alt="{{ blog.title|escape }}"
+                     alt="تصویر مقاله: {{ blog.title|escape }}"
                      class="img-fluid rounded shadow-sm"
                      loading="lazy"
                      decoding="async"

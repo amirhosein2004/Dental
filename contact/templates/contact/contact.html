@@ -1,15 +1,22 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load compress %}
 
-{% block title %} ارتباط با ما {% endblock %}
+{% block title %}تماس با کلینیک دندانپزشکی دکتر بابایی و بهمدی | آدرس، شماره تماس و فرم ارتباط{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="راه‌های ارتباط با کلینیک دندانپزشکی دکتر بابایی و بهمدی؛ آدرس، شماره تماس، نقشه و فرم ارسال پیام برای مشاوره و رزرو نوبت.">
+    <meta name="keywords" content="تماس با ما, کلینیک دندانپزشکی, شماره تماس, آدرس کلینیک, فرم تماس, دکتر بابایی, دکتر بهمدی">
+    <meta property="og:title" content="تماس با کلینیک دندانپزشکی دکتر بابایی و بهمدی">
+    <meta property="og:description" content="راه‌های ارتباط و فرم تماس با کلینیک دندانپزشکی دکتر بابایی و بهمدی.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sbdental.ir/contact/">
+    <meta property="og:image" content="https://sbdental.ir/static/img/site-logo.png">
+{% endblock %}
 
 {% block extra_static %}
     <!-- Neshan Leaflet SDK -->
     <link rel="stylesheet" href="https://static.neshan.org/sdk/leaflet/1.4.0/leaflet.css" />
-    {% compress css %}
     <link rel="stylesheet" href="{% static 'contact/css/contact.css' %}">
-    {% endcompress %}
 {% endblock %}
 
 {% block content %}
@@ -163,7 +170,5 @@
 
 {% block extra_js %}
     <script src="https://static.neshan.org/sdk/leaflet/1.4.0/leaflet.js"></script>
-    {% compress js %}
     <script src="{% static 'contact/js/contact.js' %}"></script>
-    {% endcompress %}
 {% endblock %}
