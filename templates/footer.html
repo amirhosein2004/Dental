@@ -1,29 +1,51 @@
 {% load static %}
-
 <footer>
   <div class="footer-container">
-    <!-- آیکون‌های اینستاگرام (چپ) -->
-    <div class="footer-left">
-      <a href="https://instagram.com/dr.saeedebabaee" target="_blank">
-        <img src="{% static 'img/instagram-babaee.png' %}" alt="اینستاگرام 1" class="social-icon">
-      </a>
-      <a href="https://instagram.com/dr.behmadi" target="_blank">
-        <img src="{% static 'img/instagram-behmadi.png' %}" alt="اینستاگرام 2" class="social-icon">
-      </a>
+    <!-- بخش لینک‌ها -->
+    <div class="footer-section footer-links">
+      <h4>دسترسی سریع</h4>
+      <ul>
+        <li><a href="/about/">درباره ما</a></li>
+        <li><a href="/blog/">وبلاگ</a></li>
+        <li><a href="/gallery/">گالری</a></li>
+        <li><a href="/services/">خدمات</a></li>
+        <li><a href="/contact/">تماس با ما</a></li>
+      </ul>
     </div>
-
-    <!-- لوگو (وسط) -->
-    <div class="footer-center">
+    <!-- بخش آدرس مطب -->
+    <div class="footer-section footer-address">
+      <h4>آدرس مطب</h4>
+      <p>مشهد، بلوار وکیل آباد، بین وکیل آباد ۴۲ و ۴۴، ساختمان پزشکان سینا، طبقه ۳، واحد ۳۰۲</p>
+    </div>
+    <!-- بخش ساعات کاری -->
+    <div class="footer-section footer-hours">
+      <h4>ساعات کاری</h4>
+      <p>شنبه تا چهارشنبه: ۹ الی ۱۳ و ۱۶ الی ۲۰<br>پنجشنبه: ۹ الی ۱۳<br>جمعه: تعطیل</p>
+    </div>
+    <!-- بخش تماس و شبکه‌های اجتماعی -->
+    <div class="footer-section footer-contact">
+      <h4>تماس با ما</h4>
+      <a href="tel:05147247247" class="phone-number">05147247247</a><br>
+      <a href="tel:09367034692" class="phone-number">09367034692</a>
+      <div class="footer-social">
+        <a href="https://instagram.com/dr.saeedebabaee" target="_blank">
+          <img src="{% static 'img/instagram-babaee.png' %}" alt="اینستاگرام بابایی" class="social-icon">
+        </a>
+        <a href="https://instagram.com/dr.behmadi" target="_blank">
+          <img src="{% static 'img/instagram-behmadi.png' %}" alt="اینستاگرام بهمدی" class="social-icon">
+        </a>
+      </div>
+    </div>
+    <!-- لوگو سایت -->
+    <div class="footer-section footer-logo-center">
       <img src="{% static 'img/site-logo.png' %}" alt="لوگوی سایت" class="footer-logo">
-    </div>
-
-    <!-- شماره‌های تلفن (راست) -->
-    <div class="footer-right">
-      <a href="tel:02112345678" class="phone-number">05147247247</a>
-      <a href="tel:09123456789" class="phone-number">09367034692</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <p>© 2025 همه حقوق متعلق به ما و محفوظ است</p>
+    <a href="/appointment/" class="footer-appointment-btn">رزرو نوبت آنلاین</a>
+    <p>© <span id="footer-year"></span> همه حقوق متعلق به کلینیک دندانپزشکی محفوظ است.</p>
   </div>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+  </script>
 </footer>

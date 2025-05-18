@@ -144,12 +144,6 @@ nav.controls-bar:hover {
     transition: var(--transition);
 }
 
-.table tbody tr:hover {
-    transform: translateX(5px);
-    box-shadow: var(--shadow-sm);
-    background: rgba(245, 247, 250, 0.9);
-}
-
 .table-warning {
     background: rgba(255, 193, 7, 0.08) !important;
     border-right: 4px solid #ffb107;
@@ -318,10 +312,6 @@ nav.controls-bar:hover {
     }
     .table-responsive {
         overflow-x: auto;
-    }
-    .table tbody tr:hover {
-        box-shadow: none;
-        transform: none;
     }
     .table td {
         min-width: 150px;

@@ -27,33 +27,14 @@
         </div>
         <h1>نمونه‌کارهای حرفه‌ای ما</h1>
         <p class="subtitle">این‌ها تنها بخشی از آثار هنری و حرفه‌ای ماست</p>
-        <p class="cta">برای مشاهده موارد بیشتر، ما را در اینستاگرام دنبال کنید</p>
     </header>
     
-    <!-- بخش دکمه و آیکون‌ها -->
+    <!-- بخش دکمه افزودن گالری -->
     <div class="gallery-actions">
-        {% if doctors.0 %}
-        <div class="doctor-profile">
-            <span>دکتر {{ doctors.0.user.last_name }}</span>
-            <a href="{{ doctors.0.instagram }}" target="_blank" rel="noopener noreferrer">
-                <img src="{% static 'img/instagram.png' %}" alt="اینستاگرام دکتر {{ doctors.0.user.last_name }} - کلینیک دندانپزشکی">
-            </a>
-        </div>
-        {% endif %}
-    
         {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
         <a href="{% url 'gallery:add_gallery' %}" class="btn-add-gallery">
             <i class="fas fa-plus me-2"></i> افزودن گالری جدید
         </a>
-        {% endif %}
-    
-        {% if doctors.1 %}
-        <div class="doctor-profile">
-            <a href="{{ doctors.1.instagram }}" target="_blank" rel="noopener noreferrer">
-                <img src="{% static 'img/instagram.png' %}" alt="اینستاگرام دکتر {{ doctors.1.user.last_name }} - کلینیک دندانپزشکی">
-            </a>
-            <span>دکتر {{ doctors.1.user.last_name }}</span>
-        </div>
         {% endif %}
     </div>
     

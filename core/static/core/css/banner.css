@@ -17,13 +17,13 @@
 }
 
 /* استایل‌های متنی */
-.text-primary {
+.container-banner .text-primary {
     color: #007bff !important;
     font-weight: 700;
     letter-spacing: 0.5px;
 }
 
-.text-secondary {
+.container-banner .text-secondary {
     color: #495057 !important;
     font-weight: 700;
     letter-spacing: 0.5px;

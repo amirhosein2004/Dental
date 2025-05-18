@@ -66,6 +66,7 @@
                 <textarea name="description" class="form-control" rows="3">{% if edit_clinic_id == clinic.id and form.description.value %}{{ form.description.value }}{% else %}{{ clinic.description }}{% endif %}</textarea>
                 <label>تصویر</label>
                 <input type="file" name="image" class="form-control">
+                <img id="clinic-image-preview-{{ clinic.id }}" src="{% if clinic.image %}{{ clinic.image.url }}{% else %}#{% endif %}" alt="پیش‌نمایش تصویر" {% if clinic.image %}style="display:block; max-width: 200px; margin-top: 1rem; border-radius: 8px;"{% else %}style="display:none; max-width: 200px; margin-top: 1rem; border-radius: 8px;"{% endif %} />
                 <div class="form-check">
                     <input type="checkbox" name="is_primary" {% if clinic.is_primary %}checked{% endif %} {% if edit_clinic_id == clinic.id and form.is_primary.value %}checked{% endif %} class="form-check-input">
                     <label>مطب اصلی</label>

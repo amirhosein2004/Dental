@@ -9,7 +9,7 @@
 
     <!-- آیکون‌های اینستاگرام برای کاربران عادی -->
     {% if not request.user.is_authenticated %}
-    <div class="d-flex align-items-center gap-5 instagram-icons">
+    <div class="d-flex align-items-center gap-5 instagram-icons flex-row-reverse" style="margin-right:10px;">
       <a href="https://instagram.com/dr.saeedebabaee" target="_blank">
         <img src="{% static 'img/instagram-babaee.png' %}" alt="اینستاگرام 1" class="instagram-icon">
       </a>
@@ -88,10 +88,15 @@
         {% endif %}
       </ul>
 
-      <!-- خوش‌آمدگویی -->
+      <!-- دکمه خروج جداگانه برای کاربران وارد شده -->
       {% if request.user.is_authenticated %}
-        <div class="me-lg-5 me-6 d-flex align-items-center welcome-text">
-          <span class="navbar-text text-secondary fw-semibold">خوش آمدی، {{ request.user.get_full_name }}</span>
+        <div class="d-flex align-items-center gap-3 ms-lg-4 ms-2">
+          <a class="nav-link text-dark fw-medium d-inline-flex align-items-center" href="{% url 'accounts:doctor_logout' %}" style="background:rgba(255,255,255,0.15); border-radius:30px; padding:0.6rem 1.2rem; margin-right:10px;">
+            <i class="fas fa-sign-out-alt me-1"></i> خروج
+          </a>
+          <span class="navbar-text text-secondary fw-semibold welcome-text" style="background:rgba(141,218,218,0.2); border-radius:50px; padding:0.6rem 1.5rem; margin-right:10px;">
+            خوش آمدی، {{ request.user.get_full_name }}
+          </span>
         </div>
       {% endif %}
     </div>

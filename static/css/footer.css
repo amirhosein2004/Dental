@@ -1,21 +1,219 @@
 /* استایل فوتر */
 footer {
-    background: linear-gradient(135deg, #1d65ad, #83abcc); /* هماهنگ با نوبار */
+    background: linear-gradient(135deg, #1d65ad 65%, #83abcc 100%);
     color: #fff;
-    padding: 2.5rem 0; /* پدینگ بیشتر برای فضای بهتر */
+    padding: 2.5rem 0 1.2rem 0;
     width: 100%;
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2); /* سایه از بالا */
-  }
-  
-  .footer-container {
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
+    border-radius: 36px 36px 0 0;
+    overflow: hidden;
+    position: relative;
+}
+
+
+.footer-container {
     display: flex;
-    justify-content: space-between; /* چپ، وسط، راست */
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem; /* پدینگ بیشتر برای حاشیه */
     flex-wrap: wrap;
-  }
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    gap: 2.5rem;
+}
+
+.footer-section {
+    flex: 1 1 210px;
+    min-width: 170px;
+    margin-bottom: 1.5rem;
+}
+
+.footer-section h4 {
+    font-size: 1.15rem;
+    margin-bottom: 0.8rem;
+    color: #ffe082;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 8px rgba(29,101,173,0.07);
+    border-bottom: 1.5px solid #ffe08244;
+    padding-bottom: 0.3rem;
+    border-radius: 0 0 8px 8px;
+}
+
+
+.footer-links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.footer-links ul li {
+    margin-bottom: 0.5rem;
+}
+.footer-links ul li a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s, background 0.3s, padding 0.3s;
+    font-size: 1rem;
+    border-radius: 6px;
+    padding: 3px 9px;
+}
+
+.footer-links ul li a:hover {
+    color: #1d65ad;
+    background: #ffe082cc;
+    font-weight: bold;
+}
+
+
+.footer-address p,
+.footer-hours p {
+    margin: 0;
+    font-size: 0.98rem;
+    line-height: 1.7;
+}
+
+.footer-contact .phone-number {
+    display: inline-block;
+    margin-bottom: 0.3rem;
+    color: #fff;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 0.35rem 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+}
+.footer-contact .phone-number:hover {
+    background: #ffe082;
+    color: #1d65ad;
+    box-shadow: 0 2px 8px #ffb34755;
+}
+
+
+.footer-social {
+    margin-top: 0.7rem;
+    display: flex;
+    gap: 14px;
+}
+.social-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #fff;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.social-icon:hover {
+    transform: scale(1.15) rotate(-5deg);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+
+.footer-logo-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+}
+.footer-logo {
+    width: 120px;
+    height: auto;
+    filter: drop-shadow(0 7px 20px rgba(0,0,0,0.18));
+    border-radius: 18px;
+    background: #fff2;
+    padding: 6px 10px;
+    transition: transform 0.4s, box-shadow 0.3s;
+}
+
+.footer-logo:hover {
+    transform: scale(1.12);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.3);
+    margin-top: 1.5rem;
+    font-size: 0.97rem;
+    opacity: 0.93;
+    position: relative;
+}
+.footer-appointment-btn {
+    display: inline-block;
+    background: linear-gradient(90deg, #ffb347 0%, #1d65ad 100%);
+    color: #fff;
+    border: none;
+    border-radius: 32px;
+    padding: 0.7rem 2.2rem;
+    font-weight: bold;
+    font-size: 1.08rem;
+    cursor: pointer;
+    margin-bottom: 1.1rem;
+    margin-top: 0.2rem;
+    box-shadow: 0 4px 16px rgba(29,101,173,0.13), 0 1.5px 6px rgba(255,179,71,0.09);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
+    outline: none;
+}
+.footer-appointment-btn:hover, .footer-appointment-btn:focus {
+    background: linear-gradient(90deg, #1d65ad 0%, #ffb347 100%);
+    color: #ffe082;
+    box-shadow: 0 8px 32px rgba(29,101,173,0.17), 0 3px 12px rgba(255,179,71,0.12);
+    transform: translateY(-2px) scale(1.04);
+}
+
+/* ریسپانسیو برای تبلت و موبایل */
+@media (max-width: 991px) {
+    .footer-container {
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+    .footer-section {
+        min-width: 0;
+        width: 100%;
+        margin-bottom: 1.2rem;
+    }
+    .footer-logo {
+        width: 90px;
+    }
+}
+@media (max-width: 600px) {
+    .footer-logo {
+        width: 65px;
+    }
+    .footer-section h4 {
+        font-size: 1rem;
+    }
+    .footer-bottom {
+        font-size: 0.89rem;
+    }
+    .footer-appointment-btn {
+    display: inline-block;
+    background: linear-gradient(90deg, #ffb347 0%, #1d65ad 100%);
+    color: #fff;
+    border: none;
+    border-radius: 32px;
+    padding: 0.7rem 2.2rem;
+    font-weight: bold;
+    font-size: 1.08rem;
+    cursor: pointer;
+    margin-bottom: 1.1rem;
+    margin-top: 0.2rem;
+    box-shadow: 0 4px 16px rgba(29,101,173,0.13), 0 1.5px 6px rgba(255,179,71,0.09);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
+    outline: none;
+}
+.footer-appointment-btn:hover, .footer-appointment-btn:focus {
+    background: linear-gradient(90deg, #1d65ad 0%, #ffb347 100%);
+    color: #ffe082;
+    box-shadow: 0 8px 32px rgba(29,101,173,0.17), 0 3px 12px rgba(255,179,71,0.12);
+    transform: translateY(-2px) scale(1.04);
+}
+
   
   .footer-left {
     display: flex;

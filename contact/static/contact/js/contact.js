@@ -37,40 +37,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. انیمیشن تکون خوردن متن‌های تزئینی
-    const decorativeTexts = document.querySelectorAll('.decorative-text');
-    if (decorativeTexts.length > 0) {
-        decorativeTexts.forEach((text, index) => {
-            // تنظیم تأخیر اولیه برای هر متن (برای جلوگیری از حرکت همزمان)
-            const delay = index * 200; // 200ms تأخیر بین هر متن
-            setTimeout(() => {
-                // اضافه کردن کلاس انیمیشن
-                text.classList.add('wiggle');
-                // حرکت مداوم با فاصله تصادفی
-                setInterval(() => {
-                    text.classList.toggle('wiggle');
-                }, 3000 + Math.random() * 2000); // بین 3 تا 5 ثانیه
-            }, delay);
-        });
-    }
-});
-
-// 3. بهینه‌سازی عملکرد با Debounce برای رویدادهای هاور (اختیاری)
-const debounce = (func, wait) => {
-    let timeout;
-    return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
+    // 3. بهینه‌سازی عملکرد با Debounce برای رویدادهای هاور (اختیاری)
+    const debounce = (func, wait) => {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
     };
-};
 
-// اعمال افکت هاور به دکمه‌ها با Debounce
-const buttons = document.querySelectorAll('.btn');
-buttons.forEach(btn => {
-    btn.addEventListener('mouseenter', debounce(() => {
-        btn.classList.add('hover-scale');
-    }, 100));
-    btn.addEventListener('mouseleave', debounce(() => {
-        btn.classList.remove('hover-scale');
-    }, 100));
+    // اعمال افکت هاور به دکمه‌ها با Debounce
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('mouseenter', debounce(() => {
+            btn.classList.add('hover-scale');
+        }, 100));
+        btn.addEventListener('mouseleave', debounce(() => {
+            btn.classList.remove('hover-scale');
+        }, 100));
+    });
 });

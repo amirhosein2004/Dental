@@ -94,6 +94,7 @@
                     <div class="file-input-custom">
                         {{ form.image }}
                     </div>
+                    <img id="clinic-image-preview" src="#" alt="پیش‌نمایش تصویر" style="display:none; max-width: 200px; margin-top: 1rem; border-radius: 8px;" />
                     {% for error in form.image.errors %}
                         <div class="invalid-feedback d-block">{{ error }}</div>
                     {% endfor %}
@@ -121,4 +122,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'core/js/create_clinic.js' %}"></script>
 {% endblock %}

@@ -6,43 +6,21 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-lg border-0 animate__animated animate__fadeInUp">
-                <div class="card-header bg-danger text-white text-center py-4">
-                    <h3 class="mb-0">
-                        <i class="fas fa-sign-out-alt me-2"></i>خروج از سیستم
-                    </h3>
-                </div>
-                <div class="card-body text-center p-5">
-                    <h4 class="card-text mb-4 animate__animated animate__pulse animate__infinite">
-                        <i class="fas fa-question-circle me-2"></i>آیا مطمئن هستید که می‌خواهید خارج شوید؟
-                    </h4>
+<div class="logout-container">
+    <div class="logout-box">
+        <h2>خروج از سیستم</h2>
+        <p>آیا مطمئن هستید که می‌خواهید خارج شوید؟</p>
+        
+        <form method="POST" action="{% url 'accounts:doctor_logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">بله، خروج</button>
+        </form>
 
-                    <!-- فرم تأیید خروج -->
-                    <form method="POST" action="{% url 'accounts:doctor_logout' %}" class="mt-4" id="logoutForm">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-lg px-5" id="logoutBtn">
-                            <i class="fas fa-check me-2"></i>بله، خروج
-                        </button>
-                    </form>
-
-                    <!-- دکمه بازگشت -->
-                    <div class="mt-4">
-                        <a href="{% url 'home:home' %}" class="btn btn-outline-secondary btn-lg px-5">
-                            <i class="fas fa-arrow-right me-2"></i>بازگشت به صفحه اصلی
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <a href="{% url 'home:home' %}" class="back-btn">بازگشت به صفحه اصلی</a>
     </div>
 </div>
-
-
 {% endblock %}
 
 {% block extra_js %}
-<script scr="{% static 'accounts/js/logout.js' %}"></script>
+<script src="{% static 'accounts/js/logout.js' %}"></script>
 {% endblock %}

@@ -262,68 +262,6 @@ h4 {
     color: #333;
 }
 
-/* متن‌های تزئینی */
-.decorative-texts {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.decorative-text {
-    position: absolute;
-    font-family: 'Vazir', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: rgba(0, 123, 255, 0.2);
-    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.top-left {
-    top: 200px;
-    left: 30px;
-    transform: rotate(-10deg);
-}
-
-.top-right {
-    top: 200px;
-    right: 20px;
-    transform: rotate(10deg);
-}
-
-.bottom-left {
-    bottom: 500px;
-    left: 20px;
-    transform: rotate(-5deg);
-}
-
-.bottom-right {
-    bottom: 500px;
-    right: 20px;
-    transform: rotate(5deg);
-}
-
-.middle-left {
-    top: 40%;
-    left: 20px;
-    transform: translateY(-50%) rotate(-15deg);
-}
-
-.middle-right {
-    top: 40%;
-    right: 20px;
-    transform: translateY(-50%) rotate(15deg);
-}
-
-.decorative-text:hover {
-    color: rgba(0, 123, 255, 0.5);
-    transform: scale(1.1) rotate(0deg);
-}
-
 /* ریسپانسیو */
 @media (max-width: 768px) {
     .btn {
@@ -366,14 +304,6 @@ h4 {
     #map {
         height: 300px;
     }
-
-    .decorative-text {
-        font-size: 18px;
-    }
-
-    .middle-left, .middle-right {
-        display: none; /* مخفی کردن متن‌های وسط در موبایل */
-    }
 }
 
 @media (max-width: 576px) {
@@ -392,36 +322,4 @@ h4 {
     .list-group-item {
         padding: 12px 15px;
     }
-
-    .decorative-text {
-        font-size: 14px;
-    }
-
-    .top-left, .top-right, .bottom-left, .bottom-right {
-        display: block;
-    }
-
-    .middle-left, .middle-right {
-        display: none;
-    }
-}
-
-/* انیمیشن تکون خوردن متن‌های تزئینی */
-@keyframes wiggle {
-    0%, 100% { transform: translateX(0) rotate(0deg); }
-    20% { transform: translateX(-5px) rotate(-2deg); }
-    40% { transform: translateX(5px) rotate(2deg); }
-    60% { transform: translateX(-3px) rotate(-1deg); }
-    80% { transform: translateX(3px) rotate(1deg); }
-}
-
-.wiggle {
-    animation: wiggle 0.6s ease-in-out infinite;
-}
-
-/* اطمینان از اینکه انیمیشن با هاور هماهنگ باشه */
-.decorative-text:hover {
-    color: rgba(0, 123, 255, 0.5);
-    transform: scale(1.1) rotate(0deg);
-    animation: none; /* توقف انیمیشن تکون خوردن هنگام هاور */
 }

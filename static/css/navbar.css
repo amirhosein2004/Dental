@@ -153,6 +153,10 @@
   cursor: pointer;
 }
 
+.fa-sign-out-alt {
+  margin-left: 5px;
+}
+
 /* Media Queries */
 
 @media (min-width: 1500px) {
@@ -171,7 +175,7 @@
 
   .instagram-icons {
     left: 65%;
-    top: 1rem;
+    top: 2rem;
   }
 }
 
