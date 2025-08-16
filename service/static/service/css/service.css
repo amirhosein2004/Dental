@@ -438,19 +438,27 @@ body {
     .service-card-fancy, .service-card-modern {
         border-radius: 1rem;
         min-height: 140px;
-        padding: 0.5rem 0.2rem;
+        padding: 0.1rem 0.1rem;
     }
     .service-card-img-wrap, .service-image-modern {
-        height: 60px;
+        height: auto;
+        min-height: 180px;
         border-radius: 1rem 1rem 0 0;
+        display: block;
         overflow: hidden;
+        margin: 0;
+        padding: 0;
     }
     .service-card-img, .service-image-modern img {
-        width: 100%;
-        height: 100%;
+        width: 100% !important;
+        height: auto !important;
+        max-height: 320px;
+        min-height: 180px;
         object-fit: cover !important;
         border-radius: 1rem 1rem 0 0;
         display: block;
+        margin: 0 auto;
+        box-shadow: none;
     }
     .service-card-body, .service-content-modern {
         border-radius: 0 0 1rem 1rem;

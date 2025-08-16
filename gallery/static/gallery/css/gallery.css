@@ -250,6 +250,10 @@ header:hover .icon-right {
 }
 
 .image-box img {
+    transition: none !important;
+    transform: none !important;
+    object-fit: contain !important;
+
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -266,6 +270,10 @@ header:hover .icon-right {
 }
 
 .gallery-box:hover .image-box img {
+    transition: none !important;
+    transform: none !important;
+    object-fit: contain !important;
+
     transform: scale(1.03);
 }
 
@@ -534,6 +542,10 @@ header:hover .icon-right {
         border-radius: 8px;
     }
     .image-box img {
+    transition: none !important;
+    transform: none !important;
+    object-fit: contain !important;
+
         border-radius: 8px;
     }
     .dropdown button {
@@ -564,6 +576,10 @@ header:hover .icon-right {
         border-radius: 6px;
     }
     .image-box img {
+    transition: none !important;
+    transform: none !important;
+    object-fit: contain !important;
+
         border-radius: 6px;
     }
     .dropdown button {
