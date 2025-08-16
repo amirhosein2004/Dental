@@ -279,8 +279,8 @@ CMD ["gunicorn", "--bind", "0.0.0.0:8000", "Dental.wsgi:application"]
 
 #### 1. دریافت کد منبع
 ```bash
-git clone https://github.com/amirhosein2004/Dental-Clinic-System.git
-cd Dental-Clinic-System
+git clone https://github.com/amirhosein2004/Dental.git
+cd Dental
 ```
 
 #### 2. ایجاد محیط مجازی
@@ -581,7 +581,7 @@ coverage report
 ### اطلاعات تماس
 - **وبسایت**: [sbdental.ir](https://sbdental.ir)
 - **ایمیل پشتیبانی**: drsbdentals@gmail.com
-- **مخزن گیت‌هاب**: [github.com/amirhosein2004/Dental-Clinic-System](https://github.com/amirhosein2004/Dental-Clinic-System)
+- **مخزن گیت‌هاب**: [https://github.com/amirhosein2004/Dental](https://github.com/amirhosein2004/Dental.git)
 
 ### گزارش مشکلات
 برای گزارش باگ‌ها یا درخواست قابلیت‌های جدید، لطفاً از بخش Issues گیت‌هاب استفاده کنید.
