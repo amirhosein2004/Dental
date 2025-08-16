@@ -104,8 +104,8 @@ graph TB
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/amirhosein2004/Dental-Clinic-System.git
-cd Dental-Clinic-System
+git clone https://github.com/amirhosein2004/Dental.git
+cd Dental
 ```
 
 ### 2. Create Virtual Environment
@@ -192,8 +192,8 @@ Visit `http://127.0.0.1:8000` to see the application.
 
 ```bash
 # Clone the repository
-git clone https://github.com/amirhosein2004/Dental-Clinic-System.git
-cd Dental-Clinic-System
+git clone https://github.com/amirhosein2004/Dental.git
+cd Dental
 
 # Create .env file (see configuration section)
 cp .env.example .env
