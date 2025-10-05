@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}افزودن تعرفه جدید | مدیریت قیمت‌ها{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="افزودن تعرفه جدید به لیست خدمات دندانپزشکی کلینیک">
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'pricing/css/pricing.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- هدر صفحه -->
+    <header class="page-header text-center mb-5">
+        <div class="header-icons">
+            <img src="{% static 'img/tooth-left.png' %}" alt="آیکون دندان چپ" class="icon-left">
+            <img src="{% static 'img/tooth-right.png' %}" alt="آیکون دندان راست" class="icon-right">
+        </div>
+        <h1 class="display-5 fw-bold text-primary mb-3">
+            <i class="fas fa-plus-circle me-2"></i>
+            افزودن تعرفه جدید
+        </h1>
+        <p class="lead text-muted">
+            خدمت جدید و قیمت آن را به لیست تعرفه‌ها اضافه کنید
+        </p>
+    </header>
+
+    <!-- دکمه بازگشت -->
+    <div class="mb-4">
+        <a href="{% url 'pricing:pricing_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-right me-2"></i>
+            بازگشت به لیست تعرفه‌ها
+        </a>
+    </div>
+
+    <!-- فرم افزودن تعرفه -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-file-medical me-2"></i>
+                        فرم ثبت تعرفه
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- فیلد عنوان خدمت -->
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-tooth text-primary me-2"></i>
+                                عنوان خدمت
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.title.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                نام دقیق خدمت دندانپزشکی را وارد کنید (مثال: ایمپلنت دندان، ارتودنسی ثابت)
+                            </div>
+                        </div>
+
+                        <!-- فیلد قیمت -->
+                        <div class="mb-4">
+                            <label for="{{ form.price.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-money-bill-wave text-success me-2"></i>
+                                قیمت (تومان)
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-coins text-warning"></i>
+                                </span>
+                                {{ form.price }}
+                                <span class="input-group-text bg-light">تومان</span>
+                            </div>
+                            {% if form.price.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.price.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                قیمت را به تومان وارد کنید (مثال: 5000000 برای پنج میلیون تومان)
+                            </div>
+                        </div>
+
+                        <!-- دکمه‌های عملیات -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'pricing:pricing_list' %}" class="btn btn-outline-secondary btn-lg me-md-2">
+                                <i class="fas fa-times me-2"></i>
+                                انصراف
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                ذخیره تعرفه
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- راهنمای سریع -->
+            <div class="mt-4">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            راهنمای سریع
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                عنوان خدمت باید واضح و قابل فهم باشد
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                قیمت را بدون کاما یا نقطه وارد کنید
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                پس از ذخیره، تعرفه در لیست عمومی نمایش داده می‌شود
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                می‌توانید بعداً تعرفه را ویرایش یا حذف کنید
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // فرمت کردن قیمت هنگام تایپ
+    const priceInput = document.getElementById('{{ form.price.id_for_label }}');
+    if (priceInput) {
+        priceInput.addEventListener('input', function(e) {
+            // حذف کاراکترهای غیرعددی
+            let value = e.target.value.replace(/[^\d]/g, '');
+            
+            // اعمال فرمت هزارگان
+            if (value) {
+                value = parseInt(value).toLocaleString('fa-IR');
+            }
+            
+            // نمایش در placeholder یا کنار input
+            const formattedDisplay = document.getElementById('price-formatted');
+            if (formattedDisplay) {
+                formattedDisplay.textContent = value ? value + ' تومان' : '';
+            }
+        });
+    }
+
+    // اعتبارسنجی فرم
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const titleInput = document.getElementById('{{ form.title.id_for_label }}');
+            const priceInput = document.getElementById('{{ form.price.id_for_label }}');
+            
+            let isValid = true;
+            
+            // بررسی عنوان
+            if (!titleInput.value.trim()) {
+                titleInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                titleInput.classList.remove('is-invalid');
+                titleInput.classList.add('is-valid');
+            }
+            
+            // بررسی قیمت
+            if (!priceInput.value || parseFloat(priceInput.value) <= 0) {
+                priceInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                priceInput.classList.remove('is-invalid');
+                priceInput.classList.add('is-valid');
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

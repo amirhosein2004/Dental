@@ -31,6 +31,9 @@ urlpatterns = [
     
     # Authentication (login, logout, register, etc.)
     path('auth/', include('accounts.urls')),
+    
+    # Pricing and tariffs
+    path('pricing/', include('pricing.urls')),
 
     # CKEditor 5 URL
     path('ckeditor_5/', include('django_ckeditor_5.urls')),

@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تعرفه خدمات دندانپزشکی | قیمت‌های کلینیک{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="تعرفه و قیمت خدمات دندانپزشکی کلینیک دکتر بابایی و بهمدی؛ ایمپلنت، ارتودنسی، ترمیم، جراحی و سایر خدمات تخصصی.">
+    <meta name="keywords" content="تعرفه دندانپزشکی, قیمت ایمپلنت, قیمت ارتودنسی, هزینه درمان دندان, کلینیک دندانپزشکی">
+    <meta property="og:title" content="تعرفه خدمات دندانپزشکی">
+    <meta property="og:description" content="مشاهده قیمت‌های شفاف و به‌روز خدمات دندانپزشکی کلینیک.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sbdental.ir/pricing/">
+    <meta property="og:image" content="https://sbdental.ir/static/img/site-logo.png">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'pricing/css/pricing.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- هدر صفحه -->
+    <header class="pricing-header text-center mb-5">
+        <div class="header-icons">
+            <img src="{% static 'img/tooth-left.png' %}" alt="آیکون دندان چپ" class="icon-left">
+            <img src="{% static 'img/tooth-right.png' %}" alt="آیکون دندان راست" class="icon-right">
+        </div>
+        <h1 class="display-4 fw-bold text-primary mb-3">
+            <i class="fas fa-money-bill-wave me-2"></i>
+            تعرفه خدمات دندانپزشکی
+        </h1>
+        <p class="lead text-muted">
+            قیمت‌های شفاف و به‌روز خدمات تخصصی کلینیک
+        </p>
+    </header>
+
+    <!-- دکمه‌های مدیریت برای کاربران مجاز -->
+    {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
+    <div class="management-actions mb-4">
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'pricing:add_pricing_item' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-plus me-2"></i>
+                افزودن تعرفه جدید
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- جدول تعرفه‌ها -->
+    <div class="pricing-table-container">
+        {% if pricing_items %}
+            <div class="table-responsive">
+                <table class="table table-hover pricing-table">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col" class="text-center">
+                                <i class="fas fa-hashtag me-1"></i>
+                                ردیف
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-tooth me-1"></i>
+                                نام خدمت
+                            </th>
+                            <th scope="col" class="text-center">
+                                <i class="fas fa-money-bill me-1"></i>
+                                قیمت (تومان)
+                            </th>
+                            {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
+                            <th scope="col" class="text-center">
+                                <i class="fas fa-cogs me-1"></i>
+                                عملیات
+                            </th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in pricing_items %}
+                        <tr class="pricing-row">
+                            <td class="text-center fw-bold text-primary">
+                                {{ forloop.counter }}
+                            </td>
+                            <td class="service-name">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-medical-kit text-info me-2"></i>
+                                    <span class="fw-semibold">{{ item.title }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="price-badge">
+                                    <i class="fas fa-coins me-1"></i>
+                                    {{ item.price|floatformat:0 }} تومان
+                                </span>
+                            </td>
+                            {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'pricing:update_pricing_item' item.pk %}" 
+                                       class="btn btn-outline-warning btn-sm"
+                                       data-bs-toggle="tooltip" 
+                                       title="ویرایش تعرفه">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-outline-danger btn-sm"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteModal{{ item.pk }}"
+                                            title="حذف تعرفه">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- آمار کلی -->
+            <div class="pricing-stats mt-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="stat-card text-center p-3 bg-light rounded">
+                            <i class="fas fa-list-ol text-primary fs-2 mb-2"></i>
+                            <h5 class="mb-1">تعداد کل خدمات</h5>
+                            <span class="fs-4 fw-bold text-primary">{{ pricing_items.count }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card text-center p-3 bg-light rounded">
+                            <i class="fas fa-clock text-success fs-2 mb-2"></i>
+                            <h5 class="mb-1">آخرین به‌روزرسانی</h5>
+                            <span class="fs-6 text-muted">
+                                {% if pricing_items.first %}
+                                    {{ pricing_items.first.updated_at|date:"Y/m/d" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+            <!-- پیام عدم وجود تعرفه -->
+            <div class="empty-state text-center py-5">
+                <i class="fas fa-receipt text-muted" style="font-size: 4rem;"></i>
+                <h3 class="mt-3 text-muted">هنوز تعرفه‌ای ثبت نشده است</h3>
+                <p class="text-muted">لطفاً بعداً مراجعه کنید یا با کلینیک تماس بگیرید.</p>
+                {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
+                <a href="{% url 'pricing:add_pricing_item' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus me-2"></i>
+                    اولین تعرفه را اضافه کنید
+                </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- اطلاعات تماس -->
+    <div class="contact-info mt-5 p-4 bg-light rounded">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="mb-2">
+                    <i class="fas fa-info-circle text-info me-2"></i>
+                    نکته مهم
+                </h5>
+                <p class="mb-0 text-muted">
+                    قیمت‌های ارائه شده تقریبی بوده و ممکن است بسته به وضعیت بیمار متفاوت باشد. 
+                    برای دریافت قیمت دقیق، لطفاً با کلینیک تماس بگیرید.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <a href="{% url 'contact:contact' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-phone me-2"></i>
+                    تماس با کلینیک
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal های حذف -->
+{% if user.is_authenticated and user.is_superuser or user.is_doctor %}
+    {% for item in pricing_items %}
+    <div class="modal fade" id="deleteModal{{ item.pk }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        تأیید حذف
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">آیا از حذف تعرفه زیر اطمینان دارید؟</p>
+                    <div class="alert alert-warning">
+                        <strong>{{ item.title }}</strong><br>
+                        <small class="text-muted">قیمت: {{ item.price|floatformat:0 }} تومان</small>
+                    </div>
+                    <p class="text-danger small mb-0">
+                        <i class="fas fa-warning me-1"></i>
+                        این عمل قابل بازگشت نیست!
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        انصراف
+                    </button>
+                    <form method="post" action="{% url 'pricing:delete_pricing_item' item.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>
+                            حذف قطعی
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // فعال‌سازی tooltip ها
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}
