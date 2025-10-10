@@ -10,224 +10,221 @@
 
 {% block extra_static %}
     <link rel="stylesheet" href="{% static 'pricing/css/pricing.css' %}">
+    <link rel="stylesheet" href="{% static 'pricing/css/pricing_edit.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
-<div class="container my-5">
+<main class="container pricing-container shadow-lg p-4 rounded bg-white my-5" aria-label="ویرایش تعرفه">
     <!-- هدر صفحه -->
-    <header class="page-header text-center mb-5">
-        <div class="header-icons">
-            <img src="{% static 'img/tooth-left.png' %}" alt="آیکون دندان چپ" class="icon-left">
-            <img src="{% static 'img/tooth-right.png' %}" alt="آیکون دندان راست" class="icon-right">
-        </div>
-        <h1 class="display-5 fw-bold text-warning mb-3">
-            <i class="fas fa-edit me-2"></i>
+    <header class="simple-header text-center mb-5">
+        <h1 class="simple-title">
             ویرایش تعرفه
         </h1>
-        <p class="lead text-muted">
+        <p class="lead text-muted fs-5 mt-3">
             اطلاعات تعرفه خدمت را به‌روزرسانی کنید
         </p>
     </header>
 
     <!-- دکمه بازگشت -->
-    <div class="mb-4">
-        <a href="{% url 'pricing:pricing_list' %}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-right me-2"></i>
+    <section class="navigation-section mb-4">
+        <a href="{% url 'pricing:pricing_list' %}" class="btn btn-outline-secondary btn-lg transition-all hover-scale">
             بازگشت به لیست تعرفه‌ها
         </a>
-    </div>
+    </section>
 
     <!-- نمایش اطلاعات فعلی -->
-    <div class="row justify-content-center mb-4">
-        <div class="col-lg-8 col-xl-6">
-            <div class="alert alert-info">
-                <h5 class="alert-heading">
-                    <i class="fas fa-info-circle me-2"></i>
-                    اطلاعات فعلی
-                </h5>
-                <hr>
-                <p class="mb-2">
-                    <strong>عنوان خدمت:</strong> {{ pricing_item.title }}
-                </p>
-                <p class="mb-2">
-                    <strong>قیمت فعلی:</strong> 
-                    <span class="badge bg-success fs-6">{{ pricing_item.price|floatformat:0 }} تومان</span>
-                </p>
-                <p class="mb-0">
-                    <strong>آخرین به‌روزرسانی:</strong> 
-                    <small class="text-muted">{{ pricing_item.updated_at|date:"Y/m/d H:i" }}</small>
-                </p>
+    <section class="current-info-section mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="modern-info-card shadow-sm animate-fade-in">
+                    <div class="modern-info-header">
+                        <h3 class="alert-heading fs-4 fw-semibold">
+                            <i class="fas fa-info-circle me-2"></i>
+                            اطلاعات فعلی
+                        </h3>
+                    </div>
+                    <div class="modern-info-body p-4">
+                    <hr>
+                    <p class="mb-3 fs-5">
+                        <strong>عنوان خدمت:</strong> {{ pricing_item.title }}
+                    </p>
+                    <p class="mb-3 fs-5">
+                        <strong>قیمت فعلی:</strong> 
+                        <span class="badge bg-success fs-5 px-3 py-2">{{ pricing_item.price|floatformat:0 }} تومان</span>
+                    </p>
+                        <p class="mb-0 fs-6">
+                            <strong>آخرین به‌روزرسانی:</strong> 
+                            <small class="text-muted">{{ pricing_item.updated_at|date:"Y/m/d H:i" }}</small>
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <!-- فرم ویرایش تعرفه -->
-    <div class="row justify-content-center">
-        <div class="col-lg-8 col-xl-6">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-warning text-dark text-center py-4">
-                    <h3 class="card-title mb-0">
-                        <i class="fas fa-file-edit me-2"></i>
-                        فرم ویرایش تعرفه
-                    </h3>
-                </div>
-                <div class="card-body p-4">
-                    <form method="post" novalidate>
+    <section class="form-section">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <article class="modern-form-card shadow-lg border-0 animate-fade-in">
+                    <div class="modern-form-header text-center py-4">
+                        <h2 class="card-title mb-0 fs-3 fw-semibold">
+                            فرم ویرایش تعرفه
+                        </h2>
+                    </div>
+                    <div class="modern-form-body p-5">
+                        <form method="post" novalidate class="needs-validation">
                         {% csrf_token %}
                         
                         <!-- فیلد عنوان خدمت -->
-                        <div class="mb-4">
-                            <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">
-                                <i class="fas fa-tooth text-primary me-2"></i>
+                        <div class="mb-5">
+                            <label for="{{ form.title.id_for_label }}" class="form-label fw-bold fs-5 text-dark">
                                 عنوان خدمت
                                 <span class="text-danger">*</span>
                             </label>
                             {{ form.title }}
                             {% if form.title.errors %}
-                                <div class="invalid-feedback d-block">
+                                <div class="invalid-feedback d-block animate-shake">
                                     {% for error in form.title.errors %}
                                         <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
                                     {% endfor %}
                                 </div>
                             {% endif %}
-                            <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
+                            <div class="form-text fs-6 mt-2 text-muted">
                                 نام دقیق خدمت دندانپزشکی را وارد کنید
                             </div>
                         </div>
 
                         <!-- فیلد قیمت -->
-                        <div class="mb-4">
-                            <label for="{{ form.price.id_for_label }}" class="form-label fw-bold">
-                                <i class="fas fa-money-bill-wave text-success me-2"></i>
+                        <div class="mb-5">
+                            <label for="{{ form.price.id_for_label }}" class="form-label fw-bold fs-5 text-dark">
                                 قیمت جدید (تومان)
                                 <span class="text-danger">*</span>
                             </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light">
-                                    <i class="fas fa-coins text-warning"></i>
-                                </span>
+                            <div class="input-group input-group-lg">
                                 {{ form.price }}
-                                <span class="input-group-text bg-light">تومان</span>
+                                <span class="input-group-text bg-light border-2 fw-semibold text-muted">تومان</span>
                             </div>
                             {% if form.price.errors %}
-                                <div class="invalid-feedback d-block">
+                                <div class="invalid-feedback d-block animate-shake">
                                     {% for error in form.price.errors %}
                                         <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
                                     {% endfor %}
                                 </div>
                             {% endif %}
-                            <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
+                            <div class="form-text fs-6 mt-2 text-muted">
                                 قیمت جدید را به تومان وارد کنید
                             </div>
                         </div>
 
                         <!-- مقایسه قیمت -->
-                        <div class="mb-4">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h6 class="card-title">
-                                        <i class="fas fa-chart-line me-2"></i>
+                        <div class="mb-5">
+                            <div class="card shadow-sm" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                <div class="card-body p-4">
+                                    <h4 class="card-title fs-5 mb-4 text-dark fw-semibold">
                                         مقایسه قیمت
-                                    </h6>
+                                    </h4>
                                     <div class="row text-center">
                                         <div class="col-6">
-                                            <div class="border-end">
-                                                <small class="text-muted d-block">قیمت قبلی</small>
-                                                <span class="fs-5 text-danger" id="old-price">
+                                            <div class="border-end pe-3">
+                                                <small class="text-muted d-block mb-2 fs-6">قیمت قبلی</small>
+                                                <span class="fs-4 text-danger fw-bold d-block" id="old-price">
                                                     {{ pricing_item.price|floatformat:0 }}
                                                 </span>
-                                                <small class="text-muted d-block">تومان</small>
+                                                <small class="text-muted fs-6">تومان</small>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <small class="text-muted d-block">قیمت جدید</small>
-                                            <span class="fs-5 text-success" id="new-price">
-                                                {{ form.price.value|default:pricing_item.price|floatformat:0 }}
-                                            </span>
-                                            <small class="text-muted d-block">تومان</small>
+                                            <div class="ps-3">
+                                                <small class="text-muted d-block mb-2 fs-6">قیمت جدید</small>
+                                                <span class="fs-4 text-success fw-bold d-block" id="new-price">
+                                                    {{ form.price.value|default:pricing_item.price|floatformat:0 }}
+                                                </span>
+                                                <small class="text-muted fs-6">تومان</small>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="mt-2 text-center">
-                                        <small class="text-muted" id="price-difference"></small>
+                                    <div class="mt-3 text-center">
+                                        <div class="badge bg-light text-dark fs-6 px-3 py-2" id="price-difference">
+                                            <i class="fas fa-equals text-muted me-1"></i>
+                                            بدون تغییر
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- دکمه‌های عملیات -->
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{% url 'pricing:pricing_list' %}" class="btn btn-outline-secondary btn-lg me-md-2">
-                                <i class="fas fa-times me-2"></i>
+                        <div class="d-grid gap-3 d-md-flex justify-content-md-center mt-5">
+                            <a href="{% url 'pricing:pricing_list' %}" class="btn btn-outline-secondary btn-lg me-md-3 transition-all hover-scale">
                                 انصراف
                             </a>
-                            <button type="submit" class="btn btn-warning btn-lg text-dark">
-                                <i class="fas fa-save me-2"></i>
+                            <button type="submit" class="btn btn-primary btn-lg modern-btn transition-all hover-scale">
+                                <i class="fas fa-sync-alt me-2"></i>
                                 به‌روزرسانی تعرفه
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-
-            <!-- تاریخچه تغییرات -->
-            <div class="mt-4">
-                <div class="card border-secondary">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-history me-2"></i>
-                            اطلاعات تعرفه
-                        </h5>
                     </div>
-                    <div class="card-body">
+                </article>
+            </div>
+        </div>
+
+        <!-- تاریخچه تغییرات -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-8 col-xl-6">
+                <div class="card border-secondary shadow-sm animate-fade-in">
+                    <div class="card-header bg-light text-dark border-bottom">
+                        <h3 class="card-title mb-0 fs-4 fw-semibold">
+                            اطلاعات تعرفه
+                        </h3>
+                    </div>
+                    <div class="card-body p-4">
                         <div class="row">
                             <div class="col-md-6">
-                                <p class="mb-2">
-                                    <i class="fas fa-calendar-plus text-success me-2"></i>
-                                    <strong>تاریخ ایجاد:</strong><br>
-                                    <small class="text-muted">{{ pricing_item.created_at|date:"Y/m/d H:i" }}</small>
-                                </p>
+                                <div class="info-item mb-3">
+                                    <strong class="fs-6 text-dark">تاریخ ایجاد:</strong><br>
+                                    <span class="text-muted fs-6">{{ pricing_item.created_at|date:"Y/m/d H:i" }}</span>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <p class="mb-2">
-                                    <i class="fas fa-calendar-edit text-warning me-2"></i>
-                                    <strong>آخرین ویرایش:</strong><br>
-                                    <small class="text-muted">{{ pricing_item.updated_at|date:"Y/m/d H:i" }}</small>
-                                </p>
+                                <div class="info-item mb-3">
+                                    <strong class="fs-6 text-dark">آخرین ویرایش:</strong><br>
+                                    <span class="text-muted fs-6">{{ pricing_item.updated_at|date:"Y/m/d H:i" }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- هشدار حذف -->
-            <div class="mt-4">
-                <div class="card border-danger">
-                    <div class="card-header bg-danger text-white">
-                        <h6 class="card-title mb-0">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
+        <!-- هشدار حذف -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-lg-8 col-xl-6">
+                <div class="card border-danger shadow-sm animate-fade-in">
+                    <div class="card-header bg-light text-dark border-bottom border-danger">
+                        <h3 class="card-title mb-0 fs-5 fw-semibold text-danger">
                             منطقه خطر
-                        </h6>
+                        </h3>
                     </div>
-                    <div class="card-body">
-                        <p class="text-muted mb-3">
+                    <div class="card-body p-4">
+                        <p class="text-muted mb-4 fs-6">
                             اگر این تعرفه دیگر مورد نیاز نیست، می‌توانید آن را حذف کنید.
                         </p>
                         <button type="button" 
-                                class="btn btn-outline-danger"
+                                class="btn btn-outline-danger btn-lg transition-all hover-scale"
                                 data-bs-toggle="modal" 
                                 data-bs-target="#deleteModal">
-                            <i class="fas fa-trash me-2"></i>
                             حذف این تعرفه
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </section>
+</main>
 
 <!-- Modal حذف -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
@@ -270,82 +267,11 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const priceInput = document.getElementById('{{ form.price.id_for_label }}');
-    const oldPrice = {{ pricing_item.price }};
-    const newPriceDisplay = document.getElementById('new-price');
-    const priceDifferenceDisplay = document.getElementById('price-difference');
-
-    // به‌روزرسانی نمایش قیمت هنگام تغییر
-    if (priceInput) {
-        priceInput.addEventListener('input', function(e) {
-            const newPrice = parseFloat(e.target.value) || 0;
-            
-            // نمایش قیمت جدید
-            if (newPriceDisplay) {
-                newPriceDisplay.textContent = newPrice.toLocaleString('fa-IR');
-            }
-            
-            // محاسبه و نمایش تفاوت
-            if (priceDifferenceDisplay && newPrice > 0) {
-                const difference = newPrice - oldPrice;
-                const percentChange = ((difference / oldPrice) * 100).toFixed(1);
-                
-                if (difference > 0) {
-                    priceDifferenceDisplay.innerHTML = `
-                        <i class="fas fa-arrow-up text-success me-1"></i>
-                        افزایش ${difference.toLocaleString('fa-IR')} تومان (${percentChange}%)
-                    `;
-                    priceDifferenceDisplay.className = 'text-success small';
-                } else if (difference < 0) {
-                    priceDifferenceDisplay.innerHTML = `
-                        <i class="fas fa-arrow-down text-danger me-1"></i>
-                        کاهش ${Math.abs(difference).toLocaleString('fa-IR')} تومان (${Math.abs(percentChange)}%)
-                    `;
-                    priceDifferenceDisplay.className = 'text-danger small';
-                } else {
-                    priceDifferenceDisplay.innerHTML = `
-                        <i class="fas fa-equals text-muted me-1"></i>
-                        بدون تغییر
-                    `;
-                    priceDifferenceDisplay.className = 'text-muted small';
-                }
-            }
-        });
-    }
-
-    // اعتبارسنجی فرم
-    const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const titleInput = document.getElementById('{{ form.title.id_for_label }}');
-            const priceInput = document.getElementById('{{ form.price.id_for_label }}');
-            
-            let isValid = true;
-            
-            // بررسی عنوان
-            if (!titleInput.value.trim()) {
-                titleInput.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                titleInput.classList.remove('is-invalid');
-                titleInput.classList.add('is-valid');
-            }
-            
-            // بررسی قیمت
-            if (!priceInput.value || parseFloat(priceInput.value) <= 0) {
-                priceInput.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                priceInput.classList.remove('is-invalid');
-                priceInput.classList.add('is-valid');
-            }
-            
-            if (!isValid) {
-                e.preventDefault();
-            }
-        });
-    }
-});
+// Pass Django template variables to JavaScript
+window.pricingData = {
+    oldPrice: parseFloat('{{ pricing_item.price }}'),
+    priceInputId: '{{ form.price.id_for_label }}'
+};
 </script>
+<script src="{% static 'pricing/js/pricing_edit.js' %}"></script>
 {% endblock %}

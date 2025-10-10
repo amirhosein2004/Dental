@@ -28,5 +28,6 @@ class PricingItemForm(forms.ModelForm):
             'price': {
                 'required': "لطفاً قیمت را وارد کنید",
                 'min_value': "قیمت باید بیشتر از صفر باشد",  
+                'max_value': "قیمت باید حداکثر 20 رقم باشد",
             },
         }

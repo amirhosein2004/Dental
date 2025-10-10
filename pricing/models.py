@@ -10,9 +10,7 @@ class PricingItem(models.Model):
         max_length=500,
         verbose_name="عنوان خدمت"
     )
-    price = models.DecimalField(
-        max_digits=10,
-        decimal_places=9,
+    price = models.IntegerField(
         validators=[MinValueValidator(0)],
         verbose_name="قیمت (تومان)"
     )
