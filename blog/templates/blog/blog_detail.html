@@ -4,13 +4,17 @@
 {% block title %}{{ blog.title|default:'مقاله دندانپزشکی' }} | کلینیک دندانپزشکی دکتر بابایی و بهمدی{% endblock %}
 
 {% block meta_tags %}
-    <meta name="description" content="{{ blog.content|default:blog.title|truncatewords:20 }}">
+    <meta name="description" content="{{ blog.content|striptags|default:blog.title|truncatewords:20 }}">
     <meta name="keywords" content="مقاله دندانپزشکی, {{ blog.title }}, آموزش دندانپزشکی, کلینیک دندانپزشکی, ایمپلنت, ارتودنسی, زیبایی دندان">
     <meta property="og:title" content="{{ blog.title }} | کلینیک دندانپزشکی دکتر بابایی و بهمدی">
-    <meta property="og:description" content="{{ blog.content|default:blog.title|truncatewords:20 }}">
+    <meta property="og:description" content="{{ blog.content|striptags|default:blog.title|truncatewords:20 }}">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://sbdental.ir{{ request.path }}">
     <meta property="og:image" content="{{ blog.image.url }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ blog.title }} | کلینیک دندانپزشکی دکتر بابایی و بهمدی">
+    <meta name="twitter:description" content="{{ blog.content|striptags|default:blog.title|truncatewords:20 }}">
+    <meta name="twitter:image" content="{{ blog.image.url }}">
 {% endblock %}
 
 {% block extra_static %}
