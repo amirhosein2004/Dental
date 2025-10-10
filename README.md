@@ -251,6 +251,7 @@ The project consists of the following Django applications:
 - **`gallery`** - Image gallery management
 - **`contact`** - Contact forms and information
 - **`about`** - About pages and clinic information
+- **`pricing`** - Pricing services management
 - **`core`** - Core models and utilities
 - **`users`** - Custom user model
 
@@ -276,6 +277,7 @@ Dental/
 ├── 📁 gallery/                # Gallery management
 ├── 📁 contact/                # Contact system
 ├── 📁 about/                  # About pages
+├── 📁 pricing/                # Pricing services management
 ├── 📁 core/                   # Core functionality
 ├── 📁 users/                  # Custom user model
 ├── 📁 utils/                  # Utility functions

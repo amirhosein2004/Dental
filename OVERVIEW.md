@@ -156,6 +156,10 @@ class HomeView(View):
 - **مأموریت و چشم‌انداز**: اهداف و ارزش‌های کلینیک
 - **گواهینامه‌ها**: نمایش مجوزها و گواهی‌ها
 
+### 💰 Pricing App
+- **مدیریت قیمت**: مدیریت قیمت خدمات
+- **قیمت خدمات**: عملیات CRUD بر روی قیمت ها
+
 ### 🔧 Core App
 - **بخش‌های مدیریتی**: جدا کردن بخش‌های مدیریتی در اپ core
 - **مدیریت دسته‌بندی‌ها**: سیستم کامل دسته‌بندی محتوا
@@ -195,7 +199,7 @@ INSTALLED_APPS = [
     # Custom Apps
     'home', 'accounts', 'dashboard', 'service',
     'blog', 'gallery', 'contact', 'about',
-    'core', 'users', 'utils',
+    'core', 'users', 'pricing',
     # Third-party Apps
     'django_ckeditor_5', 'captcha', 'axes',
     'storages', 'debug_toolbar', 'compressor',
