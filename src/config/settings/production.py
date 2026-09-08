@@ -33,23 +33,63 @@ SECURE_HSTS_SECONDS = 31536000  # Enable HSTS for 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply HSTS to all subdomains
 SECURE_HSTS_PRELOAD = True  # Allow browsers to preload HSTS
 
-# Liara bucket credentials and settings
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')  # Access key for Liara S3
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')  # Secret key for Liara S3
-AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')  # Name of the bucket in Liara
-AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')  # Endpoint URL for Liara S3
-AWS_S3_FILE_OVERWRITE = False  # Prevent overwriting files with the same name
-AWS_QUERYSTRING_AUTH = False  # Disable query string authentication for S3 URLs
+# --- Object storage for uploads ---------------------------------------------
+# S3-compatible, so the same four variables cover ArvanCloud, Liara, MinIO or
+# AWS itself — only the endpoint and the region change. ArvanCloud is what the
+# site uses now:
+#
+#   AWS_S3_ENDPOINT_URL=https://s3.ir-thr-at1.arvanstorage.ir   (Simin, Tehran)
+#   AWS_S3_REGION_NAME=ir-thr-at1
+#
+# See deploy/env/.env.production.example for the full list and the second
+# region.
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+
+# boto3 signs every request with SigV4, and SigV4 needs a region string even
+# when the endpoint is explicit. Left unset it raises `NoRegionError: You must
+# specify a region` on the first upload — from inside botocore, with nothing in
+# the traceback naming the setting that is missing.
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME') or None
+AWS_S3_SIGNATURE_VERSION = os.getenv('AWS_S3_SIGNATURE_VERSION', 's3v4')
+
+# ArvanCloud serves buckets at `<bucket>.s3.<region>.arvanstorage.ir`, which is
+# what boto3 does by default. Overridable because MinIO and some on-premise
+# gateways only answer path style (`<endpoint>/<bucket>/<key>`), and against
+# those the default fails as a DNS error rather than as an HTTP one.
+AWS_S3_ADDRESSING_STYLE = os.getenv('AWS_S3_ADDRESSING_STYLE', 'virtual')
+
+# Set this to serve media through a CDN or a custom bucket domain; the value is
+# a bare hostname, no scheme and no trailing slash, and django-storages builds
+# every media URL from it. Empty means URLs point straight at the bucket.
+AWS_S3_CUSTOM_DOMAIN = os.getenv('AWS_S3_CUSTOM_DOMAIN') or None
+
+AWS_S3_FILE_OVERWRITE = False  # Two uploads named photo.jpg stay two files
+AWS_DEFAULT_ACL = None  # Send no ACL header; the bucket's own policy decides
+
+# Plain, permanent URLs instead of time-limited signed ones. This is only
+# correct while the bucket is readable by anonymous users — on ArvanCloud that
+# is the bucket's access setting, `public`. Leave the bucket private and every
+# image on the site 403s.
+AWS_QUERYSTRING_AUTH = False
+
+# One day of browser caching for anything served out of the bucket. Media names
+# are not content-hashed, so this is the same trade-off nginx makes for the
+# local /media/ directory: long enough to matter, short enough that a replaced
+# image appears the same day.
+AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'public, max-age=86400'}
 
 # Uploads go to the bucket when there is a bucket, and to local disk when
 # there is not.
 #
-# The backend used to be S3 unconditionally. On Liara that is right — the
-# filesystem there is ephemeral, so anything written to it is gone at the next
-# deploy. On a plain VPS it is not: there is no bucket, and every upload died
-# with `EndpointConnectionError: Could not connect to the endpoint URL`, from
-# a setting no environment file could change. nginx has served /media/ from
-# disk all along, waiting for exactly this.
+# The backend used to be S3 unconditionally. With a bucket configured that is
+# right — on Liara the container filesystem is ephemeral, and even on a VPS a
+# bucket survives the machine. With no bucket it is not: every upload died with
+# `EndpointConnectionError: Could not connect to the endpoint URL`, from a
+# setting no environment file could change. nginx has served /media/ from disk
+# all along, waiting for exactly this.
 #
 # The credentials decide, rather than a separate flag, because a flag can
 # disagree with them — and the failure that produces is uploads vanishing into

@@ -20,7 +20,7 @@
 #
 set -eu
 
-# Certificates are a production concern only; stage serves plain HTTP on 8080.
+# Certificates are a production concern only; develop serves plain HTTP on 8000.
 # Set before sourcing, because _common.sh validates DENTAL_ENV.
 DENTAL_ENV="${DENTAL_ENV:-production}"
 . "$(cd "$(dirname "$0")" && pwd)/_common.sh"

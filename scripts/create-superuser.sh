@@ -3,7 +3,7 @@
 # Create the first admin account on a server.
 #
 #   scripts/create-superuser.sh                   # asks for the details
-#   DENTAL_ENV=stage scripts/create-superuser.sh
+#   DENTAL_ENV=develop scripts/create-superuser.sh
 #
 # Non-interactive, for a deploy pipeline:
 #

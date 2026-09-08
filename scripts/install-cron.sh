@@ -3,7 +3,7 @@
 # Install the backup schedule into the current user's crontab.
 #
 #   scripts/install-cron.sh                  # every 3 days, 03:00
-#   DENTAL_ENV=stage scripts/install-cron.sh
+#   DENTAL_ENV=develop scripts/install-cron.sh
 #   BACKUP_EVERY_DAYS=1 scripts/install-cron.sh
 #
 # Idempotent: run it twice and you still have one entry. It matches on a

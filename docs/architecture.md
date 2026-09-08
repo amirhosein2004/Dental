@@ -120,8 +120,7 @@ not a refactor.
 utils/
   security/   login throttle, auth backend, signed OTP tokens,
               HTML sanitiser, math captcha
-  http/       view mixins (permissions, rate limit), response caching,
-              the stage-only noindex middleware
+  http/       view mixins (permissions, rate limit), response caching
   data/       field validators, social handle conversion
   mail/       email helper and its Celery task
   test_runner.py

@@ -23,14 +23,13 @@ dump left in the folder is safe.
 
 Two ways it runs automatically, and you only need one:
 
-* the `backup` service in the stage and production stacks — nightly in
-  production keeping seven, every third day in stage keeping three
+* the `backup` service in the production stack — nightly, keeping seven
 * `scripts/install-cron.sh`, which schedules the same thing from the host's
   cron — use this if you want backups to continue while the stack is down
 
-Dumps land in `backups/<environment>/` on the host — `backups/production/`,
-`backups/stage/`, `backups/develop/` — one directory each. They shared a single
-folder once: rotation counts by age across everything it finds, so a stage
+Dumps land in `backups/<environment>/` on the host — `backups/production/`
+and `backups/develop/`, one directory each. They shared a
+single folder once: rotation counts by age across everything it finds, so a
 backup deleted production's dumps, and a filename carried nothing to say which
 database it came from.
 
@@ -108,7 +107,7 @@ automatically. If it does not, that is a bug — find the model in
 `apps/core/signals.py` and add a test to `apps/core/tests/test_cache_invalidation.py`.
 Clearing by hand hides it.
 
-**Styles broken after a deploy.** Should be impossible in stage and
+**Styles broken after a deploy.** Should be impossible in
 production: filenames are content-hashed, so a changed file has a changed URL.
 If it happens, `collectstatic` did not run — check the entrypoint log.
 
