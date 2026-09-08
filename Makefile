@@ -51,7 +51,7 @@ COMPOSE  := docker compose --env-file $(ENV_FILE) \
 .DEFAULT_GOAL := help
 .PHONY: help env-check up up-build build down down-volumes restart ps logs \
         logs-web shell dbshell manage migrate makemigrations collectstatic \
-        test check seed superuser backup restore ship check-mirrors
+        test check seed superuser backup restore provision ship check-mirrors
 
 help:  ## Show this help
 	@echo 'usage: make [ENV=develop|production] <target>'
@@ -166,6 +166,17 @@ restore:  ## Restore a dump: make restore FILE=backups/<env>/dental-<stamp>.sql
 	DENTAL_ENV=$(ENV) sh scripts/restore.sh $(FILE)
 
 # --- Deploying --------------------------------------------------------------
+
+# Run once, before the first ship: installs Docker and Compose v2 on the
+# server, points the daemon at an Iranian registry mirror, and creates
+# /srv/dental. Production only — a develop stack runs here, on a machine that
+# already has Docker and can reach Docker Hub. Idempotent, so re-running it
+# after a server rebuild is the intended way to redo the setup.
+#
+# No ENV=: this target ignores it rather than accepting `ENV=develop` and
+# doing something surprising with it.
+provision:  ## One-time production server setup (Docker, mirrors, /srv/dental)
+	sh scripts/provision.sh
 
 # The server is in Iran and reaches neither GitHub, GitLab nor Docker Hub, so
 # it can neither pull the code nor pull a prebuilt image. `ship` sends the

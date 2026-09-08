@@ -70,6 +70,16 @@ which is the tag `compose build` writes. All three app services (`web`,
 `worker`, `backup`) share it, which matters: a worker running last week's code
 against this week's schema fails in ways that are hard to read.
 
+### Before any of this: the server itself
+
+The pipeline assumes a machine with Docker, Compose v2 and a working registry
+mirror on it. Getting it there is `make provision`, run once from a laptop —
+not from CI. It is deliberately outside the pipeline: it needs `sudo` on the
+server, it is run perhaps twice in the life of a machine, and a job that can
+reconfigure `dockerd` is a larger blast radius than a deploy job needs.
+
+See [deploying.md](deploying.md#1-prepare-the-server).
+
 ### The mirrors the build needs
 
 `docker compose build` on that machine fetches from Debian's archive, from

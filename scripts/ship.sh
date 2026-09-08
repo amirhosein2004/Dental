@@ -92,14 +92,55 @@ $SSH "bash -s" <<REMOTE || die "remote build failed"
 set -euo pipefail
 cd '$SHIP_PATH'
 
-test -f deploy/env/.env.production || {
-  echo "deploy/env/.env.production is missing on the server."
-  echo "Copy deploy/env/.env.production.example to it and fill it in — the"
-  echo "mirror settings at the bottom are what makes the build work here."
-  exit 1
-}
+ENV_FILE=deploy/env/.env.production
 
-COMPOSE="docker compose --env-file deploy/env/.env.production -f deploy/base.yml -f deploy/production.yml"
+# The env file lives only on the server. It is not in the repository and
+# \`git archive\` cannot carry it, so nothing here ever overwrites one that
+# already exists. Scaffolding it from the example on the very first run turns
+# "it failed, go and read the docs" into "it failed, edit this file".
+if [ ! -f "\$ENV_FILE" ]; then
+  cp deploy/env/.env.production.example "\$ENV_FILE"
+  chmod 600 "\$ENV_FILE"
+  echo "created \$ENV_FILE from the example."
+  echo
+  echo "Fill it in, then run this again. The mirror block at the bottom is"
+  echo "what makes a build work on this machine; \`sh scripts/check-mirrors.sh\`"
+  echo "run here says which mirrors actually answer today."
+  exit 1
+fi
+
+# 600, every time. The default 644 means every other account on this host can
+# read the database password, and a file created once with the right mode
+# does not stay that way after somebody edits it with a umask of 022.
+chmod 600 "\$ENV_FILE"
+
+# Refuse to build on a placeholder secret. Only the four that would produce a
+# working but compromised site: a guessable SECRET_KEY forges sessions and
+# password-reset tokens, and \`CHANGE-ME-long-random-password\` is a perfectly
+# valid password that Postgres accepts on first boot and then keeps forever.
+#
+# \`cut -d= -f1\` so the output is \`17:SECRET_KEY\` — the line and the name,
+# never the value. This runs in a CI job whose log is readable by anyone with
+# access to the project.
+PLACEHOLDERS=\$(grep -nE '^(SECRET_KEY|DB_PASSWORD|OTP_SECRET_KEY|SECURE_ADMIN_PANEL)=.*CHANGE-ME' "\$ENV_FILE" | cut -d= -f1 || true)
+if [ -n "\$PLACEHOLDERS" ]; then
+  echo "\$ENV_FILE still has placeholder secrets:"
+  echo "\$PLACEHOLDERS"
+  echo
+  echo "Generate each one, then run this again:"
+  echo "  python3 -c 'import secrets; print(secrets.token_urlsafe(64))'"
+  exit 1
+fi
+
+# The rest only switch a feature off when they are unset — object storage
+# falls back to the media volume, web push simply does not send — so they are
+# worth saying out loud and not worth blocking a deploy over.
+if grep -qE '^[A-Z_]+=.*CHANGE-ME' "\$ENV_FILE"; then
+  echo "note: optional settings are still placeholders, so those features stay off:"
+  grep -nE '^[A-Z_]+=.*CHANGE-ME' "\$ENV_FILE" | cut -d= -f1
+fi
+
+COMPOSE="docker compose --env-file \$ENV_FILE -f deploy/base.yml -f deploy/production.yml"
 
 if \$COMPOSE ps --status running --quiet web | grep -q .; then
   \$COMPOSE exec -T web python manage.py backup_db --keep 5

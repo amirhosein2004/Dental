@@ -141,6 +141,40 @@ The production server is in Iran: it reaches neither GitHub nor GitLab, so
 allowed to use, so `docker pull` is not either. What it can do is accept an
 SSH connection and build from Iranian mirrors at its own bandwidth.
 
+### `provision.sh` — the server, once
+
+```bash
+make provision
+```
+
+Run from the laptop, before the first ship, and again after a server rebuild.
+It installs Docker and Compose v2 on the far side, points the daemon at an
+Iranian registry mirror, adds the deploy user to the `docker` group and
+creates `/srv/dental`. Every step checks whether it is already done, so a
+re-run is cheap and changes nothing it does not have to.
+
+Production only, and there is no develop equivalent: a develop stack runs on
+the laptop, which already has Docker and can reach Docker Hub. A machine that
+cannot is this script's entire subject.
+
+Two things it is opinionated about. It installs **`docker-compose-v2`**, the
+plugin invoked as `docker compose`, and refuses to fall back to the
+`docker-compose` package that most install guides name — that is v1, and it
+reads neither `depends_on.condition` nor the YAML anchor these overlays are
+built on. And it *merges* `registry-mirrors` into `/etc/docker/daemon.json`
+rather than overwriting the file, keeping a backup either way, because that
+file often already holds a storage driver or log rotation that would vanish
+without a word.
+
+The registry mirror lives there and not in `.env.production` on purpose: those
+are build arguments read by apt and pip inside the build, while these images
+are pulled by `dockerd`, which never opens that file.
+
+Override `DOCKER_REGISTRY_MIRROR` or `APT_MIRROR_SETUP_URL` for another
+provider; `PROVISION_SKIP_APT_MIRROR=1` leaves apt's sources alone.
+
+### `ship.sh` — the code, every time
+
 ```bash
 make ship                          # the current commit
 SHIP_REF=v1.0.0 sh scripts/ship.sh # a tag or an older commit
@@ -157,6 +191,16 @@ It extracts over what is on the server without deleting anything, which is
 deliberate: the env file and `backups/` live there and are not in the
 repository. The corollary is that a file deleted from the repository stays
 behind on the server until someone removes it.
+
+On the first run it finds no `deploy/env/.env.production`, copies the example
+into place with mode 600 and stops, so the next thing to do is edit a file
+rather than read a page. It stops again if `SECRET_KEY`, `DB_PASSWORD`,
+`OTP_SECRET_KEY` or `SECURE_ADMIN_PANEL` is still a `CHANGE-ME` — those four
+produce a site that works and is compromised, and
+`CHANGE-ME-long-random-password` is a password Postgres accepts on first boot
+and then keeps. It prints line numbers and names, never values, because this
+also runs in a CI job whose log is not private. The rest only switch a feature
+off, so they warn and let the deploy through.
 
 Before the first build there, `check-mirrors.sh` says which of the hosts the
 build needs are actually reachable from that machine today — the answer moves,
