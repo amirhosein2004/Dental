@@ -1,0 +1,326 @@
+/* ============================================================================
+   Blog create/update form — editorial split (content main + sidebar panels).
+   Applied via ``blog_form.css`` and shared by create + update templates.
+   ============================================================================ */
+
+.blg-form-page__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--border);
+}
+.blg-form-page__title {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    margin: .35rem 0 .35rem 0;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--fg);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+.blg-form-page__title i {
+    color: var(--brand);
+    font-size: .85em;
+    padding: .5rem;
+    background: var(--brand-soft);
+    border-radius: 12px;
+}
+:root[data-theme="dark"] .blg-form-page__title i { color: var(--brand); }
+.blg-form-page__lead { margin: 0; color: var(--fg-muted); font-size: .95rem; }
+.blg-form-page__head-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+/* ============================================================ FORM ==== */
+.blg-form { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.blg-form__nonfield {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: 1rem 1.25rem;
+    background: color-mix(in srgb, var(--danger) 12%, transparent);
+    color: var(--danger);
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: .92rem;
+}
+
+.blg-form__grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/*
+ * `min-width: 0` on both columns.
+ *
+ * A grid item's automatic minimum size is its min-content width, and the
+ * CKEditor toolbar does not wrap — so its min-content ran to ~566px and the
+ * column inflated to match, putting the whole editor page into a horizontal
+ * scroll on a phone. The editor is told to stay inside its column instead.
+ */
+.blg-form__main { display: flex; flex-direction: column; gap: 1.5rem; min-width: 0; }
+.blg-form__side { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+.blg-form .ck.ck-editor { max-width: 100%; }
+.blg-form .ck.ck-editor__main > .ck-editor__editable { max-width: 100%; }
+
+/* Common field styling */
+.blg-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+.blg-form__field label {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    color: var(--fg);
+    font-weight: 700;
+    font-size: .95rem;
+}
+.blg-form__field label i { color: var(--brand); font-size: .9em; }
+.blg-form__field label .req { color: var(--danger); }
+
+.blg-form__field input[type="text"],
+.blg-form__field input[type="url"],
+.blg-form__field input[type="email"] {
+    width: 100%;
+    padding: .85rem 1rem;
+    font: inherit;
+    font-size: 1.05rem;
+    background: var(--bg-muted);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.blg-form__field input:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px var(--brand-glow);
+    background: var(--bg-elevated);
+}
+.blg-form__field.has-error input,
+.blg-form__field.has-error select,
+.blg-form__field.has-error textarea {
+    border-color: var(--danger);
+}
+
+.blg-form__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    color: var(--fg-subtle);
+    font-size: .82rem;
+}
+.blg-form__hint i { color: var(--brand); }
+
+.blg-form__error {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--danger);
+    font-size: .82rem;
+    margin: 0;
+}
+
+/* CKEditor 5 wrapper — enforce token-based styling on injected editor.
+ *
+ * CKEditor ships its own focus treatment: a teal border plus
+ * `--ck-focus-outer-shadow`, a 3px ring in its own blue. Ours was layered on
+ * top as a fourth 4px ring in the brand glow, so a focused editor wore a
+ * thick two-tone halo that bled past the field and looked like an error
+ * state. Its variables are overridden here so there is one ring, in one
+ * colour, the same width as every other focused control on the page. */
+.blg-form__editor {
+    --ck-focus-ring: 1px solid var(--brand);
+    --ck-color-focus-border: var(--brand);
+    --ck-focus-outer-shadow: none;
+    --ck-color-focus-outer-shadow: transparent;
+}
+.blg-form__editor .django_ckeditor_5,
+.blg-form__editor .ck.ck-editor {
+    width: 100% !important;
+}
+.blg-form__editor .ck.ck-editor__main > .ck-editor__editable {
+    min-height: 340px;
+    background: var(--bg-muted) !important;
+    color: var(--fg) !important;
+    border-color: var(--border) !important;
+    border-radius: 0 0 var(--radius) var(--radius) !important;
+    padding: 1rem 1.15rem !important;
+    line-height: 1.9;
+    font-size: 1rem;
+}
+.blg-form__editor .ck.ck-editor__main > .ck-editor__editable.ck-focused,
+.blg-form__editor .ck.ck-editor__main > .ck-editor__editable:focus {
+    border-color: var(--brand) !important;
+    box-shadow: 0 0 0 3px var(--brand-glow) !important;
+}
+.blg-form__editor .ck.ck-toolbar {
+    background: var(--bg-elevated) !important;
+    border-color: var(--border) !important;
+    border-radius: var(--radius) var(--radius) 0 0 !important;
+}
+.blg-form__editor .ck.ck-toolbar .ck-button {
+    color: var(--fg) !important;
+}
+.blg-form__editor .ck.ck-toolbar .ck-button:hover,
+.blg-form__editor .ck.ck-toolbar .ck-button.ck-on {
+    background: var(--brand-soft) !important;
+    color: var(--brand-strong) !important;
+}
+
+/* ============================================================ SIDEBAR PANELS ==== */
+.blg-form__panel {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.blg-form__panel-title {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 0;
+    color: var(--fg);
+    font-size: 1rem;
+    font-weight: 700;
+    padding-bottom: .75rem;
+    border-bottom: 1px dashed var(--border);
+}
+.blg-form__panel-title i { color: var(--brand); font-size: .9em; }
+.blg-form__panel-title .req { color: var(--danger); margin-inline-start: .15rem; }
+
+/* Cover / image uploader */
+.blg-form__cover { display: flex; flex-direction: column; gap: .75rem; }
+.blg-form__cover input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 1px; height: 1px;
+    pointer-events: none;
+}
+.blg-form__cover-preview {
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius);
+    background: var(--bg-muted);
+    border: 1px dashed var(--border-strong);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-subtle);
+}
+.blg-form__cover-preview img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+}
+.blg-form__cover-empty {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    padding: 1rem;
+}
+.blg-form__cover-empty i {
+    font-size: 2rem;
+    color: var(--brand);
+}
+.blg-form__cover-picker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .7rem 1.2rem;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: .9rem;
+    text-align: center;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+:root[data-theme="dark"] .blg-form__cover-picker { color: var(--brand); }
+.blg-form__cover-picker:hover { background: var(--brand); color: #fff; transform: translateY(-1px); }
+.blg-form__cover.has-error .blg-form__cover-preview {
+    border-color: var(--danger);
+    border-style: solid;
+}
+
+/* Categories as chips */
+.blg-form__cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+}
+.blg-cat-chip { position: relative; display: inline-flex; }
+.blg-cat-chip input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.blg-cat-chip span {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .5rem 1rem;
+    background: var(--bg-muted);
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    border-radius: var(--radius-pill);
+    font-size: .85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.blg-cat-chip:hover span { color: var(--brand-strong); border-color: var(--brand); }
+:root[data-theme="dark"] .blg-cat-chip:hover span { color: var(--brand); }
+.blg-cat-chip input:checked ~ span {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+}
+:root[data-theme="dark"] .blg-cat-chip input:checked ~ span { color: #071013; }
+
+/* ============================================================ ACTIONS ==== */
+.blg-form__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    padding-top: .5rem;
+    flex-wrap: wrap;
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent, var(--bg) 40%);
+    padding-block: 1rem;
+    z-index: 10;
+}
+.blg-form__actions .ds-btn { flex: 0 1 auto; }
+
+/* ============================================================ RESPONSIVE ==== */
+@media (max-width: 1023.98px) {
+    .blg-form__grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 639.98px) {
+    .blg-form__actions { flex-direction: column-reverse; }
+    .blg-form__actions .ds-btn { width: 100%; justify-content: center; }
+    .blg-form__field,
+    .blg-form__panel { padding: 1.25rem; }
+}

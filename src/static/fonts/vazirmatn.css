@@ -1,0 +1,47 @@
+/* ============================================================================
+   Vazirmatn — self-hosted webfont (SIL OFL 1.1).
+   Source: https://github.com/rastikerdar/vazirmatn (v33.003, jsdelivr npm).
+
+   `font-display: swap` shows fallback (Tahoma/system) instantly, then swaps
+   when the woff2 lands — better perceived performance than FOIT for Persian.
+   ============================================================================ */
+
+@font-face {
+    font-family: 'Vazirmatn';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('vazirmatn/Vazirmatn-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('vazirmatn/Vazirmatn-Medium.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('vazirmatn/Vazirmatn-SemiBold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('vazirmatn/Vazirmatn-Bold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url('vazirmatn/Vazirmatn-ExtraBold.woff2') format('woff2');
+}

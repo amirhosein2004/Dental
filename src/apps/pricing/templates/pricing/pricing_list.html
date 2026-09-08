@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}تعرفه خدمات دندانپزشکی | قیمت‌های شفاف مطب{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="تعرفه و قیمت خدمات دندانپزشکی مطب دکتر بابایی و بهمدی؛ ایمپلنت، ارتودنسی، ترمیم، جراحی و سایر خدمات تخصصی با قیمت شفاف.">
+    <meta property="og:title" content="تعرفه خدمات دندانپزشکی — قیمت شفاف">
+    <meta property="og:description" content="مشاهده قیمت‌های شفاف و به‌روز خدمات دندانپزشکی مطب.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sbdental.ir/pricing/">
+    <meta property="og:image" content="https://sbdental.ir/static/img/site-logo.png">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'pricing/css/pricing.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- ============================================================ HERO -->
+    <section class="prc-hero">
+        <div class="prc-hero__bg" aria-hidden="true"></div>
+        <div class="ds-container prc-hero__inner">
+            <span class="ds-heading__eyebrow">تعرفه شفاف</span>
+            <h1 class="prc-hero__title">
+                قیمت‌ها را قبل از درمان، دقیق می‌گوییم
+            </h1>
+            <p class="prc-hero__lead">
+                هیچ هزینه‌ی پنهانی وجود ندارد. تعرفه‌ی کامل خدمات ما در یک نگاه —
+                همراه با امکان مشاوره‌ی رایگان برای برآورد نهایی درمان شما.
+            </p>
+
+            <div class="prc-hero__trust">
+                <span class="prc-hero__pledge"><i class="fas fa-shield-check"></i><span>بدون هزینه پنهان</span></span>
+                <span class="prc-hero__pledge"><i class="fas fa-hand-holding-dollar"></i><span>اقساط بدون بهره</span></span>
+                <span class="prc-hero__pledge"><i class="fas fa-comments"></i><span>مشاوره رایگان</span></span>
+            </div>
+
+            <div class="prc-hero__search">
+                <i class="fas fa-search"></i>
+                <input type="search" id="prc-search"
+                       placeholder="نام خدمت را جست‌وجو کنید — مثال: ایمپلنت، ارتودنسی، ترمیم..."
+                       aria-label="جست‌وجوی تعرفه">
+            </div>
+
+            {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
+                <div class="prc-hero__manage-row">
+                    <a href="{% url 'pricing:add_pricing_item' %}" class="prc-hero__manage">
+                        <i class="fas fa-plus"></i>
+                        <span>افزودن تعرفه</span>
+                    </a>
+                    <a href="{% url 'pricing:pricing_category_list' %}" class="prc-hero__manage">
+                        <i class="fas fa-tags"></i>
+                        <span>مدیریت دسته‌ها</span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============================================================ ANCHOR NAV (sticky) -->
+    {% if pricing_groups|length > 1 %}
+    <section class="prc-anchor" aria-label="پیمایش دسته‌بندی‌ها">
+        <div class="ds-container">
+            <div class="prc-anchor__scroller">
+                {% for group in pricing_groups %}
+                    <a class="prc-anchor__chip" href="#prc-cat-{% if group.category %}{{ group.category.pk }}{% else %}none{% endif %}">
+                        <i class="fas fa-tag"></i>
+                        <span>{% if group.category %}{{ group.category.name }}{% else %}سایر خدمات{% endif %}</span>
+                        <em>{{ group.items|length }}</em>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ============================================================ LIST -->
+    <section class="ds-section prc-list">
+        <div class="ds-container">
+            {% if pricing_groups %}
+                {% for group in pricing_groups %}
+                    <article class="prc-section" id="prc-cat-{% if group.category %}{{ group.category.pk }}{% else %}none{% endif %}">
+                        <header class="prc-section__head">
+                            <div>
+                                <span class="prc-section__label">
+                                    <i class="fas fa-tags"></i>
+                                    {% if group.category %}{{ group.category.name }}{% else %}سایر خدمات{% endif %}
+                                </span>
+                                <h2 class="prc-section__title">
+                                    {% if group.category %}{{ group.category.name }}{% else %}خدمات بدون دسته{% endif %}
+                                </h2>
+                            </div>
+                            <span class="prc-section__count">
+                                <i class="fas fa-list-ul"></i>
+                                <strong>{{ group.items|length }}</strong>
+                                <span>خدمت</span>
+                            </span>
+                        </header>
+
+                        <ol class="prc-cards" role="list">
+                            {% for item in group.items %}
+                                <li class="prc-card" data-prc-title="{{ item.title|lower }}"
+                                    data-prc-category="{% if group.category %}{{ group.category.name|lower }}{% endif %}">
+                                    <div class="prc-card__num" aria-hidden="true">{{ forloop.counter }}</div>
+                                    <div class="prc-card__body">
+                                        <h3 class="prc-card__title">{{ item.title }}</h3>
+                                        <p class="prc-card__note">
+                                            <i class="fas fa-info-circle"></i>
+                                            قیمت نهایی پس از معاینه اعلام می‌شود
+                                        </p>
+                                    </div>
+                                    <div class="prc-card__price">
+                                        <span class="prc-card__price-amount">{{ item.price|intcomma }}</span>
+                                        <span class="prc-card__price-unit">تومان</span>
+                                    </div>
+                                    <div class="prc-card__cta">
+                                        <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--primary ds-btn--sm">
+                                            <i class="fas fa-calendar-check"></i>
+                                            <span>رزرو</span>
+                                        </a>
+                                        {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
+                                            <div class="prc-card__admin">
+                                                <a href="{% url 'pricing:update_pricing_item' item.pk %}"
+                                                   class="prc-card__admin-btn"
+                                                   title="ویرایش تعرفه"
+                                                   aria-label="ویرایش">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                <form method="post" action="{% url 'pricing:delete_pricing_item' item.pk %}"
+                                                      class="prc-card__admin-form"
+                                                      data-confirm
+                                                      data-confirm-title="حذف تعرفه"
+                                                      data-confirm-text="تعرفه‌ی «{{ item.title }}» ({{ item.price|intcomma }} تومان) حذف شود؟ این عملیات قابل بازگشت نیست."
+                                                      data-confirm-ok="حذف تعرفه">
+                                                {% csrf_token %}
+                                                <button type="submit"
+                                                        class="prc-card__admin-btn prc-card__admin-btn--del"
+                                                        title="حذف تعرفه"
+                                                        aria-label="حذف">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ol>
+                    </article>
+                {% endfor %}
+
+                <p id="prc-empty-search" class="prc-empty prc-empty--search" hidden>
+                    <i class="fas fa-search"></i>
+                    <span>موردی با این نام یافت نشد.</span>
+                </p>
+            {% else %}
+                <div class="prc-empty">
+                    <div class="prc-empty__glow"></div>
+                    <i class="fas fa-receipt"></i>
+                    <h3>هنوز تعرفه‌ای منتشر نشده</h3>
+                    <p>به‌زودی فهرست کامل تعرفه‌ها در این صفحه در دسترس خواهد بود.</p>
+                    <a href="{% url 'contact:contact' %}" class="ds-btn ds-btn--primary">
+                        <i class="fas fa-phone"></i>
+                        <span>تماس برای مشاوره رایگان</span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============================================================ GUARANTEES -->
+    <section class="ds-section prc-guarantees">
+        <div class="ds-container">
+            <header class="ds-heading">
+                <span class="ds-heading__eyebrow">تعهد قیمتی ما</span>
+                <h2 class="ds-heading__title">چرا قیمت‌ها با خیال راحت</h2>
+                <p class="ds-heading__lead">تعهداتی که هزینه‌ی درمان شما را قابل پیش‌بینی می‌کند.</p>
+            </header>
+
+            <div class="prc-guarantees__grid">
+                <article class="prc-guarantee">
+                    <span class="prc-guarantee__icon"><i class="fas fa-file-invoice"></i></span>
+                    <h3>فاکتور شفاف</h3>
+                    <p>جزئیات کامل هزینه‌ی هر بخش درمان، قبل از شروع اعلام می‌شود.</p>
+                </article>
+                <article class="prc-guarantee">
+                    <span class="prc-guarantee__icon"><i class="fas fa-credit-card"></i></span>
+                    <h3>پرداخت اقساطی</h3>
+                    <p>برای درمان‌های چندجلسه‌ای، امکان پرداخت اقساطی بدون بهره فراهم است.</p>
+                </article>
+                <article class="prc-guarantee">
+                    <span class="prc-guarantee__icon"><i class="fas fa-rotate-right"></i></span>
+                    <h3>گارانتی درمان</h3>
+                    <p>پیگیری تا نتیجه‌ی نهایی؛ درصورت نیاز، ویزیت‌های بعدی هم رایگان.</p>
+                </article>
+                <article class="prc-guarantee">
+                    <span class="prc-guarantee__icon"><i class="fas fa-hand-holding-heart"></i></span>
+                    <h3>مشاوره رایگان</h3>
+                    <p>قبل از تصمیم، جلسه‌ی ارزیابی و توضیح گزینه‌ها بدون هزینه.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ CTA -->
+    <section class="prc-cta">
+        <div class="ds-container">
+            <div class="ds-cta-card ds-cta-card--brand">
+                <span class="ds-cta-card__icon"><i class="fas fa-receipt"></i></span>
+                <div class="ds-cta-card__body">
+                    <span class="ds-heading__eyebrow">قدم بعدی شما</span>
+                    <h2>می‌خواهید هزینه‌ی دقیق درمان خودتان را بدانید؟</h2>
+                    <p>در یک مشاوره‌ی کوتاه، برنامه‌ی درمان و هزینه‌ی دقیق را برای شما ارائه می‌کنیم.</p>
+                </div>
+                {% include '_cta_actions.html' with cta_size='lg' %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'pricing/js/pricing_list.js' %}" defer></script>
+{% endblock %}

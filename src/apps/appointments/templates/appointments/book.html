@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ثبت نوبت | مطب دندانپزشکی{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'appointments/css/appointments.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container ds-container--narrow">
+
+        <header class="apt-form-head">
+            <span class="ds-heading__eyebrow">ثبت نوبت</span>
+            <h1 class="apt-form-head__title">اطلاعات خود را وارد کنید</h1>
+        </header>
+
+        <div class="apt-chosen" role="status">
+            <div class="apt-chosen__row">
+                <i class="fas fa-calendar-day"></i>
+                <span>{{ slot.weekday_label }}</span>
+            </div>
+            <div class="apt-chosen__row">
+                <i class="fas fa-clock"></i>
+                <span dir="ltr">{{ slot.time|time:'H:i' }}</span>
+            </div>
+            <div class="apt-chosen__row">
+                <i class="fas fa-user-md"></i>
+                <span>دکتر {{ slot.doctor.user.get_full_name }}</span>
+            </div>
+            {% comment %}
+                The branch, spelled out on the confirmation step as well as on
+                the board. A patient who arrived from a shared link never saw
+                the board, so this is the only place the city appears before
+                they commit.
+            {% endcomment %}
+            <div class="apt-chosen__row apt-chosen__row--branch">
+                <i class="fas fa-hospital"></i>
+                <span>{{ slot.branch_label }}</span>
+            </div>
+            {% if slot.branch.address %}
+                <div class="apt-chosen__row apt-chosen__row--address">
+                    <i class="fas fa-location-dot"></i>
+                    <span>{{ slot.branch.address }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <article class="apt-form-panel">
+            <form method="post" class="apt-form" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="apt-form__alert" role="alert">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        <span>{{ form.non_field_errors|first }}</span>
+                    </div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="apt-form__field {% if field.errors %}has-error{% endif %}">
+                        <label for="{{ field.id_for_label }}">
+                            <span>{{ field.label }}</span>
+                            {% if field.field.required %}<span class="req">*</span>{% endif %}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="apt-form__hint">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <p class="apt-form__error">
+                                <i class="fas fa-circle-exclamation"></i>
+                                {{ field.errors|first }}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <p class="apt-form__note">
+                    <i class="fas fa-shield-halved"></i>
+                    اطلاعات شما فقط برای هماهنگی همین نوبت استفاده می‌شود.
+                </p>
+
+                <div class="apt-form__actions">
+                    <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--ghost">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>بازگشت</span>
+                    </a>
+                    <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>ثبت نوبت</span>
+                    </button>
+                </div>
+            </form>
+        </article>
+    </div>
+</section>
+{% endblock %}

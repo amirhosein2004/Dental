@@ -1,0 +1,364 @@
+{% load static %}
+
+<form method="post" enctype="multipart/form-data" class="svc-form" novalidate id="serviceForm">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="svc-form__nonfield" role="alert">
+            <i class="fas fa-triangle-exclamation"></i>
+            <span>{{ form.non_field_errors|first }}</span>
+        </div>
+    {% endif %}
+
+    <div class="svc-form__grid">
+        <!-- Main column: title + description -->
+        <div class="svc-form__main">
+            <div class="svc-form__field {% if form.title.errors %}has-error{% endif %}">
+                <label for="{{ form.title.id_for_label }}">
+                    <i class="fas fa-heading"></i>
+                    <span>{{ form.title.label }}</span>
+                    {% if form.title.field.required %}<span class="req">*</span>{% endif %}
+                </label>
+                {{ form.title }}
+                <small class="svc-form__hint">
+                    <i class="fas fa-info-circle"></i>
+                    عنوان کوتاه و روشن — حداکثر ۲۰۰ کاراکتر
+                </small>
+                {% if form.title.errors %}
+                    <p class="svc-form__error">
+                        <i class="fas fa-circle-exclamation"></i>
+                        {{ form.title.errors|first }}
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="svc-form__field {% if form.description.errors %}has-error{% endif %}">
+                <label for="{{ form.description.id_for_label }}">
+                    <i class="fas fa-align-right"></i>
+                    <span>{{ form.description.label }}</span>
+                    {% if form.description.field.required %}<span class="req">*</span>{% endif %}
+                </label>
+                {{ form.description }}
+                <small class="svc-form__hint">
+                    <i class="fas fa-info-circle"></i>
+                    شرح مختصر خدمت — بین ۱۰ تا ۱۵۰۰ کاراکتر. می‌توانید کلمه‌ای را پررنگ
+                    یا فهرست کنید؛ سقف بر اساس متنِ خوانده‌شده حساب می‌شود، نه کدهای قالب‌بندی.
+                </small>
+                {% if form.description.errors %}
+                    <p class="svc-form__error">
+                        <i class="fas fa-circle-exclamation"></i>
+                        {{ form.description.errors|first }}
+                    </p>
+                {% endif %}
+            </div>
+
+            {% comment %}
+                The body of the treatment page. This field exists on the model
+                and is what the page actually ranks on, but the form used to
+                omit it — so a treatment could be published with a one-line
+                card and nothing behind it.
+            {% endcomment %}
+            <div class="svc-form__field {% if form.content.errors %}has-error{% endif %}">
+                <label for="{{ form.content.id_for_label }}">
+                    <i class="fas fa-file-lines"></i>
+                    <span>{{ form.content.label }}</span>
+                </label>
+                {{ form.content }}
+                <small class="svc-form__hint">
+                    <i class="fas fa-info-circle"></i>
+                    متن کامل خدمت — همین متن است که در صفحه‌ی خدمت و در گوگل دیده می‌شود.
+                    مراحل درمان، مدت زمان، مراقبت‌های بعد از درمان.
+                </small>
+                {% if form.content.errors %}
+                    <p class="svc-form__error">
+                        <i class="fas fa-circle-exclamation"></i>
+                        {{ form.content.errors|first }}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar: cover image -->
+        <aside class="svc-form__side">
+            <div class="svc-form__panel">
+                <h3 class="svc-form__panel-title">
+                    <i class="fas fa-image"></i>
+                    <span>{{ form.image.label }}</span>
+                    {% if form.image.field.required %}<span class="req">*</span>{% endif %}
+                </h3>
+
+                <div class="svc-form__cover {% if form.image.errors %}has-error{% endif %}">
+                    <div class="svc-form__cover-preview" id="serviceCoverPreview">
+                        {% if form.instance.image %}
+                            <img src="{{ form.instance.image.url }}" alt="تصویر فعلی" id="serviceCoverImg">
+                        {% else %}
+                            <div class="svc-form__cover-empty">
+                                <i class="fas fa-cloud-arrow-up"></i>
+                                <span>هنوز تصویری انتخاب نشده</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <label class="svc-form__cover-picker" for="{{ form.image.id_for_label }}">
+                        <i class="fas fa-image"></i>
+                        <span>{% if form.instance.image %}تعویض تصویر{% else %}انتخاب تصویر{% endif %}</span>
+                    </label>
+                    {{ form.image }}
+
+                    <small class="svc-form__hint">
+                        فرمت JPG یا PNG — حداکثر ۵ مگابایت
+                    </small>
+                    {% if form.image.errors %}
+                        <p class="svc-form__error">
+                            <i class="fas fa-circle-exclamation"></i>
+                            {{ form.image.errors|first }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% comment %}
+                The two SEO override boxes are a superuser tool.
+
+                Overriding the meta title and the search snippet is a search
+                console job, not a clinical one — and when they are left blank
+                the model builds both from the treatment's own title and
+                blurb, which is the right answer nearly every time. Showing
+                them to every doctor only offered a way to make the page worse.
+                `show_seo_fields` comes from the view, and the form drops the
+                fields for the same users, so a doctor's submit cannot blank
+                what a superuser wrote.
+            {% endcomment %}
+            {% if show_seo_fields %}
+                <div class="svc-form__panel">
+                    <h3 class="svc-form__panel-title">
+                        <i class="fas fa-magnifying-glass"></i>
+                        <span>نمایش در گوگل</span>
+                    </h3>
+                    <p class="svc-form__panel-note">
+                        هر دو را می‌توانید خالی بگذارید — آن‌وقت از عنوان و توضیح کوتاه
+                        بالا ساخته می‌شود.
+                    </p>
+
+                    <div class="svc-form__subfield {% if form.meta_title.errors %}has-error{% endif %}">
+                        <label for="{{ form.meta_title.id_for_label }}">
+                            <span>{{ form.meta_title.label }}</span>
+                        </label>
+                        {{ form.meta_title }}
+                        {% if form.meta_title.errors %}
+                            <p class="svc-form__error">
+                                <i class="fas fa-circle-exclamation"></i>
+                                {{ form.meta_title.errors|first }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="svc-form__subfield {% if form.meta_description.errors %}has-error{% endif %}">
+                        <label for="{{ form.meta_description.id_for_label }}">
+                            <span>{{ form.meta_description.label }}</span>
+                        </label>
+                        {{ form.meta_description }}
+                        {% if form.meta_description.errors %}
+                            <p class="svc-form__error">
+                                <i class="fas fa-circle-exclamation"></i>
+                                {{ form.meta_description.errors|first }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="svc-form__panel">
+                <h3 class="svc-form__panel-title">
+                    <i class="fas fa-arrow-down-1-9"></i>
+                    <span>چیدمان صفحه</span>
+                </h3>
+
+                <div class="svc-form__subfield {% if form.order.errors %}has-error{% endif %}">
+                    <label for="{{ form.order.id_for_label }}">
+                        <span>{{ form.order.label }}</span>
+                    </label>
+                    {{ form.order }}
+                    <small class="svc-form__hint">عدد کوچک‌تر بالاتر نمایش داده می‌شود.</small>
+                    {% if form.order.errors %}
+                        <p class="svc-form__error">
+                            <i class="fas fa-circle-exclamation"></i>
+                            {{ form.order.errors|first }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    {% comment %}
+        Questions patients actually ask about this treatment, edited here
+        rather than on a site-wide FAQ page: a standalone page would compete
+        with these very treatment pages for the same searches, and it answers
+        no single search intent so it rarely ranks for anything.
+    {% endcomment %}
+    <section class="svc-faq-edit" aria-labelledby="svc-faq-edit-title">
+        <header class="svc-faq-edit__head">
+            <h3 class="svc-faq-edit__title" id="svc-faq-edit-title">
+                <i class="fas fa-circle-question"></i>
+                <span>سؤالات متداول این خدمت</span>
+            </h3>
+            <p class="svc-faq-edit__note">
+                سؤال را همان‌طور بنویسید که بیمار می‌پرسد («ایمپلنت چقدر طول می‌کشد؟»)
+                — نه به‌صورت تیتر. هر تعداد سؤال که خواستید با دکمه‌ی پایین اضافه کنید؛
+                این بخش اختیاری است و خدمت بدون سؤال هم ذخیره می‌شود.
+            </p>
+        </header>
+
+        {{ faq_formset.management_form }}
+
+        {% if faq_formset.non_form_errors %}
+            <div class="svc-form__nonfield" role="alert">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span>{{ faq_formset.non_form_errors|first }}</span>
+            </div>
+        {% endif %}
+
+        {% comment %}
+            The rows the treatment already has. The formset opens with `extra=0`
+            — it used to open with two blank rows nobody asked for, which read
+            as two required questions and left a block of empty boxes under
+            every treatment. New rows come from the button below.
+
+            Each row uses its own field styling rather than `.svc-form__field`:
+            that class is a full card with 1.5rem of padding and a 200px-tall
+            textarea, and nesting three of them inside a row card made the
+            labels and the inputs collide.
+        {% endcomment %}
+        <div class="svc-faq-edit__rows" id="svcFaqRows">
+            {% for faq_form in faq_formset %}
+                <article class="svc-faq-row" data-faq-row>
+                    {% for hidden in faq_form.hidden_fields %}{{ hidden }}{% endfor %}
+
+                    <div class="svc-faq-row__num" data-faq-num>{{ forloop.counter }}</div>
+
+                    <div class="svc-faq-row__body">
+                        <div class="svc-faq-field {% if faq_form.question.errors %}has-error{% endif %}">
+                            <label for="{{ faq_form.question.id_for_label }}">
+                                <i class="fas fa-question"></i>
+                                <span>{{ faq_form.question.label }}</span>
+                            </label>
+                            {{ faq_form.question }}
+                            {% if faq_form.question.errors %}
+                                <p class="svc-form__error">
+                                    <i class="fas fa-circle-exclamation"></i>
+                                    {{ faq_form.question.errors|first }}
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <div class="svc-faq-field {% if faq_form.answer.errors %}has-error{% endif %}">
+                            <label for="{{ faq_form.answer.id_for_label }}">
+                                <i class="fas fa-comment-dots"></i>
+                                <span>{{ faq_form.answer.label }}</span>
+                            </label>
+                            {{ faq_form.answer }}
+                            {% if faq_form.answer.errors %}
+                                <p class="svc-form__error">
+                                    <i class="fas fa-circle-exclamation"></i>
+                                    {{ faq_form.answer.errors|first }}
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <div class="svc-faq-row__foot">
+                            <div class="svc-faq-row__order">
+                                <label for="{{ faq_form.order.id_for_label }}">{{ faq_form.order.label }}</label>
+                                {{ faq_form.order }}
+                            </div>
+                            {% if faq_form.instance.pk %}
+                                <label class="svc-faq-row__del">
+                                    {{ faq_form.DELETE }}
+                                    <span>حذف این سؤال</span>
+                                </label>
+                            {% else %}
+                                {% comment %}
+                                    An unsaved row has no DELETE field to tick,
+                                    so this clears it instead. A blank row is
+                                    ignored on save, which is what makes
+                                    emptying it equivalent to removing it —
+                                    and unlike deleting the node it cannot
+                                    leave the formset's indexes with a hole.
+                                {% endcomment %}
+                                <button type="button" class="svc-faq-row__drop" data-faq-drop>
+                                    <i class="fas fa-xmark"></i>
+                                    <span>حذف این ردیف</span>
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+
+        <p class="svc-faq-edit__empty" id="svcFaqEmpty" {% if faq_formset|length %}hidden{% endif %}>
+            <i class="fas fa-circle-info"></i>
+            <span>هنوز سؤالی برای این خدمت ثبت نشده.</span>
+        </p>
+
+        <div class="svc-faq-edit__actions">
+            <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm" id="svcFaqAdd">
+                <i class="fas fa-plus"></i>
+                <span>افزودن سؤال</span>
+            </button>
+        </div>
+
+        {% comment %}
+            The blank row the "افزودن سؤال" button clones. `__prefix__` is the
+            placeholder Django puts in `empty_form`; the script swaps it for
+            the next index and bumps TOTAL_FORMS.
+        {% endcomment %}
+        <template id="svcFaqTemplate">
+            <article class="svc-faq-row" data-faq-row>
+                {% for hidden in faq_formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+
+                <div class="svc-faq-row__num" data-faq-num>0</div>
+
+                <div class="svc-faq-row__body">
+                    <div class="svc-faq-field">
+                        <label for="{{ faq_formset.empty_form.question.id_for_label }}">
+                            <i class="fas fa-question"></i>
+                            <span>{{ faq_formset.empty_form.question.label }}</span>
+                        </label>
+                        {{ faq_formset.empty_form.question }}
+                    </div>
+
+                    <div class="svc-faq-field">
+                        <label for="{{ faq_formset.empty_form.answer.id_for_label }}">
+                            <i class="fas fa-comment-dots"></i>
+                            <span>{{ faq_formset.empty_form.answer.label }}</span>
+                        </label>
+                        {{ faq_formset.empty_form.answer }}
+                    </div>
+
+                    <div class="svc-faq-row__foot">
+                        <div class="svc-faq-row__order">
+                            <label for="{{ faq_formset.empty_form.order.id_for_label }}">{{ faq_formset.empty_form.order.label }}</label>
+                            {{ faq_formset.empty_form.order }}
+                        </div>
+                        <button type="button" class="svc-faq-row__drop" data-faq-drop>
+                            <i class="fas fa-xmark"></i>
+                            <span>حذف این ردیف</span>
+                        </button>
+                    </div>
+                </div>
+            </article>
+        </template>
+    </section>
+
+    <div class="svc-form__actions">
+        <a href="{% url 'service:service_list' %}" class="ds-btn ds-btn--ghost">
+            <i class="fas fa-arrow-right"></i>
+            <span>انصراف</span>
+        </a>
+        <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg">
+            <i class="fas fa-save"></i>
+            <span>{{ submit_label|default:'ذخیره' }}</span>
+        </button>
+    </div>
+</form>

@@ -1,0 +1,905 @@
+/* ============================================================================
+   Home page — modern editorial layout on top of the shared design system.
+   Sections: hero, trust-strip, advantages, doctors, services-preview,
+             clinic, blog-preview, portfolio, final-cta.
+   Responsive breakpoints:
+     mobile:   < 640px
+     tablet:   640–1023px
+     desktop:  ≥ 1024px
+   ============================================================================ */
+
+/* ============================================================ HERO ==== */
+.hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(3rem, 8vw, 6rem);
+    background:
+        radial-gradient(1200px 500px at 100% 0%, var(--brand-soft) 0%, transparent 60%),
+        radial-gradient(1000px 400px at 0% 100%, var(--accent-soft) 0%, transparent 55%),
+        var(--bg);
+    isolation: isolate;
+}
+.hero__bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.hero__blob {
+    position: absolute;
+    width: 380px; height: 380px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: .55;
+}
+.hero__blob--1 { top: -100px; inset-inline-end: -80px; background: var(--brand); }
+.hero__blob--2 { bottom: -120px; inset-inline-start: -100px; background: var(--accent); opacity: .45; }
+.hero__grid {
+    position: absolute; inset: 0;
+    background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: .18;
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+}
+
+.hero__grid-wrap {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: clamp(2rem, 6vw, 4rem);
+    align-items: center;
+}
+
+.hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .45rem 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--brand-strong);
+    font-size: .85rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.25rem;
+}
+:root[data-theme="dark"] .hero__badge { color: var(--brand); }
+.hero__badge i { color: var(--brand); }
+
+.hero__title {
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 1.15;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+}
+.hero__title-accent {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.hero__lead {
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    color: var(--fg-muted);
+    margin: 0 0 1.75rem 0;
+    max-width: 55ch;
+    line-height: 1.8;
+}
+
+.hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-bottom: 1.75rem;
+}
+
+.hero__points {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+.hero__points li {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .93rem;
+    color: var(--fg-muted);
+}
+.hero__points i { color: var(--brand); }
+
+/* Hero visual: tilted card with tooth graphic + floating stat badges */
+.hero__visual {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 380px;
+}
+.hero__card {
+    position: relative;
+    width: min(360px, 100%);
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-xl);
+    background: linear-gradient(135deg, var(--brand-soft) 0%, var(--bg-elevated) 100%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    overflow: hidden;
+    transform: rotate(-3deg);
+    transition: transform .4s ease;
+}
+.hero__card:hover { transform: rotate(0) scale(1.02); }
+.hero__card-glow {
+    position: absolute;
+    inset: -30%;
+    background: radial-gradient(circle at 30% 30%, var(--brand-glow), transparent 60%);
+    pointer-events: none;
+}
+.hero__card-img {
+    position: relative;
+    width: 80%;
+    height: auto;
+    filter: drop-shadow(0 20px 40px rgba(15, 23, 42, 0.2));
+}
+
+.hero__mini {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    padding: .8rem 1.15rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    font-size: .85rem;
+    color: var(--fg);
+}
+.hero__mini i {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+:root[data-theme="dark"] .hero__mini i { color: var(--brand); }
+.hero__mini strong { display: block; font-weight: 700; font-size: 1rem; color: var(--fg); }
+.hero__mini span   { display: block; color: var(--fg-muted); font-size: .78rem; }
+
+.hero__mini--top    { top: 10%; inset-inline-start: -10px; }
+.hero__mini--bottom { bottom: 8%; inset-inline-end: -10px; }
+
+/* ==================================================== TRUST STRIP ==== */
+.trust-strip {
+    padding-block: 2rem;
+    background: var(--bg-elevated);
+    border-block: 1px solid var(--border);
+}
+.trust-strip__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    text-align: center;
+}
+.trust-strip__list li { display: flex; flex-direction: column; gap: .25rem; }
+.trust-strip__list strong {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 800;
+    color: var(--brand-strong);
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+:root[data-theme="dark"] .trust-strip__list strong { color: var(--brand); }
+.trust-strip__list span {
+    font-size: .85rem;
+    color: var(--fg-muted);
+    font-weight: 500;
+}
+
+/* ==================================================== ADVANTAGES ==== */
+.advantages__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+.advantages__card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    text-align: center;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    position: relative;
+    overflow: hidden;
+}
+.advantages__card::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand), var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .3s ease;
+}
+.advantages__card:hover {
+    transform: translateY(-6px);
+    border-color: color-mix(in srgb, var(--brand) 30%, var(--border));
+    box-shadow: var(--shadow-lg);
+}
+.advantages__card:hover::before { transform: scaleX(1); }
+.advantages__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px; height: 60px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--brand-soft), transparent);
+    color: var(--brand-strong);
+    font-size: 1.6rem;
+    margin-bottom: 1.25rem;
+}
+:root[data-theme="dark"] .advantages__icon { color: var(--brand); }
+.advantages__card h3 {
+    font-size: 1.15rem;
+    margin: 0 0 .5rem 0;
+    color: var(--fg);
+}
+.advantages__card p {
+    font-size: .92rem;
+    color: var(--fg-muted);
+    margin: 0;
+    line-height: 1.7;
+}
+
+/* ======================================================= DOCTORS ==== */
+.doctors__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.75rem;
+    align-items: stretch;
+}
+/* Stacked layout (photo above text). The card used to be `220px 1fr`
+   side-by-side, which left roughly 200px for the bio inside a ~490px track at
+   three-across. Grid items default to `min-width: auto`, so the text column
+   refused to shrink and the whole card overflowed into its neighbour. */
+.doctor-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+.doctor-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.doctor-card__media {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.doctor-card__media img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .5s ease;
+}
+.doctor-card:hover .doctor-card__media img { transform: scale(1.06); }
+.doctor-card__placeholder {
+    color: var(--fg-subtle);
+    font-size: 3rem;
+}
+/* `min-width: 0` lets long Persian words wrap instead of forcing the flex
+   item wider than the card. */
+.doctor-card__body { display: flex; flex-direction: column; flex-grow: 1; min-width: 0; }
+.doctor-card__name {
+    font-size: 1.35rem;
+    margin: 0 0 .25rem 0;
+    color: var(--fg);
+}
+.doctor-card__name a {
+    color: inherit;
+    text-decoration: none;
+    transition: color .2s ease;
+}
+.doctor-card__name a:hover { color: var(--brand); }
+.doctor-card__headline {
+    margin: 0 0 .6rem 0;
+    font-size: .86rem;
+    font-weight: 600;
+    color: var(--brand-strong);
+    line-height: 1.6;
+}
+:root[data-theme="dark"] .doctor-card__headline { color: var(--brand); }
+.doctor-card__bio {
+    margin: 0 0 .5rem 0;
+    color: var(--fg-muted);
+    line-height: 1.8;
+    font-size: .93rem;
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+}
+/* The card ends with two rows, not one wrapping row.
+ *
+ * Book · CV · Instagram all shared a single `flex-wrap` row before. Two
+ * Persian button labels plus a 36px circle do not fit a ~300px card, so the
+ * circle wrapped almost every time and sat alone under the buttons, reading
+ * as a stray icon rather than as the doctor's account. */
+.doctor-card__foot {
+    margin-top: auto;
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+.doctor-card__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+.doctor-card__actions .ds-btn { flex: 1 1 auto; justify-content: center; }
+
+.doctor-card__social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    align-self: stretch;
+    padding: .5rem .9rem;
+    background: var(--bg-muted);
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    border-radius: var(--radius-pill);
+    font-size: .82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.doctor-card__social i { font-size: 1rem; color: #c13584; }
+.doctor-card__social:hover {
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    border-color: transparent;
+    color: #fff;
+}
+.doctor-card__social:hover i { color: #fff; }
+
+/* ================================================ SERVICES PREVIEW ==== */
+.services-preview__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 1.5rem;
+}
+.service-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    display: flex;
+    flex-direction: column;
+}
+.service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: color-mix(in srgb, var(--brand) 30%, var(--border));
+}
+.service-card__media {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--bg-muted);
+}
+.service-card__media img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .5s ease;
+}
+.service-card:hover .service-card__media img { transform: scale(1.05); }
+.service-card__body { padding: 1.25rem 1.35rem 1.5rem; display: flex; flex-direction: column; gap: .5rem; }
+.service-card__title {
+    font-size: 1.1rem;
+    color: var(--fg);
+    margin: 0;
+}
+.service-card__desc {
+    color: var(--fg-muted);
+    font-size: .9rem;
+    line-height: 1.7;
+    margin: 0 0 .75rem 0;
+    flex-grow: 1;
+}
+.service-card__link {
+    color: var(--brand-strong);
+    font-weight: 600;
+    font-size: .9rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    transition: gap .2s ease, color .2s ease;
+    align-self: flex-start;
+}
+:root[data-theme="dark"] .service-card__link { color: var(--brand); }
+.service-card__link:hover { gap: .6rem; }
+
+.services-preview__more {
+    text-align: center;
+    margin-top: 2.5rem;
+}
+
+/* ================================================ CLINIC ==== *
+ * The "آشنایی با ما" band.
+ *
+ * This was one bordered card with the photo welded to the text and the two
+ * practices' addresses, numbers and hours packed into a three-column strip
+ * inside the same paragraph flow — the introduction section reading as a
+ * second footer. It is now a band with its own ground, a framed photo
+ * carrying one pulled-out number, and one card per practice.
+ * -------------------------------------------------------------------------- */
+/* `overflow: hidden` belongs on the decorative layer, not the section: on the
+   section it also clipped the call menu, which opens below its button. */
+.clinic { position: relative; }
+
+.clinic__bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+.clinic__blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: .5;
+}
+.clinic__blob--1 {
+    width: 420px; height: 420px;
+    top: -140px; inset-inline-end: -120px;
+    background: var(--brand-glow);
+}
+.clinic__blob--2 {
+    width: 320px; height: 320px;
+    bottom: -120px; inset-inline-start: -80px;
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.clinic .ds-container { position: relative; z-index: 1; }
+
+.clinic__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: center;
+}
+
+.clinic__media {
+    position: relative;
+    margin: 0;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    background: var(--bg-muted);
+}
+.clinic__media img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    transition: transform .6s ease;
+}
+.clinic__media:hover img { transform: scale(1.04); }
+
+/* The one number worth pulling out of the copy, over the photo rather than
+   in a stat row of its own. */
+.clinic__stat {
+    position: absolute;
+    inset-inline-start: 1rem;
+    bottom: 1rem;
+    display: grid;
+    gap: .1rem;
+    padding: .75rem 1.1rem;
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+.clinic__stat strong { font-size: 1.4rem; font-weight: 800; color: var(--brand-strong); }
+:root[data-theme="dark"] .clinic__stat strong { color: var(--brand); }
+.clinic__stat span { font-size: .78rem; color: var(--fg-muted); }
+
+.clinic__body { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; min-width: 0; }
+/* The eyebrow is an inline pill; in a stretch-aligned column it grew into a
+   full-width bar. */
+.clinic__body > * { max-width: 100%; }
+.clinic__desc, .clinic__branches, .clinic__body > .cta-actions { align-self: stretch; }
+.clinic__title {
+    margin: .35rem 0 0;
+    font-size: clamp(1.5rem, 3.4vw, 2.35rem);
+    color: var(--fg);
+    text-wrap: balance;
+}
+.clinic__desc { margin: 0; color: var(--fg-muted); line-height: 1.9; text-wrap: pretty; }
+
+.clinic__features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+}
+.clinic__features li {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    background: var(--bg-elevated);
+    padding: .45rem .9rem;
+    border-radius: var(--radius-pill);
+    font-size: .85rem;
+    color: var(--fg);
+    border: 1px solid var(--border);
+}
+.clinic__features i { color: var(--brand); }
+
+/* One card per practice. The lines that belong to a city have to look like
+   they belong to it, or a reader in Quchan dials the Mashhad number. */
+.clinic__branches {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: .85rem;
+    margin: .35rem 0;
+}
+.clinic__branch {
+    display: grid;
+    gap: .5rem;
+    align-content: start;
+    min-width: 0;
+    padding: 1rem 1.1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+.clinic__branch-name {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    margin: 0;
+    padding-bottom: .5rem;
+    border-bottom: 1px dashed var(--border);
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--fg);
+}
+.clinic__branch-name i { color: var(--brand); font-size: .9em; }
+
+.clinic__branch-line {
+    display: flex;
+    align-items: flex-start;
+    gap: .5rem;
+    margin: 0;
+    font-size: .84rem;
+    line-height: 1.75;
+    color: var(--fg-muted);
+}
+.clinic__branch-line > i {
+    width: 24px; height: 24px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    font-size: .7rem;
+}
+:root[data-theme="dark"] .clinic__branch-line > i { color: var(--brand); }
+.clinic__branch-line > span { min-width: 0; display: grid; gap: .1rem; }
+.clinic__branch-line em { font-style: normal; }
+
+.clinic__branch-phones { display: flex; flex-wrap: wrap; gap: .4rem; }
+.clinic__phone {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .7rem;
+    border-radius: var(--radius-pill);
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    font-size: .82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background .2s ease, color .2s ease;
+}
+:root[data-theme="dark"] .clinic__phone { color: var(--brand); }
+.clinic__phone i { font-size: .75em; }
+.clinic__phone:hover { background: var(--brand); color: #fff; }
+:root[data-theme="dark"] .clinic__phone:hover { color: #fff; }
+
+/* ==================================================== BLOG PREVIEW ==== */
+.blog-preview__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 1.5rem;
+}
+.blog-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform .3s ease, box-shadow .3s ease;
+    display: flex;
+    flex-direction: column;
+}
+.blog-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.blog-card__media {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--bg-muted);
+    display: block;
+}
+.blog-card__media img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .5s ease;
+}
+.blog-card:hover .blog-card__media img { transform: scale(1.06); }
+.blog-card__body {
+    padding: 1.25rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    flex-grow: 1;
+}
+.blog-card__tags { display: flex; flex-wrap: wrap; gap: .3rem; }
+.blog-card__tag {
+    padding: .2rem .65rem;
+    font-size: .72rem;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+}
+:root[data-theme="dark"] .blog-card__tag { color: var(--brand); }
+.blog-card__title {
+    font-size: 1.05rem;
+    margin: 0;
+    line-height: 1.45;
+    flex-grow: 1;
+}
+.blog-card__title a { color: var(--fg); text-decoration: none; }
+.blog-card__title a:hover { color: var(--brand); }
+.blog-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--brand-strong);
+    font-weight: 600;
+    font-size: .88rem;
+    text-decoration: none;
+    align-self: flex-start;
+    transition: gap .2s ease;
+}
+:root[data-theme="dark"] .blog-card__link { color: var(--brand); }
+.blog-card__link:hover { gap: .6rem; }
+
+/* ======================================================= PORTFOLIO ==== */
+.portfolio__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: 1.5rem;
+}
+.portfolio-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform .3s ease, box-shadow .3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.portfolio-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.portfolio-card__stack {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: repeat(2, 1fr);
+    gap: .5rem;
+    aspect-ratio: 3 / 2;
+}
+.portfolio-card__figure {
+    margin: 0;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--bg-muted);
+}
+.portfolio-card__figure:first-child {
+    grid-row: 1 / span 2;
+}
+.portfolio-card__figure img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .4s ease;
+}
+.portfolio-card__figure:hover img { transform: scale(1.05); }
+.portfolio-card__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    color: var(--brand-strong);
+    font-weight: 600;
+    font-size: .9rem;
+    text-decoration: none;
+    transition: gap .2s ease;
+}
+:root[data-theme="dark"] .portfolio-card__link { color: var(--brand); }
+.portfolio-card__link:hover { gap: .7rem; }
+
+/* ======================================================= FINAL CTA ==== */
+.final-cta {
+    padding-block: clamp(3rem, 6vw, 5rem);
+}
+
+/* Empty state helper */
+.empty-note {
+    text-align: center;
+    color: var(--fg-muted);
+    padding: 2rem;
+    background: var(--bg-elevated);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* Tablet: 640–1023px */
+@media (max-width: 1023.98px) {
+    .hero__grid-wrap { grid-template-columns: 1fr; text-align: right; }
+    /* The badges are positioned against `.hero__visual`, not the card inside
+       it. Stacked, that box was first the full width of the page — the two of
+       them drifted out to the far edges of the row with the card marooned in
+       the middle — and then the card's own width, which left them nowhere to
+       go but on top of the artwork, covering the tooth.
+
+       So the box is wider than the card but far short of the row: the card
+       centres inside it and the badges overhang the corners, the way they do
+       on a desktop. */
+    .hero__visual {
+        min-height: 320px;
+        order: -1;
+        width: min(430px, 100%);
+        margin-inline: auto;
+    }
+    .hero__card { width: min(270px, 64%); }
+    .hero__mini--top    { top: 6%; inset-inline-start: 0; }
+    .hero__mini--bottom { bottom: 6%; inset-inline-end: 0; }
+
+    /* Stacked, the hero is centred artwork above right-aligned text, and the
+       two actions were the widest thing still pinned to the edge — the same
+       pair that closes the clinic block further down the page. Centred, they
+       sit under the middle of the card they follow. */
+    .hero__actions,
+    .clinic__body > .cta-actions { justify-content: center; }
+
+    .advantages__grid { grid-template-columns: repeat(2, 1fr); }
+
+    .doctors__grid { grid-template-columns: 1fr; }
+
+    .clinic__grid { grid-template-columns: 1fr; }
+    /* The portrait crop is right beside a column of text; stacked, it would
+       fill the screen before the introduction started. */
+    .clinic__media img { aspect-ratio: 16 / 10; }
+
+}
+
+/* Tablet only: three cards in a two-column grid leave a card-sized hole ---- *
+ * Each of these sections shows three items. At this width the grid resolves
+ * to two columns, so the third sits alone with an empty cell beside it — the
+ * largest thing on the screen is nothing at all. The odd one out takes the
+ * whole row instead, and lays itself out as a row so a full-width 16/10 crop
+ * does not become the tallest element on the page.
+ * ------------------------------------------------------------------------- */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+    .services-preview__grid,
+    .blog-preview__grid,
+    .portfolio__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .service-card:last-child:nth-child(odd),
+    .blog-card:last-child:nth-child(odd),
+    .portfolio-card:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .service-card:last-child:nth-child(odd) .service-card__media,
+    .blog-card:last-child:nth-child(odd) .blog-card__media {
+        flex: 0 0 46%;
+        aspect-ratio: auto;
+    }
+    .service-card:last-child:nth-child(odd) .service-card__body,
+    .blog-card:last-child:nth-child(odd) .blog-card__body {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+    /* The card is a padded box rather than an edge-to-edge crop, so its two
+       halves need the gap the column layout gave them. */
+    .portfolio-card:last-child:nth-child(odd) {
+        align-items: center;
+        gap: 1.25rem;
+    }
+    /* The stack takes the width; the link is a button, not half a card. And
+       the crop flattens so the row is no taller than the pair above it. */
+    .portfolio-card:last-child:nth-child(odd) .portfolio-card__stack {
+        flex: 1 1 auto;
+        min-width: 0;
+        aspect-ratio: 16 / 7;
+    }
+    .portfolio-card:last-child:nth-child(odd) .portfolio-card__link {
+        flex: 0 0 auto;
+    }
+}
+
+/* Mobile: < 640px */
+@media (max-width: 639.98px) {
+    .hero__actions { flex-direction: column; align-items: stretch; }
+    .hero__actions .ds-btn { width: 100%; }
+    .hero__points { flex-direction: column; gap: .6rem; }
+    /* Same overhang as the tablet, one step tighter: pushed inside the card
+       these sat over the tooth's face. */
+    .hero__mini--top    { top: 4%; inset-inline-start: 0; }
+    .hero__mini--bottom { bottom: 4%; inset-inline-end: 0; }
+    .hero__mini { padding: .55rem .85rem; font-size: .78rem; }
+    .hero__mini i { width: 30px; height: 30px; font-size: .85rem; }
+    .hero__mini strong { font-size: .9rem; }
+    .hero__mini span { font-size: .7rem; }
+
+    .trust-strip__list { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+
+    .advantages__grid { grid-template-columns: 1fr; }
+
+    /* Card is already a stacked flex column; only the photo needs reining in
+       so it doesn't dominate a narrow screen. */
+    .doctor-card { text-align: right; }
+    .doctor-card__media { aspect-ratio: 1; max-width: 220px; margin-inline: auto; }
+
+    .clinic__media img { aspect-ratio: 4 / 3; }
+    .clinic__branches { gap: .75rem; }
+
+}

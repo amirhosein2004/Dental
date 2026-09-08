@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}اتصال اینترنت برقرار نیست | مطب دندانپزشکی{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block content %}
+{% comment %}
+    Shown by the service worker when a navigation fails with no network. It is
+    precached at install time, so it has to render from the cached HTML alone —
+    anything dynamic here would be frozen at whatever it said the day the
+    worker was installed. Hence no clinic data, no phone numbers pulled from
+    the database: a stale phone number is worse than none.
+{% endcomment %}
+<section class="ds-section">
+    <div class="ds-container ds-container--narrow" style="text-align: center;">
+        <div class="ds-cta-card">
+            <span class="ds-cta-card__icon"><i class="fas fa-wifi"></i></span>
+            <div class="ds-cta-card__body">
+                <span class="ds-heading__eyebrow">آفلاین</span>
+                <h1>اتصال اینترنت برقرار نیست</h1>
+                <p>
+                    این صفحه بدون اینترنت باز شده است. اتصال خود را بررسی کنید
+                    و دوباره تلاش کنید.
+                </p>
+            </div>
+            <div class="cta-actions">
+                <button type="button" class="ds-btn ds-btn--primary ds-btn--lg"
+                        onclick="window.location.reload()">
+                    <i class="fas fa-rotate"></i>
+                    <span>تلاش دوباره</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

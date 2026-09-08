@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ service.seo_title }} در مشهد و قوچان | مطب دکتر بابایی و بهمدی{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="{{ service.seo_description }}">
+    <meta property="og:title" content="{{ service.seo_title }}">
+    <meta property="og:description" content="{{ service.seo_description }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ canonical_url }}">
+    {% if service.image %}<meta property="og:image" content="{{ SITE_URL }}{{ service.image.url }}">{% endif %}
+{% endblock %}
+
+{% block ld_json %}
+    {{ block.super }}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "MedicalProcedure",
+      "@id": "{{ canonical_url }}#procedure",
+      "name": "{{ service.title|escapejs }}",
+      "url": "{{ canonical_url }}",
+      {% if service.image %}"image": "{{ SITE_URL }}{{ service.image.url }}",{% endif %}
+      {% if branches %}"availableAtOrFrom": [{% for b in branches %}
+        { "@id": "{{ SITE_URL }}/#branch-{{ b.pk }}" }{% if not forloop.last %},{% endif %}{% endfor %}
+      ],{% endif %}
+      "description": "{{ service.description|striptags|truncatewords:60|escapejs }}"
+    }
+    </script>
+
+    {% if faqs %}
+    {% comment %}
+        FAQPage. Worth being honest about what this does now: Google narrowed
+        FAQ rich results in 2023 to authoritative health and government sites,
+        so the accordion in the results page is unlikely to appear. The value
+        that remains is the question text itself, which matches the long
+        phrasing people actually search — "ایمپلنت چقدر طول می‌کشد" rather
+        than "ایمپلنت".
+    {% endcomment %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [{% for f in faqs %}
+        {
+          "@type": "Question",
+          "name": "{{ f.question|escapejs }}",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "{{ f.answer|striptags|escapejs }}"
+          }
+        }{% if not forloop.last %},{% endif %}{% endfor %}
+      ]
+    }
+    </script>
+    {% endif %}
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "خانه", "item": "{{ SITE_URL }}/" },
+        { "@type": "ListItem", "position": 2, "name": "خدمات", "item": "{{ SITE_URL }}{% url 'service:service_list' %}" },
+        { "@type": "ListItem", "position": 3, "name": "{{ service.title|escapejs }}", "item": "{{ canonical_url }}" }
+      ]
+    }
+    </script>
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'service/css/service_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<article class="svd">
+
+    <!-- ============================================================== HERO -->
+    <header class="svd__hero">
+        <div class="ds-container svd__hero-inner">
+            <nav class="svd__crumbs" aria-label="مسیر صفحه">
+                <a href="{% url 'home:home' %}">خانه</a>
+                <i class="fas fa-angle-left" aria-hidden="true"></i>
+                <a href="{% url 'service:service_list' %}">خدمات</a>
+                <i class="fas fa-angle-left" aria-hidden="true"></i>
+                <span aria-current="page">{{ service.title }}</span>
+            </nav>
+
+            <div class="svd__hero-grid">
+                <div class="svd__hero-copy">
+                    <h1 class="svd__title">{{ service.title }}</h1>
+                    {# Sanitised in `Service.save`, so the editor's markup renders rather than showing as escaped text. #}
+                    <div class="svd__lead">{{ service.description|safe }}</div>
+
+                    <div class="svd__actions">
+                        <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--primary">
+                            <i class="fas fa-calendar-check" aria-hidden="true"></i>
+                            <span>رزرو نوبت</span>
+                        </a>
+                        <a href="{% url 'pricing:pricing_list' %}" class="ds-btn ds-btn--ghost">
+                            <i class="fas fa-tag" aria-hidden="true"></i>
+                            <span>مشاهده تعرفه</span>
+                        </a>
+                    </div>
+
+                    {% comment %}
+                        The "ارائه در مشهد و قوچان" line that used to sit here
+                        is gone. Both practices offer everything on this site,
+                        so the line was true of every treatment page and told
+                        the reader nothing — and naming the cities without the
+                        address or the number left them with nothing to act
+                        on. The full details of both practices are in the
+                        column beside this one.
+                    {% endcomment %}
+                </div>
+
+                {% if service.image %}
+                    <figure class="svd__hero-media">
+                        <img src="{{ service.image.url }}" alt="{{ service.title }}"
+                             loading="eager" width="640" height="480">
+                    </figure>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================== BODY -->
+    <div class="ds-container svd__layout">
+        <div class="svd__main">
+            {% if service.content %}
+                <section class="svd__prose" aria-label="توضیحات کامل">
+                    {{ service.content|safe }}
+                </section>
+            {% endif %}
+
+            {% if faqs %}
+                <section class="svd__faq" aria-labelledby="svd-faq-title">
+                    <h2 class="svd__section-title" id="svd-faq-title">
+                        <i class="fas fa-circle-question" aria-hidden="true"></i>
+                        <span>سؤالات متداول درباره‌ی {{ service.title }}</span>
+                    </h2>
+
+                    <div class="svd__faq-list">
+                        {% for f in faqs %}
+                            <details class="svd__faq-item">
+                                <summary class="svd__faq-q">
+                                    <span>{{ f.question }}</span>
+                                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                </summary>
+                                <div class="svd__faq-a">{{ f.answer|linebreaks }}</div>
+                            </details>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+            {% if doctors %}
+                <section class="svd__doctors" aria-labelledby="svd-doctors-title">
+                    <h2 class="svd__section-title" id="svd-doctors-title">
+                        <i class="fas fa-user-md" aria-hidden="true"></i>
+                        <span>پزشکان این خدمت</span>
+                    </h2>
+                    <p class="svd__doctor-note">
+                        روی هر نام بزنید تا رزومه، مدارک و سوابق کامل آن پزشک را ببینید.
+                    </p>
+                    <div class="svd__doctor-grid">
+                        {% for d in doctors %}
+                            <a href="{{ d.get_absolute_url }}" class="svd__doctor">
+                                {% if d.user.image %}
+                                    <img src="{{ d.user.image.url }}" alt="{{ d.display_name }}"
+                                         width="64" height="64" loading="lazy">
+                                {% else %}
+                                    <span class="svd__doctor-fallback" aria-hidden="true">
+                                        <i class="fas fa-user-md"></i>
+                                    </span>
+                                {% endif %}
+                                <span class="svd__doctor-body">
+                                    <strong>{{ d.display_name }}</strong>
+                                    {% if d.specialty %}<em>{{ d.specialty }}</em>{% endif %}
+                                </span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+            {% if related %}
+                <section class="svd__related" aria-labelledby="svd-related-title">
+                    <h2 class="svd__section-title" id="svd-related-title">
+                        <i class="fas fa-tooth" aria-hidden="true"></i>
+                        <span>خدمات دیگر</span>
+                    </h2>
+                    <div class="svd__related-grid">
+                        {% for r in related %}
+                            <a href="{{ r.get_absolute_url }}" class="svd__related-item">
+                                <span>{{ r.title }}</span>
+                                <i class="fas fa-angle-left" aria-hidden="true"></i>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+        </div>
+
+        <aside class="svd__aside" aria-label="مطب‌ها و رزرو">
+            {% comment %}
+                Every practice, each with its own numbers and hours. This
+                treatment is offered at both, so showing one of them — or
+                showing two addresses with one shared set of opening hours —
+                sends half the readers to a shut door.
+            {% endcomment %}
+            {% for b in branches %}
+                <div class="ds-card svd__branch">
+                    <h2>{{ b.display_title }}</h2>
+                    <p><i class="fas fa-map-marker-alt" aria-hidden="true"></i>{{ b.address }}</p>
+                    {% for n in b.phone_list %}
+                        <p><i class="fas fa-phone" aria-hidden="true"></i><a href="tel:{{ n }}" dir="ltr">{{ n }}</a></p>
+                    {% endfor %}
+                    {% if b.hours_list %}
+                        <p class="svd__branch-hours">
+                            <i class="fas fa-clock" aria-hidden="true"></i>
+                            <span>
+                                {% for line in b.hours_list %}<em>{{ line }}</em>{% endfor %}
+                            </span>
+                        </p>
+                    {% endif %}
+                    <a class="svd__branch-map"
+                       href="{% if b.map_link %}{{ b.map_link }}{% else %}https://www.google.com/maps/search/?api=1&query={{ b.address|urlencode }}{% endif %}"
+                       target="_blank" rel="noopener">
+                        <i class="fas fa-diamond-turn-right" aria-hidden="true"></i>
+                        <span>مسیریابی</span>
+                    </a>
+                </div>
+            {% endfor %}
+
+            <div class="ds-card svd__book">
+                <i class="fas fa-calendar-check" aria-hidden="true"></i>
+                <p>برای {{ service.title }} همین حالا نوبت بگیرید.</p>
+                <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--primary ds-btn--sm">
+                    رزرو نوبت آنلاین
+                </a>
+            </div>
+        </aside>
+    </div>
+</article>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_create %}مطب جدید{% else %}ویرایش {{ branch.display_title }}{% endif %} | پنل مدیریت{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'core/css/core.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container ds-container--narrow">
+        <header class="core-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">پنل مدیریت</span>
+                <h1 class="core-page__title">
+                    <i class="fas fa-hospital"></i>
+                    <span>{% if is_create %}مطب جدید{% else %}ویرایش مطب{% endif %}</span>
+                </h1>
+                <p class="core-page__lead">
+                    هر چیزی که بین مطب‌ها فرق دارد اینجاست. اطلاعات عمومی برند
+                    (نام، ایمیل، معرفی) در بخش «درباره ما» ویرایش می‌شود.
+                </p>
+            </div>
+            <div>
+                <a href="{% url 'about:branch_list' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>بازگشت به مطب‌ها</span>
+                </a>
+            </div>
+        </header>
+
+        <article class="core-form__panel">
+            <form method="post" class="core-form" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="core-form__alert" role="alert">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        <span>{{ form.non_field_errors|first }}</span>
+                    </div>
+                {% endif %}
+
+                {# ---------------------------------------------- identity #}
+                <h3 class="core-form__legend">
+                    <i class="fas fa-id-card"></i>
+                    <span>شناسه مطب</span>
+                </h3>
+                <div class="core-form__grid">
+                    {% include 'about/_branch_field.html' with field=form.city icon='fa-city' %}
+                    {% include 'about/_branch_field.html' with field=form.title icon='fa-signature' %}
+                </div>
+
+                {# ---------------------------------------------- location #}
+                <h3 class="core-form__legend">
+                    <i class="fas fa-location-dot"></i>
+                    <span>آدرس و تماس</span>
+                </h3>
+                {% include 'about/_branch_field.html' with field=form.address icon='fa-location-dot' %}
+                <div class="core-form__grid">
+                    {% include 'about/_branch_field.html' with field=form.phone icon='fa-phone' %}
+                    {% include 'about/_branch_field.html' with field=form.postal_code icon='fa-envelope' %}
+                </div>
+                {% include 'about/_branch_field.html' with field=form.extra_phones icon='fa-phone-volume' %}
+
+                {# ---------------------------------------------- hours #}
+                <h3 class="core-form__legend">
+                    <i class="fas fa-clock"></i>
+                    <span>ساعات کاری</span>
+                </h3>
+                {% include 'about/_branch_field.html' with field=form.hours icon='fa-clock' %}
+
+                {# ---------------------------------------------- map #}
+                <h3 class="core-form__legend">
+                    <i class="fas fa-map-location-dot"></i>
+                    <span>نقشه</span>
+                </h3>
+                <p class="core-form__note">
+                    عرض و طول جغرافیایی را از گوگل‌مپ بردارید (راست‌کلیک روی نقطه، عدد اول
+                    عرض و عدد دوم طول است). بدون این دو عدد، این مطب روی نقشه‌ی صفحه‌ی تماس
+                    مارکر نمی‌گیرد.
+                </p>
+                <div class="core-form__grid">
+                    {% include 'about/_branch_field.html' with field=form.latitude icon='fa-arrows-up-down' %}
+                    {% include 'about/_branch_field.html' with field=form.longitude icon='fa-arrows-left-right' %}
+                </div>
+                {% include 'about/_branch_field.html' with field=form.map_link icon='fa-diamond-turn-right' %}
+                {% include 'about/_branch_field.html' with field=form.map_embed_url icon='fa-code' %}
+
+                {# ---------------------------------------------- display #}
+                <h3 class="core-form__legend">
+                    <i class="fas fa-sliders"></i>
+                    <span>نمایش</span>
+                </h3>
+                <div class="core-form__grid">
+                    {% include 'about/_branch_field.html' with field=form.order icon='fa-sort' %}
+                </div>
+
+                <div class="core-form__actions">
+                    <a href="{% url 'about:branch_list' %}" class="ds-btn ds-btn--ghost">
+                        <i class="fas fa-xmark"></i>
+                        <span>انصراف</span>
+                    </a>
+                    <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg">
+                        <i class="fas fa-save"></i>
+                        <span>{% if is_create %}ثبت مطب{% else %}ذخیره تغییرات{% endif %}</span>
+                    </button>
+                </div>
+            </form>
+        </article>
+    </div>
+</section>
+{% endblock %}

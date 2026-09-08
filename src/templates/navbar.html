@@ -1,0 +1,162 @@
+{% load static %}
+<nav class="site-nav" aria-label="ناوبری اصلی">
+    <div class="site-nav__inner ds-container ds-container--wide">
+        <a class="site-nav__brand" href="{% url 'home:home' %}" aria-label="مطب دندانپزشکی — صفحه اصلی">
+            <img src="{% static 'img/site-logo.png' %}" alt="" class="site-nav__logo">
+            <span class="site-nav__brand-text">
+                <span class="site-nav__brand-name">دکتر بابایی و بهمدی</span>
+                <span class="site-nav__brand-tag">مطب تخصصی دندانپزشکی</span>
+            </span>
+        </a>
+
+        <button class="site-nav__toggle" type="button"
+                aria-label="باز کردن منو"
+                aria-expanded="false"
+                aria-controls="site-nav-menu"
+                data-nav-toggle>
+            <span class="site-nav__toggle-box" aria-hidden="true">
+                <span class="site-nav__toggle-bar"></span>
+                <span class="site-nav__toggle-bar"></span>
+                <span class="site-nav__toggle-bar"></span>
+            </span>
+        </button>
+
+        <div class="site-nav__menu" id="site-nav-menu" data-nav-menu>
+            {% comment %}
+                Drawer-only header. On mobile the panel covers the bar it came
+                from, so without a title and a close button there is nothing on
+                screen saying what this is or how to get out of it.
+            {% endcomment %}
+            <div class="site-nav__drawer-head">
+                <span class="site-nav__drawer-title">منو</span>
+                <button type="button" class="site-nav__drawer-close"
+                        aria-label="بستن منو" data-nav-close>
+                    <i class="fas fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <ul class="site-nav__links" role="list">
+                <li><a class="site-nav__link" href="{% url 'home:home' %}"><i class="fas fa-house" aria-hidden="true"></i><span>خانه</span></a></li>
+                <li><a class="site-nav__link" href="{% url 'about:about' %}"><i class="fas fa-circle-info" aria-hidden="true"></i><span>درباره ما</span></a></li>
+                {# The doctors hub. In the main nav because a name search is the single largest slice of this site's traffic, and a page a crawler reaches in one hop from the home page is crawled far sooner than one it reaches in three. #}
+                <li><a class="site-nav__link" href="{% url 'doctors:doctor_list' %}"><i class="fas fa-user-md" aria-hidden="true"></i><span>پزشکان</span></a></li>
+                <li><a class="site-nav__link" href="{% url 'service:service_list' %}"><i class="fas fa-tooth" aria-hidden="true"></i><span>خدمات</span></a></li>
+                <li><a class="site-nav__link" href="{% url 'pricing:pricing_list' %}"><i class="fas fa-receipt" aria-hidden="true"></i><span>تعرفه‌ها</span></a></li>
+                <li><a class="site-nav__link" href="{% url 'gallery:gallery_list' %}"><i class="fas fa-images" aria-hidden="true"></i><span>گالری</span></a></li>
+                <li><a class="site-nav__link" href="{% url 'blog:blog_list' %}"><i class="fas fa-newspaper" aria-hidden="true"></i><span>وبلاگ</span></a></li>
+                <li><a class="site-nav__link" href="{% url 'contact:contact' %}"><i class="fas fa-headset" aria-hidden="true"></i><span>تماس</span></a></li>
+            </ul>
+
+            <div class="site-nav__actions">
+                {% if request.user.is_authenticated %}
+                    {% if request.user.is_doctor or request.user.is_superuser %}
+                        <a class="site-nav__pill" href="{% url 'core:manage' %}">
+                            <i class="fas fa-cogs"></i><span>مدیریت</span>
+                        </a>
+                    {% endif %}
+                    {% if request.user.is_doctor %}
+                        <a class="site-nav__pill site-nav__pill--brand" href="{% url 'dashboard:dashboard_doctor' request.user.doctor.id %}">
+                            <i class="fas fa-user-md"></i><span>داشبورد</span>
+                        </a>
+                    {% endif %}
+                    {% if request.user.is_superuser %}
+                        <a class="site-nav__pill" href="{% url 'dashboard:dashboard_list' %}">
+                            <i class="fas fa-list"></i><span>داشبوردها</span>
+                        </a>
+                    {% endif %}
+                    <a class="site-nav__pill site-nav__pill--danger" href="{% url 'accounts:doctor_logout' %}">
+                        <i class="fas fa-sign-out-alt"></i><span>خروج</span>
+                    </a>
+                {% else %}
+                    <a class="site-nav__cta" href="{% url 'appointments:board' %}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>رزرو نوبت</span>
+                    </a>
+                {% endif %}
+
+                {% comment %}
+                    Hidden in the markup and revealed by pwa.js for anyone not
+                    already running the installed app. It used to wait for
+                    Chrome's `beforeinstallprompt`, which fires once per
+                    qualifying visit and stops after a dismissal — so the
+                    button appeared one day and was gone the next. With no
+                    prompt to fire it opens the instructions instead.
+
+                    Patients only. The installed app is the patient's route
+                    back to booking; staff already carry a bar full of their
+                    own controls — مدیریت, داشبورد, داشبوردها, خروج — and on a
+                    phone this was a fifth pill competing with them for a row
+                    that is already too full.
+                {% endcomment %}
+                {% if not request.user.is_doctor and not request.user.is_superuser %}
+                    <button type="button" class="site-nav__pill site-nav__pill--install"
+                            data-pwa-install hidden>
+                        <i class="fas fa-download"></i><span>نصب اپلیکیشن</span>
+                    </button>
+                {% endif %}
+
+                <button type="button" class="site-nav__theme" data-theme-toggle
+                        aria-label="حالت تیره" aria-pressed="false">
+                    <svg data-theme-icon="moon" viewBox="0 0 24 24" width="20" height="20" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>
+                    </svg>
+                    <svg data-theme-icon="sun" viewBox="0 0 24 24" width="20" height="20" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+{% comment %}
+    Backdrop for the mobile drawer. A separate element rather than a ::before
+    on the panel: it has to sit *under* the drawer and *over* the page, and it
+    is what a tap outside the menu lands on.
+{% endcomment %}
+<div class="site-nav__backdrop" data-nav-backdrop hidden></div>
+
+{% comment %}
+    The fallback route, for every browser that will not hand us an install
+    prompt: Safari never fires one, and Chrome stops firing after a dismissal
+    or once the app is installed on another profile. pwa.js shows whichever of
+    the two step lists matches the platform.
+
+    Behind the same staff check as the button: with no button there is nothing
+    that opens it.
+{% endcomment %}
+{% if not request.user.is_doctor and not request.user.is_superuser %}
+<dialog id="pwaInstallDialog" class="cd-dialog" aria-label="نصب اپلیکیشن">
+    <div class="cd-dialog__body">
+        <div class="cd-dialog__icon cd-dialog__icon--brand">
+            <i class="fas fa-mobile-screen"></i>
+        </div>
+        <h3 class="cd-dialog__title">نصب اپلیکیشن مطب</h3>
+
+        <div data-pwa-steps="ios" hidden>
+            <ol class="cd-dialog__steps">
+                <li>در پایین صفحه دکمه‌ی <strong>اشتراک‌گذاری</strong> (مربع با فلش رو به بالا) را بزنید.</li>
+                <li>در فهرست باز شده <strong>Add to Home Screen</strong> را انتخاب کنید.</li>
+                <li>روی <strong>Add</strong> بزنید.</li>
+                <li>از این پس سایت را از آیکون روی صفحه‌ی اصلی باز کنید.</li>
+            </ol>
+        </div>
+
+        <div data-pwa-steps="other" hidden>
+            <ol class="cd-dialog__steps">
+                <li>در نوار آدرس مرورگر، آیکون <strong>نصب</strong> (صفحه‌نمایش با فلش رو به پایین) را بزنید.</li>
+                <li>یا از منوی سه‌نقطه‌ی مرورگر گزینه‌ی <strong>Install</strong> یا <strong>افزودن به صفحه اصلی</strong> را انتخاب کنید.</li>
+                <li>روی <strong>نصب</strong> بزنید.</li>
+                <li>اگر این گزینه را نمی‌بینید، احتمالاً اپلیکیشن از قبل روی این دستگاه نصب است.</li>
+            </ol>
+        </div>
+
+        <div class="cd-dialog__actions">
+            <button type="button" class="ds-btn ds-btn--primary" data-dialog-close>متوجه شدم</button>
+        </div>
+    </div>
+</dialog>
+{% endif %}

@@ -5,6 +5,10 @@
 __pycache__
 db.sqlite3
 media
+# MEDIA_ROOT for the test settings. Every test that saves an ImageField writes
+# here and nothing cleans up, so it grows on each run — `media` above does not
+# match it.
+test_media/
 
 # Backup files # 
 *.bak 
@@ -97,15 +101,19 @@ celerybeat-schedule.*
 # SageMath parsed files 
 *.sage.py 
 
-# Environments 
-.env 
-.venv 
-env/ 
-venv/ 
-ENV/ 
-env.bak/ 
-venv.bak/ 
-my_env
+# Environments
+# Anchored with a leading slash: these name virtualenvs at the repo root.
+# Unanchored, `env/` matches a directory called `env` at *any* depth, which
+# swallowed deploy/env/ and every template inside it — and git does not
+# descend into an ignored directory, so no negation could rescue them.
+.env
+.venv
+/env/
+/venv/
+/ENV/
+/env.bak/
+/venv.bak/
+/my_env
 
 # mkdocs documentation 
 /site 
@@ -139,3 +147,26 @@ GitHub.sublime-settings
 .history 
  
 
+
+# Collected static assets — rebuilt by `manage.py collectstatic` on every
+# deploy, and with hashed filenames it grows a new copy of every file each
+# time. Never a source of truth.
+staticfiles/
+
+# Development mail drop: the file-based email backend writes here, and the
+# messages contain live OTP codes.
+sent_emails/
+
+# Per-environment settings, kept under deploy/ rather than a top-level `env/`
+# — that name is already ignored above as a virtualenv, and git does not
+# descend into an ignored directory, so a negation inside it never applies.
+# The `.example` files are committed as templates; the filled-in ones are not.
+deploy/env/.env.*
+!deploy/env/.env.*.example
+
+# Database dumps. Never in git: a backup in the repository is the whole
+# database handed to anyone who clones it.
+backups/
+
+# collectstatic output — built on every deploy, never committed.
+/staticfiles/

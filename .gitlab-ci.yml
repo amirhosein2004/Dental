@@ -1,0 +1,271 @@
+# =============================================================================
+# GitLab CI/CD — test, build once, deploy that same image.
+#
+# The shape:
+#
+#   push anywhere      -> test
+#   push to develop    -> test, build, deploy to stage      (automatic)
+#   push to main       -> test, build, deploy to production (manual button)
+#
+# Production is a button, not a push. See "Why production is manual" in
+# docs/cicd.md — briefly: the entrypoint applies migrations on the way up, so
+# an automatic production deploy means an unreviewed migration runs against
+# the real database while nobody is watching.
+#
+# Before this runs at all, set the variables listed in docs/cicd.md under
+# Settings > CI/CD > Variables. Every deploy variable must be **Protected**
+# so a merge request from a fork cannot read the production SSH key.
+# =============================================================================
+
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  # Tag every image with the commit that produced it. `latest` would make a
+  # rollback mean "rebuild an old commit and hope", instead of "point at the
+  # tag that was working".
+  APP_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  DOCKER_DRIVER: overlay2
+
+# -----------------------------------------------------------------------------
+# Test
+# -----------------------------------------------------------------------------
+test:
+  stage: test
+  image: python:3.12-slim
+  # No Postgres or Redis service: utils/test_runner.py swaps in SQLite, a
+  # local-memory cache and inline Celery. Adding them here would test a
+  # configuration the suite does not use.
+  cache:
+    key:
+      files:
+        - requirements.txt
+    paths:
+      - .cache/pip
+  variables:
+    PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
+    # develop settings carry their own throwaway keys, so the suite needs no
+    # secrets. Anything real here would be readable from a merge request.
+    DJANGO_ENV: develop
+    SECRET_KEY: ci-only-not-a-real-key
+    OTP_SECRET_KEY: ci
+    RESET_PREFIX: ci
+    RESET_SUFFIX: ci
+    SECURE_ADMIN_PANEL: ci
+    ALLOWED_HOSTS: localhost,127.0.0.1
+  before_script:
+    - pip install --no-cache-dir -r requirements.txt
+  script:
+    # The application lives under src/; the repository root holds only how it
+    # is built and shipped.
+    - cd src
+    - python manage.py check
+    - python manage.py makemigrations --check --dry-run
+    - python manage.py test --verbosity=2
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+
+# `--check --dry-run` above is the one worth explaining: it fails when a model
+# was edited without generating the migration. Without it that lands on the
+# server, where the entrypoint runs `migrate`, finds nothing to apply, and the
+# schema silently disagrees with the code.
+
+security:
+  stage: test
+  image: python:3.12-slim
+  script:
+    - pip install --no-cache-dir pip-audit
+    - pip-audit -r requirements.txt --progress-spinner off
+  # Advisory: a new CVE published overnight should show up, but it should not
+  # block a deploy that fixes something else. Check it, then decide.
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+# -----------------------------------------------------------------------------
+# Build
+# -----------------------------------------------------------------------------
+build:
+  stage: build
+  image: docker:27-cli
+  services:
+    - docker:27-dind
+  variables:
+    # Without these the CLI looks for /var/run/docker.sock, which does not
+    # exist in this container, so every build died on "Cannot connect to the
+    # Docker daemon". The daemon is the `docker:27-dind` service above: it is
+    # reachable as the host `docker` and, because DOCKER_TLS_CERTDIR is set,
+    # only over TLS on 2376. The certificates it generates reach this job
+    # through the /certs volume the two share.
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs/client"
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    # Pull the previous image purely as a layer cache — without it every build
+    # reinstalls every dependency.
+    - docker pull "$CI_REGISTRY_IMAGE:latest" || true
+    - docker build
+        --cache-from "$CI_REGISTRY_IMAGE:latest"
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        --tag "$APP_IMAGE"
+        --tag "$CI_REGISTRY_IMAGE:latest"
+        .
+    - docker push "$APP_IMAGE"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# -----------------------------------------------------------------------------
+# Deploy
+# -----------------------------------------------------------------------------
+.deploy_template: &deploy
+  stage: deploy
+  image: alpine:3.20
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    # The key arrives as a File-type variable so its newlines survive; `tr` is
+    # the usual repair when someone pastes it as a plain variable instead.
+    - chmod 600 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    # Pinned host key rather than StrictHostKeyChecking=no: without it the
+    # first connection trusts whatever answers, which is the whole attack.
+    # Get the value with: ssh-keyscan -H your.server
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+deploy:stage:
+  <<: *deploy
+  environment:
+    name: stage
+    url: http://$DEPLOY_HOST:8080
+  script:
+    - |
+      ssh "$DEPLOY_USER@$DEPLOY_HOST" bash -s <<SSH
+        set -euo pipefail
+        cd "$DEPLOY_PATH"
+        # Expanded by the runner, not by the server. Escaped as `\$...` these
+        # arrived at the far end as literal variable names; the server has no
+        # such variables, so `docker login` ran with an empty password, every
+        # `pull` below came back `unauthorized`, and the deploy quietly left
+        # whatever image was already running in place.
+        #
+        # The expanded values travel inside the heredoc, which reaches ssh on
+        # stdin - they are never arguments, so they never appear in `ps` on the
+        # server. The single quotes are what the *remote* shell sees, so the
+        # token is not re-expanded there. GitLab masks it in the job log.
+        echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY'
+        export APP_IMAGE="$APP_IMAGE"
+        docker compose --env-file deploy/env/.env.stage \
+          -f deploy/base.yml -f deploy/stage.yml pull
+        docker compose --env-file deploy/env/.env.stage \
+          -f deploy/base.yml -f deploy/stage.yml up -d
+        docker image prune -f
+      SSH
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+deploy:production:
+  <<: *deploy
+  environment:
+    name: production
+    url: https://sbdental.ir
+  script:
+    - |
+      ssh "$DEPLOY_USER@$DEPLOY_HOST" bash -s <<SSH
+        set -euo pipefail
+        cd "$DEPLOY_PATH"
+
+        # A backup before the migrations the entrypoint is about to run. This
+        # is the only thing standing between a bad migration and a lost
+        # database, so when it can run and fails, the deploy stops.
+        #
+        # Guarded on the container actually being up. `exec` against a stopped
+        # service exits non-zero, and under `set -e` that aborted the job - so
+        # the first deploy to a fresh server, and any deploy after a reboot,
+        # failed before doing anything at all. There is no database to protect
+        # in that state; the point is to skip it loudly, never to swallow a
+        # backup that failed while the stack was up.
+        if docker compose --env-file deploy/env/.env.production \
+             -f deploy/base.yml -f deploy/production.yml \
+             ps --status running --quiet web | grep -q .; then
+          docker compose --env-file deploy/env/.env.production \
+            -f deploy/base.yml -f deploy/production.yml \
+            exec -T web python manage.py backup_db --keep 5
+        else
+          echo "web is not running - skipping the pre-deploy backup (first deploy, or the stack is down)"
+        fi
+
+        # Expanded by the runner, not by the server. Escaped as `\$...` these
+        # arrived at the far end as literal variable names; the server has no
+        # such variables, so `docker login` ran with an empty password, every
+        # `pull` below came back `unauthorized`, and the deploy quietly left
+        # whatever image was already running in place.
+        #
+        # The expanded values travel inside the heredoc, which reaches ssh on
+        # stdin - they are never arguments, so they never appear in `ps` on the
+        # server. The single quotes are what the *remote* shell sees, so the
+        # token is not re-expanded there. GitLab masks it in the job log.
+        echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY'
+        export APP_IMAGE="$APP_IMAGE"
+        docker compose --env-file deploy/env/.env.production \
+          -f deploy/base.yml -f deploy/production.yml pull
+        docker compose --env-file deploy/env/.env.production \
+          -f deploy/base.yml -f deploy/production.yml up -d
+        docker image prune -f
+      SSH
+    # Fail the job if the site does not come back, so the pipeline shows red
+    # rather than green-with-a-broken-site.
+    - apk add --no-cache curl
+    - sleep 20
+    - curl -fsS --retry 5 --retry-delay 5 https://sbdental.ir/healthz
+  # The button. Nothing reaches production without someone pressing it.
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+rollback:production:
+  <<: *deploy
+  environment:
+    name: production
+    url: https://sbdental.ir
+  variables:
+    # Set ROLLBACK_SHA when running this job: the short SHA of a commit whose
+    # image is still in the registry.
+    ROLLBACK_SHA: ""
+  script:
+    - test -n "$ROLLBACK_SHA" || { echo "set ROLLBACK_SHA to the short SHA to roll back to"; exit 1; }
+    - |
+      ssh "$DEPLOY_USER@$DEPLOY_HOST" bash -s <<SSH
+        set -euo pipefail
+        cd "$DEPLOY_PATH"
+        # Expanded by the runner, not by the server. Escaped as `\$...` these
+        # arrived at the far end as literal variable names; the server has no
+        # such variables, so `docker login` ran with an empty password, every
+        # `pull` below came back `unauthorized`, and the deploy quietly left
+        # whatever image was already running in place.
+        #
+        # The expanded values travel inside the heredoc, which reaches ssh on
+        # stdin - they are never arguments, so they never appear in `ps` on the
+        # server. The single quotes are what the *remote* shell sees, so the
+        # token is not re-expanded there. GitLab masks it in the job log.
+        echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY'
+        export APP_IMAGE="$CI_REGISTRY_IMAGE:$ROLLBACK_SHA"
+        docker compose --env-file deploy/env/.env.production \
+          -f deploy/base.yml -f deploy/production.yml pull
+        docker compose --env-file deploy/env/.env.production \
+          -f deploy/base.yml -f deploy/production.yml up -d
+      SSH
+  # Rolling the code back does NOT roll a migration back. If the bad deploy
+  # migrated the database, restore instead — scripts/restore.sh.
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

@@ -1,0 +1,455 @@
+/* ============================================================================
+   Blog detail — editorial magazine feel.
+   Sections: hero (image bg + title), poster figure, article + share rail,
+   author card, final CTA, floating admin controls.
+   Consumes design-system.css tokens.
+   ============================================================================ */
+
+/* ============================================================ HERO ==== */
+.post-hero {
+    position: relative;
+    isolation: isolate;
+    color: #fff;
+    padding-block: clamp(4rem, 10vw, 7rem) clamp(3rem, 6vw, 4.5rem);
+    overflow: hidden;
+}
+.post-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+}
+.post-hero__bg img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transform: scale(1.05);
+    filter: blur(8px) saturate(1.05);
+    opacity: .6;
+}
+.post-hero__gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        rgba(11, 18, 32, 0.55) 0%,
+        rgba(11, 18, 32, 0.75) 40%,
+        rgba(11, 18, 32, 0.95) 100%
+    );
+}
+:root[data-theme="dark"] .post-hero__gradient {
+    background: linear-gradient(180deg,
+        rgba(11, 18, 32, 0.65) 0%,
+        rgba(11, 18, 32, 0.82) 40%,
+        rgba(11, 18, 32, 0.97) 100%
+    );
+}
+
+.post-hero__inner { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.post-hero__crumbs {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    color: rgba(255, 255, 255, .78);
+    font-size: .85rem;
+    flex-wrap: wrap;
+}
+.post-hero__crumbs a {
+    color: rgba(255, 255, 255, .78);
+    text-decoration: none;
+    transition: color .2s ease;
+}
+.post-hero__crumbs a:hover { color: var(--brand); }
+.post-hero__crumbs-current { color: #fff; font-weight: 600; }
+
+.post-hero__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+}
+.post-hero__tag {
+    display: inline-flex;
+    align-items: center;
+    padding: .3rem .85rem;
+    background: rgba(255, 255, 255, 0.14);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    text-decoration: none;
+    border-radius: var(--radius-pill);
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    transition: background .2s ease, transform .2s ease;
+}
+.post-hero__tag:hover { background: var(--brand); color: #fff; transform: translateY(-2px); }
+
+.post-hero__title {
+    font-size: clamp(1.85rem, 4.5vw, 3.25rem);
+    line-height: 1.25;
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    max-width: 22ch;
+}
+
+.post-hero__meta {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    color: rgba(255, 255, 255, .85);
+    font-size: .95rem;
+    flex-wrap: wrap;
+}
+.post-hero__meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+.post-hero__meta i { color: var(--brand); font-size: .9em; }
+.post-hero__meta-dot { color: rgba(255, 255, 255, .5); }
+
+/* ============================================================ POSTER ==== */
+.post-poster {
+    margin-top: calc(-1 * clamp(2.5rem, 5vw, 4rem));
+    position: relative;
+    z-index: 1;
+}
+.post-poster__wrap {
+    margin: 0;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    max-height: 520px;
+}
+.post-poster__wrap img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+}
+
+/* ============================================================ CONTENT + SHARE ==== */
+.post-body { padding-block: clamp(2.5rem, 5vw, 3.5rem); }
+.post-body__grid {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    align-items: start;
+}
+
+/* Share rail (sticky vertical column of buttons) */
+.post-share {
+    position: sticky;
+    top: 96px;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    align-items: center;
+    padding: .75rem .3rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-sm);
+}
+.post-share__label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    color: var(--fg-subtle);
+    font-size: .72rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-block: .25rem;
+    text-align: center;
+}
+.post-share__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    background: var(--bg-muted);
+    color: var(--fg-muted);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: .95rem;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.post-share__btn:hover {
+    background: var(--brand);
+    color: #fff;
+    border-color: transparent;
+    transform: translateY(-2px);
+}
+.post-share__btn.is-copied {
+    background: var(--success);
+    color: #fff;
+    border-color: transparent;
+}
+
+/* Prose article */
+.post-article {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: clamp(1.75rem, 4vw, 3rem);
+    box-shadow: var(--shadow);
+    max-width: 780px;
+    margin-inline: auto;
+}
+.post-article__content { font-size: 1.05rem; line-height: 2; color: var(--fg); }
+
+/* Prose typography — resets Django-CKEditor output to our tokens */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+    color: var(--fg);
+    margin: 2rem 0 .75rem 0;
+    line-height: 1.35;
+    font-weight: 700;
+}
+.prose h1 { font-size: 1.85rem; }
+.prose h2 { font-size: 1.55rem; }
+.prose h3 { font-size: 1.3rem; }
+.prose h4 { font-size: 1.1rem; }
+.prose p  { margin: 0 0 1.15rem 0; color: var(--fg-muted); }
+.prose a  { color: var(--brand-strong); text-decoration: underline; text-underline-offset: 3px; }
+:root[data-theme="dark"] .prose a { color: var(--brand); }
+.prose a:hover { color: var(--accent); }
+.prose ul, .prose ol {
+    margin: 0 0 1.15rem 1.25rem;
+    color: var(--fg-muted);
+    padding-inline-start: 1rem;
+}
+.prose li { margin-bottom: .35rem; }
+.prose img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 1.5rem auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+.prose figure { margin: 1.5rem 0; }
+.prose figure figcaption {
+    text-align: center;
+    font-size: .82rem;
+    color: var(--fg-subtle);
+    margin-top: .5rem;
+}
+.prose blockquote {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    background: var(--bg-muted);
+    border-inline-start: 4px solid var(--brand);
+    border-radius: var(--radius);
+    color: var(--fg);
+    font-style: italic;
+}
+.prose code {
+    background: var(--bg-muted);
+    color: var(--brand-strong);
+    padding: .15em .45em;
+    border-radius: 4px;
+    font-size: .92em;
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    direction: ltr;
+    display: inline-block;
+}
+:root[data-theme="dark"] .prose code { color: var(--brand); }
+.prose pre {
+    background: var(--bg-muted);
+    color: var(--fg);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin: 1.25rem 0;
+    direction: ltr;
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: .92em;
+    line-height: 1.7;
+}
+.prose hr {
+    border: 0;
+    border-top: 1px dashed var(--border-strong);
+    margin: 2rem 0;
+}
+.prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: .95rem;
+}
+.prose th, .prose td {
+    border: 1px solid var(--border);
+    padding: .55rem .85rem;
+    text-align: right;
+}
+.prose th {
+    background: var(--bg-muted);
+    color: var(--fg);
+    font-weight: 700;
+}
+
+/* ============================================================ AUTHOR CARD ==== */
+.post-author { padding-block: 1rem clamp(2rem, 5vw, 3rem); }
+.post-author__card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.75rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    max-width: 900px;
+    margin-inline: auto;
+}
+.post-author__avatar {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-soft), transparent);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--brand-strong);
+    font-size: 2rem;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+}
+:root[data-theme="dark"] .post-author__avatar { color: var(--brand); }
+.post-author__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.post-author__eyebrow {
+    display: inline-block;
+    padding: .2rem .75rem;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-radius: var(--radius-pill);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    margin-bottom: .35rem;
+}
+:root[data-theme="dark"] .post-author__eyebrow { color: var(--brand); }
+.post-author__name { margin: 0 0 .35rem 0; font-size: 1.2rem; color: var(--fg); }
+.post-author__bio { margin: 0 0 .75rem 0; color: var(--fg-muted); line-height: 1.75; font-size: .92rem; }
+.post-author__social { display: flex; gap: .4rem; }
+.post-author__social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    background: var(--bg-muted);
+    color: var(--fg-muted);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.post-author__social a:hover {
+    background: var(--brand);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* ============================================================ CTA ==== */
+.post-cta { padding-block: clamp(2rem, 5vw, 3rem); }
+.post-cta__card {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 2rem;
+    align-items: center;
+    padding: clamp(2rem, 4.5vw, 3rem);
+    background:
+        radial-gradient(circle at 100% 0%, var(--brand-glow), transparent 55%),
+        linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+    color: #fff;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    max-width: 1080px;
+    margin-inline: auto;
+}
+.post-cta__card .ds-heading__eyebrow { background: rgba(255,255,255,.18); color: #fff; }
+.post-cta__card h2 { color: #fff; margin: .5rem 0 .5rem 0; font-size: clamp(1.4rem, 3vw, 2rem); }
+.post-cta__card p { color: rgba(255,255,255,.9); margin: 0; line-height: 1.75; }
+.post-cta__actions { display: flex; gap: .75rem; flex-wrap: wrap; justify-content: flex-end; }
+.post-cta__actions .ds-btn--primary { background: #fff; color: var(--brand-strong); }
+.post-cta__actions .ds-btn--primary:hover { color: var(--brand-strong); }
+.post-cta__actions .ds-btn--ghost {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255,255,255,.5);
+}
+.post-cta__actions .ds-btn--ghost:hover { background: rgba(255,255,255,.14); color: #fff; }
+
+/* ============================================================ ADMIN CONTROLS (floating) ==== */
+.post-admin {
+    position: fixed;
+    bottom: 1.25rem;
+    inset-inline-end: 1.25rem;
+    z-index: 100;
+    display: flex;
+    gap: .4rem;
+    padding: .4rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-xl);
+}
+.post-admin__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.post-admin__btn:hover { transform: translateY(-2px); background: var(--brand); color: #fff; border-color: transparent; }
+.post-admin__btn--del:hover { background: var(--danger); }
+
+/* ============================================================ RESPONSIVE ==== */
+@media (max-width: 1023.98px) {
+    .post-body__grid { grid-template-columns: 1fr; }
+    .post-share {
+        position: static;
+        flex-direction: row;
+        justify-content: center;
+        border-radius: var(--radius-pill);
+        padding: .5rem 1rem;
+    }
+    .post-share__label { writing-mode: horizontal-tb; transform: none; margin: 0 .5rem 0 0; }
+
+    .post-author__card { grid-template-columns: auto 1fr; }
+    .post-author__cta { grid-column: 1 / -1; justify-self: stretch; }
+    .post-author__cta .ds-btn { width: 100%; justify-content: center; }
+
+    .post-cta__card { grid-template-columns: 1fr; text-align: right; }
+    .post-cta__actions { justify-content: flex-start; }
+}
+
+@media (max-width: 639.98px) {
+    .post-hero__meta { font-size: .85rem; }
+    .post-poster__wrap img { aspect-ratio: 3 / 2; }
+
+    .post-author__card { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+    .post-author__social { justify-content: center; }
+
+    .post-cta__actions { flex-direction: column; align-items: stretch; }
+    .post-cta__actions .ds-btn { width: 100%; justify-content: center; }
+
+    .post-admin { inset-inline-end: .75rem; bottom: .75rem; }
+}

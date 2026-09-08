@@ -1,0 +1,443 @@
+/* ============================================================================
+   Site navigation — glass sticky bar, mobile drawer, theme toggle.
+   Depends on design-system.css tokens.
+   ============================================================================ */
+
+.site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: background-color .25s ease, box-shadow .25s ease;
+}
+
+.site-nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: .85rem;
+}
+
+/* --- Brand --------------------------------------------------------------- */
+.site-nav__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .75rem;
+    text-decoration: none;
+    color: var(--fg);
+    flex-shrink: 0;
+}
+.site-nav__brand:hover { color: var(--brand); }
+.site-nav__logo {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    padding: 4px;
+    background: var(--brand-soft);
+    box-shadow: var(--shadow-sm);
+    transition: transform .3s ease;
+}
+.site-nav__brand:hover .site-nav__logo { transform: rotate(-8deg) scale(1.05); }
+.site-nav__brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+.site-nav__brand-name { font-weight: 700; font-size: 1rem; color: inherit; }
+.site-nav__brand-tag  { font-size: .72rem; color: var(--fg-subtle); }
+
+/* --- Toggle (hamburger) -------------------------------------------------- *
+ * Three bars of unequal width read as a menu at a glance; three equal ones
+ * read as a generic icon.
+ *
+ * The bars used to collapse into an X on open. The drawer carries its own
+ * close button in its header, so that produced two X buttons a few pixels
+ * apart — the drawer's, and the bar's peeking out beside it. The toggle is
+ * hidden while the drawer is open instead; the drawer's own X and the
+ * backdrop are the ways out.
+ * ------------------------------------------------------------------------- */
+.site-nav__toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 46px; height: 46px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    padding: 0;
+    color: var(--fg);
+    transition: background .2s ease, border-color .2s ease, transform .15s ease;
+}
+.site-nav__toggle:hover {
+    background: var(--brand-soft);
+    border-color: color-mix(in srgb, var(--brand) 35%, var(--border));
+}
+.site-nav__toggle:active { transform: scale(.94); }
+
+.site-nav__toggle-box {
+    position: relative;
+    display: block;
+    width: 20px; height: 14px;
+}
+.site-nav__toggle-bar {
+    position: absolute;
+    inset-inline-end: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    transition: width .25s ease, transform .3s cubic-bezier(.4, 0, .2, 1),
+                opacity .15s ease, top .3s cubic-bezier(.4, 0, .2, 1);
+}
+.site-nav__toggle-bar:nth-child(1) { top: 0;    width: 20px; }
+.site-nav__toggle-bar:nth-child(2) { top: 6px;  width: 14px; }
+.site-nav__toggle-bar:nth-child(3) { top: 12px; width: 20px; }
+/* Middle bar fills out on hover — a small sign the control is live. */
+.site-nav__toggle:hover .site-nav__toggle-bar:nth-child(2) { width: 20px; }
+
+/* --- Drawer header (mobile only) ----------------------------------------- */
+.site-nav__drawer-head { display: none; }
+.site-nav__drawer-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-muted);
+    color: var(--fg-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background .2s ease, color .2s ease;
+}
+.site-nav__drawer-close:hover { background: var(--danger); color: #fff; border-color: transparent; }
+
+/* --- Backdrop ------------------------------------------------------------ */
+.site-nav__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 998;
+    background: rgba(15, 23, 42, .5);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity .25s ease;
+}
+.site-nav__backdrop.is-visible { opacity: 1; }
+
+/* --- Menu ---------------------------------------------------------------- */
+.site-nav__menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-grow: 1;
+    justify-content: space-between;
+}
+
+.site-nav__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: .35rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.site-nav__link {
+    display: inline-block;
+    padding: .55rem 1rem;
+    border-radius: var(--radius-pill);
+    color: var(--fg-muted);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: .95rem;
+    position: relative;
+    transition: color .2s ease, background .2s ease;
+}
+.site-nav__link:hover {
+    color: var(--brand-strong);
+    background: var(--brand-soft);
+}
+.site-nav__link.is-active {
+    color: var(--brand-strong);
+    background: var(--brand-soft);
+}
+:root[data-theme="dark"] .site-nav__link:hover,
+:root[data-theme="dark"] .site-nav__link.is-active { color: var(--brand); }
+
+/* --- Actions cluster ----------------------------------------------------- */
+.site-nav__actions {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-shrink: 0;
+}
+
+.site-nav__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .5rem .9rem;
+    border-radius: var(--radius-pill);
+    background: var(--bg-muted);
+    color: var(--fg);
+    text-decoration: none;
+    font-size: .85rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.site-nav__pill:hover { transform: translateY(-1px); background: var(--brand-soft); color: var(--brand-strong); }
+.site-nav__pill--brand { background: var(--brand); color: #fff; border-color: transparent; }
+.site-nav__pill--brand:hover { background: var(--brand-strong); color: #fff; }
+.site-nav__pill--danger { background: transparent; color: var(--danger); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+/* Install: shown only once the browser reports the site as installable, so it
+   is styled to invite rather than to blend in with the management pills. */
+.site-nav__pill--install {
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-color: color-mix(in srgb, var(--brand) 30%, transparent);
+    cursor: pointer;
+    font-family: inherit;
+}
+.site-nav__pill--install:hover { background: var(--brand); color: #fff; border-color: transparent; }
+:root[data-theme="dark"] .site-nav__pill--install { color: var(--brand); }
+.site-nav__pill--danger:hover { background: var(--danger); color: #fff; }
+
+.site-nav__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .7rem 1.4rem;
+    background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+    color: #fff;
+    text-decoration: none;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    font-size: .92rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform .18s ease, box-shadow .2s ease;
+}
+.site-nav__cta:hover { color: #fff; transform: translateY(-2px); box-shadow: var(--shadow), var(--shadow-glow); }
+
+.site-nav__theme {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    background: var(--bg-muted);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.site-nav__theme:hover { background: var(--brand-soft); color: var(--brand-strong); transform: rotate(15deg); }
+
+/* --- Responsive: mobile drawer ------------------------------------------ *
+ * A sheet anchored to the inline-start edge, not a floating card under the
+ * bar. The card version was pinned to `top: 72px`, so it drifted the moment
+ * the bar changed height, left the page behind it scrolling, and gave a long
+ * list nowhere to go. A full-height sheet fits the seven links plus the
+ * action buttons without scrolling on any normal phone.
+ * ------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+    .site-nav__toggle { display: inline-flex; order: 3; }
+
+    /* The backdrop cannot paint over the bar: the drawer lives inside
+       `.site-nav`, whose stacking context sits above it, so raising the
+       backdrop would bury the drawer too. Fading the bar's own surface
+       instead lets the dim read as one continuous sheet, with only the
+       toggle left standing on top of it. */
+    .site-nav:has(.site-nav__menu.is-open) {
+        background: transparent;
+        border-bottom-color: transparent;
+        box-shadow: none;
+    }
+    /* The drawer's header owns the close button; a second one sitting on the
+       bar behind it is two X's a few pixels apart. `visibility` rather than
+       `display`, so the button keeps its box and the bar does not reflow —
+       and `close()` can still return focus to it once it is back. */
+    .site-nav:has(.site-nav__menu.is-open) .site-nav__toggle {
+        visibility: hidden;
+    }
+
+    .site-nav__menu {
+        position: fixed;
+        top: 0;
+        /* `height`, not `bottom: 0`. `.site-nav` carries a `backdrop-filter`
+           for its glass effect, and that makes it the containing block for
+           every `position: fixed` descendant — so `bottom: 0` resolved to the
+           bottom of the 72px bar and the drawer came out one row tall with the
+           links clipped. The bar is sticky at `top: 0`, so its origin is the
+           viewport's; only the height had to stop depending on the ancestor.
+           `dvh` tracks the collapsing browser chrome on mobile; `vh` is the
+           fallback for engines without it. */
+        height: 100vh;
+        height: 100dvh;
+        /* RTL: `inset-inline-start` is the right edge — the side the toggle
+           sits on, so the panel arrives from under the user's thumb. */
+        inset-inline-start: 0;
+        width: min(340px, 88vw);
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 1rem 1.15rem 1.5rem;
+        background: var(--bg-elevated);
+        border: 0;
+        border-inline-end: 1px solid var(--border);
+        border-radius: 0;
+        box-shadow: var(--shadow-xl);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        /* Off-screen by its own width, so the travel is right whatever the
+           viewport does. */
+        transform: translateX(100%);
+        /* A closed drawer is still laid out 340px past the viewport edge, and
+           on some pages that widened the document enough to give the whole
+           site a horizontal scrollbar on a phone. `visibility: hidden` takes
+           it out of that measurement — and out of the tab order, so the links
+           behind a closed drawer stop stealing focus. It is animatable, so
+           the slide-in still plays. */
+        visibility: hidden;
+        pointer-events: none;
+        transition: transform .3s cubic-bezier(.4, 0, .2, 1), visibility .3s;
+    }
+    .site-nav__menu.is-open {
+        transform: translateX(0);
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .site-nav__drawer-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 1rem;
+        margin-bottom: .5rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .site-nav__drawer-title {
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--fg);
+    }
+
+    .site-nav__links {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .15rem;
+        flex-wrap: nowrap;
+    }
+    .site-nav__link {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        padding: .8rem .9rem;
+        border-radius: var(--radius);
+        font-size: 1rem;
+        text-align: right;
+        position: relative;
+    }
+    .site-nav__link i {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px; height: 34px;
+        flex-shrink: 0;
+        border-radius: 11px;
+        background: var(--bg-muted);
+        color: var(--fg-subtle);
+        font-size: .9rem;
+        transition: background .2s ease, color .2s ease;
+    }
+    .site-nav__link:hover i,
+    .site-nav__link.is-active i {
+        background: var(--brand-soft);
+        color: var(--brand-strong);
+    }
+    :root[data-theme="dark"] .site-nav__link:hover i,
+    :root[data-theme="dark"] .site-nav__link.is-active i { color: var(--brand); }
+    /* The current page gets a bar on the reading edge — colour alone is easy
+       to miss when every row already tints on touch. */
+    .site-nav__link.is-active::before {
+        content: "";
+        position: absolute;
+        /* Reading edge: in RTL `inline-start` is the right-hand side, where
+           the eye begins each row. `inline-end` put the marker after the
+           text, which reads as a stray line. */
+        inset-inline-start: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 22px;
+        border-radius: 3px;
+        background: var(--brand);
+    }
+
+    .site-nav__actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .5rem;
+        margin-top: auto;
+        padding-top: 1.1rem;
+        border-top: 1px solid var(--border);
+    }
+    /* Full-width rows: half-width pills side by side are a smaller tap target
+       than the links above them, which reads as an accident. */
+    .site-nav__pill,
+    .site-nav__cta {
+        justify-content: center;
+        width: 100%;
+        padding-block: .75rem;
+        font-size: .95rem;
+    }
+    .site-nav__theme {
+        width: 100%;
+        border-radius: var(--radius-pill);
+        height: 44px;
+        gap: .5rem;
+    }
+    .site-nav__theme:hover { transform: none; }
+    /* An icon-only button needs a label once it is a full-width row. */
+    .site-nav__theme::after {
+        content: "تغییر حالت روشن و تیره";
+        font-size: .9rem;
+        font-weight: 500;
+    }
+}
+
+/* Desktop keeps the icons out: seven icon+word pairs in one bar is noise. */
+@media (min-width: 992px) {
+    .site-nav__link i { display: none; }
+}
+
+@media (max-width: 480px) {
+    /* The name used to be dropped here, leaving a bare logo that says nothing
+       about whose site this is — the one place a visitor arriving from a
+       search result most needs telling. It stays; the logo and the type
+       shrink instead, which still leaves room for the toggle at 320px. */
+    .site-nav__inner { padding-block: .7rem; gap: .6rem; }
+    .site-nav__brand { gap: .55rem; min-width: 0; }
+    .site-nav__logo { width: 38px; height: 38px; border-radius: 10px; }
+    .site-nav__brand-text { min-width: 0; }
+    .site-nav__brand-name { font-size: .9rem; }
+    .site-nav__brand-tag { font-size: .66rem; }
+    .site-nav__brand-name,
+    .site-nav__brand-tag {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Someone who asked for less motion still needs the drawer to open — cut the
+   duration rather than the transition, so `is-open` still takes effect. */
+@media (prefers-reduced-motion: reduce) {
+    .site-nav__menu,
+    .site-nav__backdrop {
+        transition-duration: .01ms;
+    }
+}

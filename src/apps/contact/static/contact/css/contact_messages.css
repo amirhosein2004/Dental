@@ -1,0 +1,491 @@
+/* ============================================================================
+   Contact — admin messages inbox.
+   Modern list-view (row cards), filter tabs, count pill, empty state,
+   full-view modal styling. Consumes design-system.css tokens.
+   ============================================================================ */
+
+.msg-page__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--border);
+}
+.msg-page__title {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    margin: .35rem 0;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--fg);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+.msg-page__title i {
+    color: var(--brand);
+    font-size: .85em;
+    padding: .5rem;
+    background: var(--brand-soft);
+    border-radius: 12px;
+}
+:root[data-theme="dark"] .msg-page__title i { color: var(--brand); }
+.msg-page__lead { margin: 0; color: var(--fg-muted); font-size: .95rem; }
+
+/* ============================================================ TOOLBAR ==== */
+.msg-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: .75rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1rem;
+}
+
+.msg-tabs {
+    display: inline-flex;
+    background: var(--bg-muted);
+    border-radius: var(--radius-pill);
+    padding: .25rem;
+    gap: .15rem;
+}
+.msg-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .5rem 1rem;
+    color: var(--fg-muted);
+    text-decoration: none;
+    border-radius: var(--radius-pill);
+    font-size: .88rem;
+    font-weight: 600;
+    transition: background .2s ease, color .2s ease;
+}
+.msg-tab i { font-size: .85em; color: currentColor; }
+.msg-tab:hover { color: var(--brand-strong); }
+:root[data-theme="dark"] .msg-tab:hover { color: var(--brand); }
+.msg-tab.is-active {
+    background: var(--brand);
+    color: #fff;
+    box-shadow: var(--shadow-sm);
+}
+:root[data-theme="dark"] .msg-tab.is-active { color: #071013; }
+
+.msg-toolbar__actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.msg-toolbar__danger { color: var(--danger); }
+.msg-toolbar__danger:hover {
+    background: color-mix(in srgb, var(--danger) 12%, transparent);
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+/* ============================================================ COUNT PILL ==== */
+.msg-count {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .45rem 1rem;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-radius: var(--radius-pill);
+    font-size: .85rem;
+    margin-bottom: 1rem;
+}
+:root[data-theme="dark"] .msg-count { color: var(--brand); }
+.msg-count strong { font-weight: 800; }
+.msg-count i { font-size: .8em; opacity: .7; }
+
+/* ============================================================ MESSAGE LIST ==== */
+.msg-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+.msg-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    position: relative;
+    overflow: hidden;
+}
+.msg-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: color-mix(in srgb, var(--brand) 30%, var(--border));
+}
+.msg-item.is-unread {
+    border-inline-start: 4px solid var(--brand);
+    background:
+        linear-gradient(90deg, var(--brand-soft) 0%, transparent 15%),
+        var(--bg-elevated);
+}
+:root[data-theme="dark"] .msg-item.is-unread {
+    background:
+        linear-gradient(90deg, color-mix(in srgb, var(--brand) 12%, transparent) 0%, transparent 15%),
+        var(--bg-elevated);
+}
+
+.msg-item__avatar {
+    position: relative;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-soft), transparent);
+    color: var(--brand-strong);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+:root[data-theme="dark"] .msg-item__avatar { color: var(--brand); }
+.msg-item__dot {
+    position: absolute;
+    top: -2px;
+    inset-inline-end: -2px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--danger);
+    border: 2px solid var(--bg-elevated);
+    animation: msg-pulse 1.8s ease-in-out infinite;
+}
+@keyframes msg-pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger) 40%, transparent); }
+    50%      { transform: scale(1.1); box-shadow: 0 0 0 6px transparent; }
+}
+
+.msg-item__body { min-width: 0; }
+.msg-item__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: .35rem;
+}
+.msg-item__name { color: var(--fg); font-size: 1rem; }
+.msg-item.is-unread .msg-item__name { color: var(--brand-strong); font-weight: 800; }
+:root[data-theme="dark"] .msg-item.is-unread .msg-item__name { color: var(--brand); }
+
+.msg-item__phone,
+.msg-item__date {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--fg-muted);
+    text-decoration: none;
+    font-size: .82rem;
+}
+.msg-item__phone:hover { color: var(--brand); }
+.msg-item__phone i,
+.msg-item__date i { font-size: .8em; color: var(--brand); }
+
+.msg-item__preview {
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: .9rem;
+    line-height: 1.65;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.msg-item.is-unread .msg-item__preview { color: var(--fg); }
+
+.msg-item__actions {
+    display: flex;
+    gap: .35rem;
+    align-items: center;
+}
+.msg-item__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px; height: 38px;
+    background: var(--bg-muted);
+    color: var(--fg-muted);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.msg-item__btn:hover { transform: translateY(-1px); background: var(--brand-soft); color: var(--brand-strong); border-color: var(--brand); }
+:root[data-theme="dark"] .msg-item__btn:hover { color: var(--brand); }
+.msg-item__btn--read:hover { background: var(--success); color: #fff; border-color: transparent; }
+
+.msg-item__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px; height: 38px;
+    background: color-mix(in srgb, var(--success) 15%, transparent);
+    color: var(--success);
+    border-radius: 10px;
+    font-size: .85rem;
+}
+
+/* ============================================================ EMPTY ==== */
+.msg-empty {
+    text-align: center;
+    padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+    background:
+        radial-gradient(circle at 50% 0%, var(--brand-glow), transparent 55%),
+        linear-gradient(180deg, var(--bg-elevated), var(--bg-muted));
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-xl);
+    max-width: 640px;
+    margin-inline: auto;
+    position: relative;
+    overflow: hidden;
+}
+.msg-empty__glow {
+    position: absolute;
+    inset-inline: 30%;
+    top: -50px;
+    height: 200px;
+    background: radial-gradient(circle, var(--brand-glow), transparent 70%);
+    pointer-events: none;
+    filter: blur(20px);
+}
+.msg-empty > i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px; height: 84px;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    font-size: 2rem;
+    border-radius: 50%;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow);
+    position: relative;
+    z-index: 1;
+}
+:root[data-theme="dark"] .msg-empty > i { color: var(--brand); }
+.msg-empty h3 { margin: 0 0 .5rem 0; color: var(--fg); font-size: 1.35rem; position: relative; z-index: 1; }
+.msg-empty p  { color: var(--fg-muted); margin: 0; position: relative; z-index: 1; }
+
+/* ============================================================ DIALOG ==== */
+/* The .modal-* rules that used to live here were Bootstrap's structure; the
+   dialog is now a native <dialog> styled by .cd-dialog in design-system.css,
+   so only the message-specific inner blocks remain. */
+.msg-modal .cd-dialog__title i {
+    color: var(--brand);
+    padding: .5rem;
+    background: var(--brand-soft);
+    border-radius: 10px;
+    font-size: .85em;
+    margin-left: .5rem;
+}
+.msg-modal__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: var(--bg-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+.msg-modal__meta > div { display: flex; flex-direction: column; gap: .2rem; }
+.msg-modal__label {
+    font-size: .72rem;
+    color: var(--fg-subtle);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.msg-modal__meta a { color: var(--brand); text-decoration: none; font-weight: 600; }
+.msg-modal__meta a:hover { color: var(--brand-strong); }
+.msg-modal__meta strong { color: var(--fg); font-size: .95rem; font-weight: 700; }
+.msg-modal__text {
+    color: var(--fg);
+    line-height: 1.9;
+    font-size: 1rem;
+    padding: .5rem 0 1.25rem;
+    /* A long pasted message must scroll inside the dialog, not push its
+       buttons past the bottom of the viewport. */
+    max-height: 45vh;
+    overflow-y: auto;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.25rem;
+}
+
+/* ============================================================ RESPONSIVE ==== */
+@media (max-width: 767.98px) {
+    .msg-toolbar { flex-direction: column; align-items: stretch; }
+    .msg-tabs { justify-content: space-around; }
+    .msg-toolbar__actions { justify-content: stretch; }
+    .msg-toolbar__actions form,
+    .msg-toolbar__actions > button { flex: 1 1 auto; }
+    .msg-toolbar__actions .ds-btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 639.98px) {
+    .msg-item {
+        grid-template-columns: auto 1fr;
+        row-gap: .75rem;
+    }
+    .msg-item__actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
+    .msg-item__header { gap: .5rem; }
+}
+
+/* ============================================================ PUSH ==== */
+/* Per-device notification switch. Above the toolbar rather than inside it: the
+   toolbar acts on the list below, this acts on the browser, and mixing them
+   made the row read as one more filter.
+   Everything reacts to one attribute — `data-state` on the card, set by
+   push.js — so the on/off look can never disagree with the button label. */
+.msg-push {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.15rem;
+    padding: 1.15rem 1.4rem;
+    margin-bottom: 1.25rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: border-color .25s ease, background .25s ease;
+}
+.msg-push[data-state="on"] {
+    border-color: color-mix(in srgb, var(--brand) 40%, var(--border));
+    background:
+        linear-gradient(90deg, var(--brand-soft), transparent 55%),
+        var(--bg-elevated);
+}
+
+.msg-push__icon {
+    width: 46px; height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: var(--bg-muted);
+    color: var(--fg-subtle);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    transition: background .25s ease, color .25s ease;
+}
+.msg-push[data-state="on"] .msg-push__icon {
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+}
+:root[data-theme="dark"] .msg-push[data-state="on"] .msg-push__icon { color: var(--brand); }
+/* A single nudge when it switches on — enough to notice, not a loop. */
+.msg-push[data-state="on"] .msg-push__icon i { animation: msg-push-ring .6s ease; }
+@keyframes msg-push-ring {
+    0%, 100% { transform: rotate(0); }
+    20% { transform: rotate(-14deg); }
+    40% { transform: rotate(11deg); }
+    60% { transform: rotate(-7deg); }
+    80% { transform: rotate(4deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .msg-push[data-state="on"] .msg-push__icon i { animation: none; }
+}
+
+.msg-push__text { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+.msg-push__title {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+    color: var(--fg);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* --- State pill ---------------------------------------------------------- */
+.msg-push__state {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .18rem .6rem;
+    border-radius: var(--radius-pill);
+    background: var(--bg-muted);
+    color: var(--fg-subtle);
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+}
+.msg-push__dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+.msg-push[data-state="on"] .msg-push__state {
+    background: color-mix(in srgb, var(--success) 16%, transparent);
+    color: var(--success);
+}
+.msg-push[data-state="blocked"] .msg-push__state {
+    background: color-mix(in srgb, var(--danger) 14%, transparent);
+    color: var(--danger);
+}
+
+.msg-push__status {
+    font-size: .85rem;
+    color: var(--fg-muted);
+    line-height: 1.75;
+    text-wrap: pretty;
+}
+/* Tone is set by push.js as it reports back; colour is the only signal a
+   status line can carry without shifting the layout. */
+.msg-push__status[data-tone="ok"]    { color: var(--brand-strong); }
+.msg-push__status[data-tone="error"] { color: var(--danger); }
+.msg-push__status[data-tone="muted"] { color: var(--fg-subtle); }
+:root[data-theme="dark"] .msg-push__status[data-tone="ok"] { color: var(--brand); }
+
+.msg-push__actions {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+/* Once notifications are on, the switch is no longer the primary action — the
+   thing you want next is to check that it works. */
+.msg-push[data-state="on"] .msg-push__toggle {
+    background: transparent;
+    color: var(--fg-muted);
+    border-color: var(--border-strong);
+    box-shadow: none;
+}
+.msg-push[data-state="on"] .msg-push__toggle:hover {
+    color: var(--danger);
+    border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+    transform: none;
+}
+
+@media (max-width: 767.98px) {
+    .msg-push {
+        grid-template-columns: auto 1fr;
+        row-gap: 1rem;
+    }
+    /* Actions drop to their own full-width row under the icon and text. */
+    .msg-push__actions {
+        grid-column: 1 / -1;
+        justify-content: stretch;
+    }
+    .msg-push__actions .ds-btn { flex: 1 1 auto; justify-content: center; }
+}

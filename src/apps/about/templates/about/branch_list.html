@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}مطب‌ها | پنل مدیریت{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'core/css/core.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container">
+        <header class="core-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">پنل مدیریت</span>
+                <h1 class="core-page__title">
+                    <i class="fas fa-hospital"></i>
+                    <span>مطب‌ها</span>
+                </h1>
+                <p class="core-page__lead">
+                    آدرس، تلفن، ساعات کاری و نقشه‌ی هر مطب به‌صورت جداگانه.
+                    این اطلاعات در فوتر همه‌ی صفحات، صفحه‌ی تماس، صفحه‌ی درباره ما
+                    و رزومه‌ی پزشکانی که در آن مطب کار می‌کنند نمایش داده می‌شود.
+                </p>
+            </div>
+            <div class="core-page__head-actions">
+                <a href="{% url 'about:branch_add' %}" class="ds-btn ds-btn--primary ds-btn--sm">
+                    <i class="fas fa-plus"></i>
+                    <span>مطب جدید</span>
+                </a>
+                <a href="{% url 'core:manage' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>بازگشت به پنل</span>
+                </a>
+            </div>
+        </header>
+
+        {% if branch_rows %}
+            <div class="clinic-list">
+                {% for b in branch_rows %}
+                    <article class="clinic-card">
+                        <div class="clinic-card__body">
+                            <h2 class="clinic-card__title">{{ b.display_title }}</h2>
+
+                            <ul class="clinic-card__meta" role="list">
+                                <li>
+                                    <i class="fas fa-location-dot"></i>
+                                    <span>{{ b.address }}</span>
+                                </li>
+                                {% for number in b.phone_list %}
+                                    <li>
+                                        <i class="fas fa-phone"></i>
+                                        <a href="tel:{{ number }}" dir="ltr">{{ number }}</a>
+                                    </li>
+                                {% endfor %}
+                                {% if b.postal_code %}
+                                    <li>
+                                        <i class="fas fa-envelope"></i>
+                                        <span dir="ltr">{{ b.postal_code }}</span>
+                                    </li>
+                                {% endif %}
+                                <li>
+                                    <i class="fas fa-user-md"></i>
+                                    <span>{{ b.doctors.count }} پزشک</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-clock"></i>
+                                    {% if b.hours_list %}
+                                        <span>{{ b.hours_list|join:' — ' }}</span>
+                                    {% else %}
+                                        <span class="clinic-card__warn">ساعات کاری ثبت نشده</span>
+                                    {% endif %}
+                                </li>
+                            </ul>
+
+                            {% if b.hours %}
+                                <p class="clinic-card__desc">{{ b.hours|linebreaksbr }}</p>
+                            {% else %}
+                                <p class="clinic-card__desc clinic-card__desc--muted">
+                                    ساعات کاری اختصاصی ثبت نشده — ساعات کاری عمومی سایت نمایش داده می‌شود.
+                                </p>
+                            {% endif %}
+
+                            {% if not b.latitude or not b.longitude %}
+                                <p class="clinic-card__warn">
+                                    <i class="fas fa-triangle-exclamation"></i>
+                                    <span>مختصات جغرافیایی خالی است — این مطب روی نقشه نمی‌آید.</span>
+                                </p>
+                            {% endif %}
+
+                            <div class="clinic-card__actions">
+                                <a href="{% url 'about:branch_edit' b.pk %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                                    <i class="fas fa-pen"></i>
+                                    <span>ویرایش</span>
+                                </a>
+                                {% if b.map_link %}
+                                    <a href="{{ b.map_link }}" target="_blank" rel="noopener"
+                                       class="ds-btn ds-btn--ghost ds-btn--sm">
+                                        <i class="fas fa-diamond-turn-right"></i>
+                                        <span>نقشه</span>
+                                    </a>
+                                {% endif %}
+                                <form method="post" action="{% url 'about:branch_delete' b.pk %}"
+                                      class="clinic-card__form"
+                                      data-confirm
+                                      data-confirm-title="حذف مطب"
+                                      data-confirm-text="مطب «{{ b.display_title }}» حذف شود؟ زمان‌های نوبت‌دهی این مطب بدون مطب می‌مانند و آدرس آن از فوتر و صفحه تماس حذف می‌شود."
+                                      data-confirm-ok="حذف مطب">
+                                    {% csrf_token %}
+                                    <button type="submit" class="ds-btn ds-btn--ghost ds-btn--sm ds-btn--danger">
+                                        <i class="fas fa-trash"></i>
+                                        <span>حذف</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="core-list__empty">
+                <i class="fas fa-info-circle"></i>
+                <span>هنوز مطبی ثبت نشده. با دکمه‌ی «مطب جدید» اولین مطب را اضافه کنید.</span>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

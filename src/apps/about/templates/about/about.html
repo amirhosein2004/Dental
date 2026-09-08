@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}درباره مطب دندانپزشکی ما | تیم متخصص و حرفه‌ای{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="آشنایی با مطب دندانپزشکی ما، تیم متخصص و محیط حرفه‌ای. اطلاعات تماس و معرفی پزشکان مجرب.">
+    <meta property="og:title" content="درباره مطب دندانپزشکی ما">
+    <meta property="og:description" content="آشنایی با تیم متخصص مطب دندانپزشکی ما و خدمات حرفه‌ای ارائه شده.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'about/css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- ============================================================ HERO -->
+    <section class="about-hero">
+        <div class="ds-container ds-container--wide about-hero__grid">
+            <div class="about-hero__copy">
+                <span class="ds-heading__eyebrow">درباره ما</span>
+                <h1 class="about-hero__title">
+                    داستان مطب
+                    <span class="about-hero__mark">{% if about %}{{ about.name }}{% else %}دکتر بابایی و بهمدی{% endif %}</span>
+                </h1>
+                <p class="about-hero__lead">
+                    {% comment %}
+                        Not truncated: this *is* the page the clinic description
+                        belongs to, so a "…" here cut text the visitor had no way
+                        to reach. `validate_length` caps the field at 500 chars.
+                    {% endcomment %}
+                    {% if about %}
+                        {{ about.description }}
+                    {% else %}
+                        سال‌هاست با ترکیب دانش روز، تجهیزات پیشرفته و مراقبتی صمیمی
+                        در کنار شما هستیم تا لبخندی سالم و ماندگار داشته باشید.
+                    {% endif %}
+                </p>
+                <div class="about-hero__actions">
+                    {% include '_cta_actions.html' %}
+                </div>
+            </div>
+
+            <figure class="about-hero__figure">
+                {% if about and about.image %}
+                    <img src="{{ about.image.url }}" alt="مطب {{ about.name }}" loading="eager">
+                {% else %}
+                    <div class="about-hero__figure-placeholder">
+                        <i class="fas fa-clinic-medical"></i>
+                    </div>
+                {% endif %}
+                {% comment %}
+                    Names the cities, not an address. This page is about the
+                    practice and the people in it; the addresses, numbers and
+                    opening hours of each location are in the footer of this
+                    very page and, in full, on the contact page — repeating
+                    one of them here only raised the question of which
+                    location it was.
+                {% endcomment %}
+                {% if branches %}
+                    <figcaption class="about-hero__figcaption">
+                        <span>محل خدمت‌رسانی به شما</span>
+                        <strong>
+                            {% for b in branches %}{{ b.city }}{% if not forloop.last %} و {% endif %}{% endfor %}
+                        </strong>
+                    </figcaption>
+                {% endif %}
+            </figure>
+        </div>
+    </section>
+
+    <!-- ==================================================== MISSION -->
+    <section class="ds-section about-mission">
+        <div class="ds-container">
+            <header class="about-mission__head">
+                <span class="ds-heading__eyebrow">ماموریت ما</span>
+                <h2 class="about-mission__title">
+                    <span class="about-mission__title-icon" aria-hidden="true">
+                        <!-- 3D-style tooth mascot pointing at the reader -->
+                        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="toothBody" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#ffffff"/>
+                                    <stop offset="100%" stop-color="#d7f5ef"/>
+                                </linearGradient>
+                                <linearGradient id="toothShade" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0%" stop-color="rgba(15,118,110,0)"/>
+                                    <stop offset="100%" stop-color="rgba(15,118,110,0.35)"/>
+                                </linearGradient>
+                                <radialGradient id="toothGlow" cx="30%" cy="25%" r="60%">
+                                    <stop offset="0%" stop-color="rgba(255,255,255,0.9)"/>
+                                    <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+                                </radialGradient>
+                                <filter id="toothShadow" x="-30%" y="-30%" width="160%" height="160%">
+                                    <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f766e" flood-opacity="0.35"/>
+                                </filter>
+                            </defs>
+
+                            <!-- Base tooth (rear shadow layer for depth) -->
+                            <path d="M60 12 C34 12 22 30 22 48 C22 60 28 68 32 78 L38 100 C40 108 46 112 52 108 L54 92 C55 88 57 88 58 92 L60 100 L62 92 C63 88 65 88 66 92 L68 108 C74 112 80 108 82 100 L88 78 C92 68 98 60 98 48 C98 30 86 12 60 12 Z"
+                                fill="#0d9488" opacity="0.25" transform="translate(3 4)"/>
+
+                            <!-- Main tooth body -->
+                            <g filter="url(#toothShadow)">
+                                <path d="M60 12 C34 12 22 30 22 48 C22 60 28 68 32 78 L38 100 C40 108 46 112 52 108 L54 92 C55 88 57 88 58 92 L60 100 L62 92 C63 88 65 88 66 92 L68 108 C74 112 80 108 82 100 L88 78 C92 68 98 60 98 48 C98 30 86 12 60 12 Z"
+                                    fill="url(#toothBody)"/>
+                                <!-- Curved shade side (right = shadow in LTR / left in RTL) -->
+                                <path d="M60 12 C34 12 22 30 22 48 C22 60 28 68 32 78 L38 100 C40 108 46 112 52 108 L54 92 C55 88 57 88 58 92 L60 100 L62 92 C63 88 65 88 66 92 L68 108 C74 112 80 108 82 100 L88 78 C92 68 98 60 98 48 C98 30 86 12 60 12 Z"
+                                    fill="url(#toothShade)"/>
+                                <!-- Top glossy highlight -->
+                                <ellipse cx="46" cy="34" rx="16" ry="10" fill="url(#toothGlow)"/>
+                            </g>
+
+                            <!-- Face: friendly eyes + wink smile — points at reader -->
+                            <g fill="#0f766e">
+                                <circle cx="48" cy="52" r="3.5"/>
+                                <circle cx="72" cy="52" r="3.5"/>
+                                <path d="M46 66 Q60 76 74 66" stroke="#0f766e" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+                            </g>
+
+                            <!-- Blush accents -->
+                            <ellipse cx="40" cy="62" rx="5" ry="3" fill="#fbbf24" opacity="0.55"/>
+                            <ellipse cx="80" cy="62" rx="5" ry="3" fill="#fbbf24" opacity="0.55"/>
+
+                            <!-- Waving spark (pointing/greeting toward viewer) -->
+                            <g class="about-mission__title-icon-spark">
+                                <path d="M100 22 L105 12 L108 22 L118 24 L108 27 L105 37 L100 27 L92 24 Z"
+                                      fill="#fbbf24" opacity="0.95"/>
+                            </g>
+                        </svg>
+                    </span>
+                    <span class="about-mission__title-text">درمانی که <em>می‌فهمد</em> شما را</span>
+                </h2>
+                <p class="about-mission__lead">
+                    ما فقط دندان‌ درمان نمی‌کنیم. تلاش‌مان این است که تجربه‌ای انسانی، آرام و بدون استرس
+                    برای شما بسازیم — از لحظه‌ی ورود تا پایان درمان.
+                </p>
+            </header>
+
+            <div class="about-mission__body">
+                <div class="about-mission__col">
+                    <h3><i class="fas fa-hand-holding-heart"></i> داستان اختصاصی برای هر بیمار</h3>
+                    <p>
+                        هر بیمار برای ما داستان جداگانه‌ای دارد. برنامه‌ی درمان را با هم می‌چینیم،
+                        هزینه‌ها را قبل از هر اقدام شفاف می‌گوییم و در تمام مراحل کنار شما هستیم.
+                    </p>
+                </div>
+                <div class="about-mission__col">
+                    <h3><i class="fas fa-shield-heart"></i> تعهد ما به شما</h3>
+                    <ul class="about-mission__list" role="list">
+                        <li><i class="fas fa-check"></i><span>مشاوره اولیه رایگان و شفاف</span></li>
+                        <li><i class="fas fa-check"></i><span>برنامه‌ی درمان اختصاصی</span></li>
+                        <li><i class="fas fa-check"></i><span>پیگیری تا نتیجه‌ی نهایی</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================================================== VALUES -->
+    <section class="ds-section about-values">
+        <div class="ds-container">
+            <header class="ds-heading">
+                <span class="ds-heading__eyebrow">ارزش‌های ما</span>
+                <h2 class="ds-heading__title">چهار اصل که با آن‌ها کار می‌کنیم</h2>
+                <p class="ds-heading__lead">پایه‌های ثابتی که هر تصمیم درمانی را بر آن‌ها بنا می‌کنیم.</p>
+            </header>
+
+            <ol class="about-values__list" role="list">
+                <li class="about-values__item">
+                    <span class="about-values__num">۰۱</span>
+                    <div>
+                        <h3>صداقت در تشخیص</h3>
+                        <p>فقط درمان‌هایی که واقعا نیاز دارید. اگر کاری لازم نیست، صادقانه می‌گوییم.</p>
+                    </div>
+                </li>
+                <li class="about-values__item">
+                    <span class="about-values__num">۰۲</span>
+                    <div>
+                        <h3>استریلیزاسیون بی‌قید و شرط</h3>
+                        <p>پروتکل‌های بهداشتی کامل، تجهیزات یک‌بارمصرف و اتاق‌های استریل.</p>
+                    </div>
+                </li>
+                <li class="about-values__item">
+                    <span class="about-values__num">۰۳</span>
+                    <div>
+                        <h3>فناوری روزآمد</h3>
+                        <p>رادیوگرافی دیجیتال، اسکنر داخل‌دهانی و نرم‌افزارهای طراحی لبخند.</p>
+                    </div>
+                </li>
+                <li class="about-values__item">
+                    <span class="about-values__num">۰۴</span>
+                    <div>
+                        <h3>احترام به وقت شما</h3>
+                        <p>نوبت‌بندی دقیق، انتظار حداقلی و درمان بدون شتاب یا کم‌کاری.</p>
+                    </div>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- ==================================================== TEAM -->
+    <section class="ds-section about-team">
+        <div class="ds-container">
+            <header class="ds-heading">
+                <span class="ds-heading__eyebrow">تیم درمانی</span>
+                <h2 class="ds-heading__title">پزشکانی که در کنار شما هستند</h2>
+                <p class="ds-heading__lead">با متخصصینی که سلامت لبخند شما را جدی می‌گیرند آشنا شوید.</p>
+            </header>
+
+            {% if doctors %}
+                <div class="about-team__grid">
+                    {% for doctor in doctors %}
+                        <article class="team-portrait">
+                            <div class="team-portrait__photo">
+                                {% if doctor.user.image %}
+                                    <img src="{{ doctor.user.image.url }}" alt="دکتر {{ doctor.user.get_full_name }}" loading="lazy">
+                                {% else %}
+                                    <div class="team-portrait__photo-fallback"><i class="fas fa-user-md"></i></div>
+                                {% endif %}
+                            </div>
+                            <div class="team-portrait__body">
+                                <h3 class="team-portrait__name">دکتر {{ doctor.user.get_full_name }}</h3>
+                                <p class="team-portrait__role">متخصص دندانپزشکی</p>
+                                {# Full bio: the team section is the destination, so a cut led nowhere. #}
+                                <p class="team-portrait__bio">{{ doctor.description }}</p>
+                                <div class="team-portrait__social">
+                                    {% if doctor.instagram %}<a href="{{ doctor.instagram }}" target="_blank" rel="noopener" aria-label="اینستاگرام"><i class="fab fa-instagram"></i></a>{% endif %}
+                                    {% if doctor.telegram %}<a href="{{ doctor.telegram }}" target="_blank" rel="noopener" aria-label="تلگرام"><i class="fab fa-telegram"></i></a>{% endif %}
+                                    {% if doctor.linkedin %}<a href="{{ doctor.linkedin }}" target="_blank" rel="noopener" aria-label="لینکدین"><i class="fab fa-linkedin"></i></a>{% endif %}
+                                    {% if doctor.twitter %}<a href="{{ doctor.twitter }}" target="_blank" rel="noopener" aria-label="توییتر"><i class="fab fa-twitter"></i></a>{% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-note">در حال حاضر اطلاعاتی از پزشکان موجود نیست.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ==================================================== SERVICES TEASER -->
+    {% if services %}
+    <section class="ds-section about-services-teaser">
+        <div class="ds-container">
+            <div class="about-services-teaser__card">
+                <div class="about-services-teaser__intro">
+                    <span class="ds-heading__eyebrow">در یک نگاه</span>
+                    <h2>خدمات محبوب مطب</h2>
+                    <p>گستره‌ای از خدمات درمانی و زیبایی برای همه‌ی سنین و نیازها.</p>
+                    <a href="{% url 'service:service_list' %}" class="ds-btn ds-btn--primary">
+                        <span>مشاهده همه خدمات</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+                <ul class="about-services-teaser__list" role="list">
+                    {% for service in services %}
+                        <li>
+                            <span class="about-services-teaser__dot"><i class="fas fa-tooth"></i></span>
+                            <div>
+                                <strong>{{ service.title }}</strong>
+                                <span>{{ service.description|truncatechars:70 }}</span>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ==================================================== CTA -->
+    <section class="about-cta">
+        <div class="ds-container">
+            <div class="ds-cta-card">
+                <span class="ds-cta-card__icon"><i class="fas fa-tooth"></i></span>
+                <div class="ds-cta-card__body">
+                    <span class="ds-heading__eyebrow">قدم بعدی</span>
+                    <h2>لبخند سالم، نگرانی صفر.</h2>
+                    <p>نوبت مشاوره‌ی شما همین حالا در دسترس است.</p>
+                </div>
+                {% include '_cta_actions.html' with cta_size='lg' %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'about/js/about.js' %}"></script>
+{% endblock %}

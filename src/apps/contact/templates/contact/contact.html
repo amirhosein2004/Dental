@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تماس با مطب دندانپزشکی دکتر بابایی و بهمدی | آدرس، شماره تماس و فرم ارتباط{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="راه‌های ارتباط با مطب دندانپزشکی دکتر بابایی و بهمدی در مشهد و قوچان؛ آدرس، شماره تماس، ساعات کاری، نقشه و فرم ارسال پیام برای مشاوره و رزرو نوبت.">
+    <meta property="og:title" content="تماس با مطب دندانپزشکی دکتر بابایی و بهمدی">
+    <meta property="og:description" content="راه‌های ارتباط و فرم تماس با مطب دندانپزشکی دکتر بابایی و بهمدی.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sbdental.ir/contact/">
+    <meta property="og:image" content="https://sbdental.ir/static/img/site-logo.png">
+{% endblock %}
+
+{% block extra_static %}
+    {% comment %}
+        Leaflet is served from our own domain. unpkg is not reliably reachable
+        from Iran, and when it fails the map silently disappears — the visitor
+        just sees a blank box where the clinic's location should be.
+    {% endcomment %}
+    <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+    <link rel="stylesheet" href="{% static 'contact/css/contact.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- ============================================================ HERO -->
+    <section class="ctc-hero">
+        <div class="ctc-hero__bg" aria-hidden="true"></div>
+        <div class="ds-container ctc-hero__inner">
+            <span class="ds-heading__eyebrow">در ارتباط باشید</span>
+            <h1 class="ctc-hero__title">آماده‌ی پاسخ به شما هستیم</h1>
+            <p class="ctc-hero__lead">
+                برای رزرو نوبت، مشاوره‌ی رایگان یا هر سوال درمانی — از هر روشی که راحت‌تر است با ما در ارتباط باشید.
+            </p>
+
+            {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
+                <a href="{% url 'contact:messages' %}" class="ctc-hero__manage">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span>مدیریت پیام‌ها</span>
+                </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============================================================ PRACTICES -->
+    {% comment %}
+        One card per practice: address, every number, opening hours and a
+        directions link, all inside the block that names the city.
+
+        The page used to show a single "آدرس مطب / تماس مستقیم / ایمیل" bar
+        built from a clinic-wide record. With two locations that bar was
+        describing one of them and labelling it as if it were both — so a
+        visitor in Quchan read the Mashhad address, and the hours block
+        underneath belonged to neither in particular.
+    {% endcomment %}
+    <section class="ctc-quick" aria-label="مطب‌ها و راه‌های تماس">
+        <div class="ds-container ds-container--wide">
+            {% if branches %}
+                <div class="ctc-branches">
+                    {% for branch in branches %}
+                        <article class="ctc-branch" aria-labelledby="ctc-branch-{{ branch.pk }}">
+                            <header class="ctc-branch__head">
+                                <span class="ctc-branch__icon"><i class="fas fa-hospital"></i></span>
+                                <div>
+                                    <h2 class="ctc-branch__title" id="ctc-branch-{{ branch.pk }}">
+                                        {{ branch.display_title }}
+                                    </h2>
+                                    <p class="ctc-branch__city">{{ branch.city }}</p>
+                                </div>
+                            </header>
+
+                            <ul class="ctc-branch__rows" role="list">
+                                <li class="ctc-branch__row">
+                                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                    <div>
+                                        <h3>آدرس</h3>
+                                        <p>{{ branch.address }}</p>
+                                        {% if branch.postal_code %}
+                                            <p class="ctc-branch__muted">کد پستی: <span dir="ltr">{{ branch.postal_code }}</span></p>
+                                        {% endif %}
+                                    </div>
+                                </li>
+
+                                <li class="ctc-branch__row">
+                                    <i class="fas fa-phone" aria-hidden="true"></i>
+                                    <div>
+                                        <h3>
+                                            {% if branch.phone_list|length > 1 %}شماره‌های تماس{% else %}تماس مستقیم{% endif %}
+                                        </h3>
+                                        <ul class="ctc-branch__numbers" role="list">
+                                            {% for number in branch.phone_list %}
+                                                <li>
+                                                    <a href="tel:{{ number }}" class="ctc-branch__number">
+                                                        <span dir="ltr">{{ number }}</span>
+                                                        <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </li>
+
+                                <li class="ctc-branch__row">
+                                    <i class="fas fa-clock" aria-hidden="true"></i>
+                                    <div>
+                                        <h3>ساعات کاری</h3>
+                                        {% if branch.hours_list %}
+                                            <ul class="ctc-branch__hours" role="list">
+                                                {% for line in branch.hours_list %}
+                                                    <li>{{ line }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p class="ctc-branch__muted">ساعات کاری این مطب هنوز ثبت نشده.</p>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            </ul>
+
+                            <div class="ctc-branch__actions">
+                                <a class="ctc-branch__action"
+                                   {% if branch.map_link %}
+                                       href="{{ branch.map_link }}"
+                                   {% else %}
+                                       href="https://www.google.com/maps/search/?api=1&query={{ branch.address|urlencode }}"
+                                   {% endif %}
+                                   target="_blank" rel="noopener">
+                                    <i class="fas fa-diamond-turn-right" aria-hidden="true"></i>
+                                    <span>مسیریابی به این مطب</span>
+                                </a>
+                                <a class="ctc-branch__action ctc-branch__action--ghost"
+                                   href="#ctc-map-{{ branch.pk }}">
+                                    <i class="fas fa-map-location-dot" aria-hidden="true"></i>
+                                    <span>روی نقشه</span>
+                                </a>
+                            </div>
+                        </article>
+                    {% endfor %}
+
+                </div>
+            {% else %}
+                <div class="ctc-quick__empty" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    <span>اطلاعات مطب هنوز ثبت نشده است.</span>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============================================================ FORM + CTA -->
+    <section class="ds-section ctc-main">
+        <div class="ds-container ds-container--wide">
+            <div class="ctc-grid">
+                <!-- Form column -->
+                <article class="ctc-form-card">
+                    <header class="ctc-form-card__head">
+                        <span class="ds-heading__eyebrow">فرم پیام</span>
+                        <h2>پیام‌تان را برای ما بنویسید</h2>
+                        <p>در سریع‌ترین زمان ممکن با شما تماس خواهیم گرفت.</p>
+                    </header>
+
+                    <form method="post" class="ctc-form" novalidate>
+                        {% csrf_token %}
+                        {% for field in form.visible_fields %}
+                            <div class="ctc-form__field {% if field.errors %}has-error{% endif %}">
+                                <label for="{{ field.id_for_label }}">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span aria-hidden="true">*</span>{% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="ctc-form__hint">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <p class="ctc-form__error" role="alert">
+                                        <i class="fas fa-triangle-exclamation"></i>
+                                        {{ field.errors|first }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+
+                        <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg ctc-form__submit">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>ارسال پیام</span>
+                        </button>
+                    </form>
+                </article>
+
+                <!-- Info column -->
+                <aside class="ctc-info">
+                    <article class="ctc-info__block ctc-cta-card">
+                        <span class="ctc-cta-card__icon"><i class="fas fa-comments"></i></span>
+                        <h3>مشاوره رایگان</h3>
+                        <p>یک تماس کوتاه، یک برنامه‌ی درمانی روشن. بدون هزینه، بدون تعهد.</p>
+                        {% comment %}
+                            Every practice's number, not one "main" line: this
+                            card sits next to two addresses, and a single
+                            button would ring a city the reader may not be in.
+                        {% endcomment %}
+                        {% for branch in branches %}
+                            {% if branch.phone %}
+                                <a href="tel:{{ branch.phone }}" class="ds-btn ds-btn--primary">
+                                    <i class="fas fa-phone"></i>
+                                    <span>{{ branch.city }}</span>
+                                    <span dir="ltr">{{ branch.phone }}</span>
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                        <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--ghost">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>رزرو نوبت آنلاین</span>
+                        </a>
+                    </article>
+
+                    {% comment %}
+                        The email sits beside the message form, not in the row
+                        of practices above.
+
+                        It was a fourth card up there, shaped like the two
+                        practice cards and standing next to them, which read
+                        as a third location — and it left the two real
+                        addresses squeezed into two thirds of the row. One
+                        address for both practices belongs with the other
+                        written route to the clinic.
+                    {% endcomment %}
+                    {% if about.email %}
+                        <article class="ctc-info__block ctc-mail-card">
+                            <span class="ctc-mail-card__icon"><i class="fas fa-envelope"></i></span>
+                            <div class="ctc-mail-card__body">
+                                <h3>ایمیل مطب</h3>
+                                <a href="mailto:{{ about.email }}" class="ctc-mail-card__address" dir="ltr">
+                                    {{ about.email }}
+                                </a>
+                            </div>
+                        </article>
+                    {% endif %}
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ MAPS -->
+    {% comment %}
+        One map per practice. A single map centred between two cities 200km
+        apart shows neither of them, and a marker with no label does not say
+        which practice it is.
+
+        Coordinates come from `Branch`; a practice without them renders its
+        address and a search link instead of an empty grey box.
+    {% endcomment %}
+    {% if branches %}
+        <section class="ctc-map" aria-labelledby="ctc-map-title">
+            <div class="ds-container ds-container--wide">
+                <header class="ctc-map__head">
+                    <span class="ds-heading__eyebrow">موقعیت مکانی</span>
+                    <h2 id="ctc-map-title">پیدایمان کنید</h2>
+                    <p>محل هر مطب روی نقشه؛ برای مسیریابی روی دکمه‌ی بالای نقشه بزنید.</p>
+                </header>
+
+                <div class="ctc-maps">
+                    {% for branch in branches %}
+                        <article class="ctc-map__item" id="ctc-map-{{ branch.pk }}">
+                            <header class="ctc-map__item-head">
+                                <h3>{{ branch.display_title }}</h3>
+                                <p>{{ branch.address }}</p>
+                            </header>
+
+                            <div class="ctc-map__wrap">
+                                {% if branch.latitude and branch.longitude %}
+                                    <div class="ctc-map__canvas"
+                                         id="ctc-map-canvas-{{ branch.pk }}"
+                                         data-map-lat="{{ branch.latitude|stringformat:'s' }}"
+                                         data-map-lng="{{ branch.longitude|stringformat:'s' }}"
+                                         data-map-label="{{ branch.display_title }}"
+                                         aria-label="نقشه {{ branch.display_title }}"></div>
+                                {% else %}
+                                    <div class="ctc-map__missing">
+                                        <i class="fas fa-map-location-dot"></i>
+                                        <p>مختصات این مطب هنوز ثبت نشده؛ از دکمه‌ی زیر روی گوگل‌مپ ببینید.</p>
+                                    </div>
+                                {% endif %}
+
+                                <a href="{% if branch.map_link %}{{ branch.map_link }}{% else %}https://www.google.com/maps/search/?api=1&query={{ branch.address|urlencode }}{% endif %}"
+                                   target="_blank" rel="noopener"
+                                   class="ctc-map__external">
+                                    <i class="fas fa-map-location-dot"></i>
+                                    <span>باز کردن در نقشه</span>
+                                </a>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+    <script src="{% static 'contact/js/contact.js' %}"></script>
+    <script src="{% static 'js/math_captcha.js' %}" defer></script>
+{% endblock %}

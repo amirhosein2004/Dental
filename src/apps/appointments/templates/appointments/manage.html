@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}مدیریت زمان‌های نوبت‌دهی | پنل مدیریت{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'appointments/css/appointments.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container">
+
+        <header class="apt-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">پنل مدیریت</span>
+                <h1 class="apt-page__title">
+                    <i class="fas fa-calendar-days"></i>
+                    <span>زمان‌های نوبت‌دهی</span>
+                </h1>
+                <p class="apt-page__lead">
+                    هر زمانی که اینجا ثبت کنید، <strong>هر هفته</strong> تکرار می‌شود و یک نوبت
+                    قابل رزرو است. با شروع شنبه، همه‌ی زمان‌ها دوباره خالی می‌شوند.
+                    <strong>مطب</strong> را حتماً درست انتخاب کنید — بیمار همین را روی
+                    صفحه‌ی نوبت‌دهی می‌بیند.
+                </p>
+            </div>
+            <div class="apt-page__actions">
+                <a href="{% url 'appointments:list' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-list-check"></i>
+                    <span>نوبت‌های این هفته</span>
+                </a>
+                <a href="{% url 'core:manage' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>پنل</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="apt-manage-grid">
+            <!-- ============================ ADD FORM ============================ -->
+            <aside class="apt-panel">
+                <h2 class="apt-panel__title">
+                    <i class="fas fa-plus"></i>
+                    <span>افزودن زمان</span>
+                </h2>
+
+                <form method="post" class="apt-form" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="apt-form__alert" role="alert">
+                            <i class="fas fa-triangle-exclamation"></i>
+                            <span>{{ form.non_field_errors|first }}</span>
+                        </div>
+                    {% endif %}
+
+                    {% for field in form.visible_fields %}
+                        <div class="apt-form__field {% if field.errors %}has-error{% endif %}">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <p class="apt-form__error">
+                                    <i class="fas fa-circle-exclamation"></i>
+                                    {{ field.errors|first }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+
+                    <button type="submit" class="ds-btn ds-btn--primary">
+                        <i class="fas fa-save"></i>
+                        <span>افزودن</span>
+                    </button>
+                </form>
+            </aside>
+
+            <!-- ============================ SLOT LIST ============================ -->
+            <div class="apt-panel">
+                <h2 class="apt-panel__title">
+                    <i class="fas fa-clock"></i>
+                    <span>زمان‌های ثبت‌شده</span>
+                    <span class="apt-badge">{{ slots|length }}</span>
+                </h2>
+
+                {% if slots %}
+                    <ul class="apt-slot-list" role="list">
+                        {% for slot in slots %}
+                            <li class="apt-slot-row {% if not slot.is_active %}is-inactive{% endif %}">
+                                <div class="apt-slot-row__main">
+                                    <span class="apt-slot-row__day">{{ slot.weekday_label }}</span>
+                                    <span class="apt-slot-row__time" dir="ltr">{{ slot.time|time:'H:i' }}</span>
+                                    <span class="apt-slot-row__branch {% if not slot.branch %}is-missing{% endif %}">
+                                        <i class="fas fa-hospital"></i>
+                                        {{ slot.branch_label }}
+                                    </span>
+                                    {% if is_superuser %}
+                                        <span class="apt-slot-row__doctor">
+                                            <i class="fas fa-user-md"></i>
+                                            {{ slot.doctor.user.get_full_name }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="apt-slot-row__side">
+                                    {% if slot.pk in taken_slot_ids %}
+                                        <span class="apt-tag apt-tag--taken">
+                                            <i class="fas fa-lock"></i> این هفته رزرو شده
+                                        </span>
+                                    {% else %}
+                                        <span class="apt-tag apt-tag--free">
+                                            <i class="fas fa-check"></i> خالی
+                                        </span>
+                                    {% endif %}
+                                    {% if not slot.is_active %}
+                                        <span class="apt-tag apt-tag--off">غیرفعال</span>
+                                    {% endif %}
+
+                                    <form method="post" action="{% url 'appointments:delete_slot' slot.pk %}"
+                                          data-confirm
+                                          data-confirm-title="حذف زمان نوبت‌دهی"
+                                          data-confirm-text="زمان {{ slot.weekday_label }} ساعت {{ slot.time|time:'H:i' }} در {{ slot.branch_label }} حذف شود؟ نوبت‌های ثبت‌شده روی این زمان هم حذف می‌شوند."
+                                          data-confirm-ok="حذف زمان">
+                                        {% csrf_token %}
+                                        <button type="submit" class="apt-icon-btn apt-icon-btn--del"
+                                                title="حذف" aria-label="حذف زمان">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="apt-empty apt-empty--inline">
+                        <i class="fas fa-calendar-plus"></i>
+                        <p>هنوز زمانی ثبت نکرده‌اید. از فرم کنار شروع کنید.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static perms %}
+
+{% block title %}{{ blog.title }} | مطب دندانپزشکی دکتر بابایی و بهمدی{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="{{ blog.content|striptags|default:blog.title|truncatewords:20 }}">
+    <meta property="og:title" content="{{ blog.title }} | مطب دندانپزشکی دکتر بابایی و بهمدی">
+    <meta property="og:description" content="{{ blog.content|striptags|default:blog.title|truncatewords:20 }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{{ blog.image.url }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ blog.title }}">
+    <meta name="twitter:description" content="{{ blog.content|striptags|default:blog.title|truncatewords:20 }}">
+    <meta name="twitter:image" content="{{ blog.image.url }}">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'blog/css/blog_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- ============================================================ HERO -->
+    <section class="post-hero">
+        <div class="post-hero__bg" aria-hidden="true">
+            <img src="{{ blog.image.url }}" alt="" loading="eager">
+            <span class="post-hero__gradient"></span>
+        </div>
+
+        <div class="ds-container ds-container--wide post-hero__inner">
+            <nav class="post-hero__crumbs" aria-label="مسیر">
+                <a href="{% url 'home:home' %}">خانه</a>
+                <span aria-hidden="true">›</span>
+                <a href="{% url 'blog:blog_list' %}">وبلاگ</a>
+                <span aria-hidden="true">›</span>
+                <span class="post-hero__crumbs-current">{{ blog.title|truncatechars:40 }}</span>
+            </nav>
+
+            {% if blog.categories.exists %}
+                <div class="post-hero__tags" aria-label="دسته‌بندی">
+                    {% for category in blog.categories.all %}
+                        <a href="{% url 'blog:blog_list' %}?category={{ category.id }}"
+                           class="post-hero__tag">{{ category.name }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <h1 class="post-hero__title">{{ blog.title }}</h1>
+
+            <div class="post-hero__meta">
+                <span class="post-hero__meta-item">
+                    <i class="fas fa-user-md"></i>
+                    <span>دکتر {{ blog.writer.user.get_full_name|default:'ناشناس' }}</span>
+                </span>
+                <span class="post-hero__meta-dot" aria-hidden="true">•</span>
+                <span class="post-hero__meta-item">
+                    <i class="fas fa-calendar"></i>
+                    <time datetime="{{ blog.updated_at|date:'c' }}">{{ blog.get_updated_at_jalali }}</time>
+                </span>
+                <span class="post-hero__meta-dot" aria-hidden="true">•</span>
+                <span class="post-hero__meta-item">
+                    <i class="fas fa-book-open"></i>
+                    <span>مطالعه</span>
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ FEATURED IMAGE (poster) -->
+    <section class="post-poster">
+        <div class="ds-container">
+            <figure class="post-poster__wrap">
+                <img src="{{ blog.image.url }}" alt="{{ blog.title }}" loading="eager">
+            </figure>
+        </div>
+    </section>
+
+    <!-- ============================================================ CONTENT + SHARE -->
+    <section class="post-body">
+        <div class="ds-container">
+            <div class="post-body__grid">
+                <aside class="post-share" aria-label="اشتراک‌گذاری">
+                    <span class="post-share__label">اشتراک</span>
+                    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode }}&text={{ blog.title|urlencode }}"
+                       target="_blank" rel="noopener" class="post-share__btn" aria-label="اشتراک در توییتر">
+                        <i class="fab fa-x-twitter"></i>
+                    </a>
+                    <a href="https://t.me/share/url?url={{ request.build_absolute_uri|urlencode }}&text={{ blog.title|urlencode }}"
+                       target="_blank" rel="noopener" class="post-share__btn" aria-label="اشتراک در تلگرام">
+                        <i class="fab fa-telegram-plane"></i>
+                    </a>
+                    <a href="https://wa.me/?text={{ blog.title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}"
+                       target="_blank" rel="noopener" class="post-share__btn" aria-label="اشتراک در واتساپ">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <button type="button" class="post-share__btn" data-post-copy
+                            data-url="{{ request.build_absolute_uri }}"
+                            aria-label="کپی لینک" title="کپی لینک">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </aside>
+
+                <article class="post-article prose" itemscope itemtype="http://schema.org/BlogPosting">
+                    <meta itemprop="headline" content="{{ blog.title }}">
+                    <meta itemprop="datePublished" content="{{ blog.created_at|date:'c' }}">
+                    <meta itemprop="dateModified" content="{{ blog.updated_at|date:'c' }}">
+
+                    <div class="post-article__content" itemprop="articleBody">
+                        {{ blog.content|safe }}
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ AUTHOR CARD -->
+    {% if blog.writer %}
+    <section class="post-author">
+        <div class="ds-container">
+            <article class="post-author__card">
+                <div class="post-author__avatar">
+                    {% if blog.writer.user.image %}
+                        <img src="{{ blog.writer.user.image.url }}" alt="دکتر {{ blog.writer.user.get_full_name }}">
+                    {% else %}
+                        <i class="fas fa-user-md"></i>
+                    {% endif %}
+                </div>
+                <div class="post-author__body">
+                    <span class="post-author__eyebrow">نویسنده مقاله</span>
+                    <h3 class="post-author__name">دکتر {{ blog.writer.user.get_full_name }}</h3>
+                    {% if blog.writer.description %}
+                        {# Full bio: there is no author page to click through to. #}
+                        <p class="post-author__bio">{{ blog.writer.description }}</p>
+                    {% endif %}
+                    <div class="post-author__social">
+                        {% if blog.writer.instagram %}
+                            <a href="{{ blog.writer.instagram }}" target="_blank" rel="noopener" aria-label="اینستاگرام">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        {% endif %}
+                        {% if blog.writer.telegram %}
+                            <a href="{{ blog.writer.telegram }}" target="_blank" rel="noopener" aria-label="تلگرام">
+                                <i class="fab fa-telegram-plane"></i>
+                            </a>
+                        {% endif %}
+                        {% if blog.writer.twitter %}
+                            <a href="{{ blog.writer.twitter }}" target="_blank" rel="noopener" aria-label="توییتر">
+                                <i class="fab fa-x-twitter"></i>
+                            </a>
+                        {% endif %}
+                        {% if blog.writer.linkedin %}
+                            <a href="{{ blog.writer.linkedin }}" target="_blank" rel="noopener" aria-label="لینکدین">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="post-author__cta">
+                    <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--primary">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>رزرو مشاوره</span>
+                    </a>
+                </div>
+            </article>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ============================================================ CTA -->
+    <section class="post-cta">
+        <div class="ds-container">
+            <div class="post-cta__card">
+                <div>
+                    <span class="ds-heading__eyebrow">سوال دارید؟</span>
+                    <h2>مطلب مفید بود؟</h2>
+                    <p>برای مشاوره تخصصی درباره‌ی سلامت دندان‌ خود، یک نوبت رایگان بگیرید.</p>
+                </div>
+                <div class="post-cta__actions">
+                    <a href="{% url 'contact:contact' %}" class="ds-btn ds-btn--primary ds-btn--lg">
+                        <i class="fas fa-comments"></i>
+                        <span>مشاوره رایگان</span>
+                    </a>
+                    <a href="{% url 'blog:blog_list' %}" class="ds-btn ds-btn--ghost ds-btn--lg">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>مقالات بیشتر</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ Admin controls -->
+    {% if user|can_manage:blog.writer %}
+    <div class="post-admin" role="toolbar" aria-label="مدیریت مقاله">
+        <a href="{% url 'blog:update_blog' blog.pk %}"
+           class="post-admin__btn" title="ویرایش" aria-label="ویرایش مقاله">
+            <i class="fas fa-pen"></i>
+        </a>
+        <form method="post" action="{% url 'blog:delete_blog' blog.pk %}"
+              class="post-admin__form"
+              data-confirm
+              data-confirm-title="حذف مقاله"
+              data-confirm-text="مقاله‌ی «{{ blog.title }}» حذف شود؟ این عملیات قابل بازگشت نیست."
+              data-confirm-ok="حذف مقاله">
+            {% csrf_token %}
+            <button type="submit"
+                    class="post-admin__btn post-admin__btn--del"
+                    title="حذف" aria-label="حذف مقاله">
+                <i class="fas fa-trash"></i>
+            </button>
+        </form>
+    </div>
+
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'blog/js/blog_detail.js' %}" defer></script>
+{% endblock %}

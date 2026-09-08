@@ -1,0 +1,174 @@
+/* ============================================================================
+   Toast messages — floating stack, auto-dismiss, per-type accent, dark/light.
+   All rules are scoped under `.toasts` to raise specificity above Bootstrap's
+   `.toast:not(.show)` — otherwise Bootstrap 5 hides every toast we render.
+   Consumes design-system.css tokens.
+   ============================================================================ */
+
+.toasts {
+    position: fixed;
+    top: clamp(76px, 8vh, 96px);
+    inset-inline-end: clamp(.75rem, 2vw, 1.25rem);
+    z-index: 1080;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    max-width: min(400px, calc(100vw - 1.5rem));
+    width: 100%;
+    pointer-events: none;
+}
+
+.toasts .toast {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: .75rem;
+    padding: .85rem 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-inline-start: 4px solid var(--brand);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-xl);
+    color: var(--fg);
+    font-size: .93rem;
+    line-height: 1.5;
+    overflow: hidden;
+    pointer-events: auto;
+    animation: toast-in .32s cubic-bezier(.2, .8, .3, 1.1);
+    will-change: transform, opacity;
+    /* Bootstrap defaults width via --bs-toast-max-width; reset it here. */
+    max-width: 100%;
+    width: auto;
+}
+.toasts .toast.is-leaving {
+    animation: toast-out .28s ease forwards;
+}
+
+@keyframes toast-in {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes toast-out {
+    from { opacity: 1; transform: translateX(0); max-height: 200px; padding-block: .85rem; margin-bottom: .6rem; }
+    to   { opacity: 0; transform: translateX(-40px); max-height: 0; padding-block: 0; margin-bottom: 0; border-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .toasts .toast,
+    .toasts .toast.is-leaving { animation: none; }
+}
+
+/* Icon */
+.toasts .toast__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    font-size: .9rem;
+    flex-shrink: 0;
+}
+:root[data-theme="dark"] .toasts .toast__icon { color: var(--brand); }
+
+/* Text */
+.toasts .toast__text {
+    margin: 0;
+    color: var(--fg);
+    min-width: 0;
+    word-break: break-word;
+}
+
+/* Close button */
+.toasts .toast__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    background: transparent;
+    color: var(--fg-subtle);
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: .82rem;
+    transition: background .2s ease, color .2s ease;
+}
+.toasts .toast__close:hover { background: var(--bg-muted); color: var(--fg); }
+
+/* Progress bar (auto-dismiss visual) */
+.toasts .toast__progress {
+    position: absolute;
+    bottom: 0;
+    inset-inline-start: 0;
+    height: 3px;
+    width: 100%;
+    background: var(--brand);
+    opacity: .55;
+    transform-origin: right;
+    animation: toast-progress 5s linear forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+    .toasts .toast__progress { animation: none; opacity: 0; }
+}
+@keyframes toast-progress {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}
+
+/* Per-type accents */
+.toasts .toast--success {
+    border-inline-start-color: var(--success);
+}
+.toasts .toast--success .toast__icon {
+    background: color-mix(in srgb, var(--success) 15%, transparent);
+    color: var(--success);
+}
+.toasts .toast--success .toast__progress { background: var(--success); }
+
+.toasts .toast--error {
+    border-inline-start-color: var(--danger);
+}
+.toasts .toast--error .toast__icon {
+    background: color-mix(in srgb, var(--danger) 15%, transparent);
+    color: var(--danger);
+}
+.toasts .toast--error .toast__progress { background: var(--danger); }
+
+.toasts .toast--warning {
+    border-inline-start-color: var(--warning);
+}
+.toasts .toast--warning .toast__icon {
+    background: color-mix(in srgb, var(--warning) 18%, transparent);
+    color: var(--warning);
+}
+.toasts .toast--warning .toast__progress { background: var(--warning); }
+
+.toasts .toast--info,
+.toasts .toast--debug {
+    border-inline-start-color: var(--info);
+}
+.toasts .toast--info .toast__icon,
+.toasts .toast--debug .toast__icon {
+    background: color-mix(in srgb, var(--info) 15%, transparent);
+    color: var(--info);
+}
+.toasts .toast--info .toast__progress,
+.toasts .toast--debug .toast__progress { background: var(--info); }
+
+/* Mobile: full-width slide-in from top */
+@media (max-width: 639.98px) {
+    .toasts {
+        top: 74px;
+        inset-inline: .5rem;
+        max-width: none;
+    }
+    @keyframes toast-in {
+        from { opacity: 0; transform: translateY(-16px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toast-out {
+        from { opacity: 1; transform: translateY(0); max-height: 200px; padding-block: .85rem; margin-bottom: .6rem; }
+        to   { opacity: 0; transform: translateY(-16px); max-height: 0; padding-block: 0; margin-bottom: 0; border-width: 0; }
+    }
+}

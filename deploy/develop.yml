@@ -1,0 +1,53 @@
+# Develop: your machine, with real Postgres and real Redis.
+#
+#   docker compose --env-file env/.env.develop -f deploy/base.yml -f deploy/develop.yml up
+#
+# Use this when you need the infrastructure — testing a migration against
+# Postgres, or watching Celery actually queue rather than run inline. For
+# ordinary work `python manage.py runserver` is faster and is still supported;
+# nothing here replaces it.
+#
+# No nginx: `runserver` serves static files itself when DEBUG is on, and one
+# less moving part is worth more here than production parity.
+
+services:
+  db:
+    # Exposed so you can point pgAdmin or DBeaver at it. Bound to 127.0.0.1 —
+    # `5433:5432` alone would publish the database on every interface,
+    # including whatever café wifi the laptop is on.
+    ports:
+      - "127.0.0.1:5433:5432"
+
+  redis:
+    ports:
+      - "127.0.0.1:6380:6379"
+
+  web:
+    env_file:
+      - ./env/.env.develop
+    # Source mounted over the image copy, so an edit is live without a rebuild.
+    # `../src` and not `..`: /app holds the application, and mounting the whole
+    # repository there would put deploy/, docs/ and scripts/ inside the running
+    # container and hide the staticfiles volume underneath them.
+    volumes:
+      - ../src:/app
+      - static_files:/app/staticfiles
+      - media_files:/app/media
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      RUN_MIGRATIONS: "1"
+      # Pointless with DEBUG on — runserver serves from the source tree — and
+      # it would write hashed copies into the mounted directory.
+      RUN_COLLECTSTATIC: "0"
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+  worker:
+    env_file:
+      - ./env/.env.develop
+    volumes:
+      - ../src:/app
+      - media_files:/app/media
+    # `--pool=solo` keeps the worker single-process so a traceback lands in the
+    # log you are already watching rather than in a forked child.
+    command: ["celery", "-A", "config", "worker", "--loglevel=debug", "--pool=solo"]

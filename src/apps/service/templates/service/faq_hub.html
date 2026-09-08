@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}سؤالات متداول | پنل مدیریت{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'core/css/core.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container">
+        <header class="core-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">پنل مدیریت</span>
+                <h1 class="core-page__title">
+                    <i class="fas fa-circle-question"></i>
+                    <span>سؤالات متداول</span>
+                </h1>
+                <p class="core-page__lead">
+                    سؤالات متداول روی صفحه‌ی خودِ هر خدمت نمایش داده می‌شوند، نه در یک
+                    صفحه‌ی جدا. از فرم زیر می‌توانید همین‌جا سؤال تازه بنویسید و آن را
+                    به یکی از خدمات وصل کنید.
+                </p>
+            </div>
+            <div>
+                <a href="{% url 'core:manage' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>بازگشت به پنل</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="core-layout">
+            {% comment %}
+                Writing a question and seeing which treatment still needs one
+                are the same job, so they are the same screen. The form's
+                first field is the treatment: a question cannot exist without
+                one, and choosing it here is what puts the answer on that
+                treatment's page.
+            {% endcomment %}
+            <article class="core-panel" id="faq-new">
+                <h2 class="core-panel__title">
+                    <i class="fas fa-plus"></i>
+                    <span>سؤال جدید</span>
+                </h2>
+                <p class="core-panel__note">
+                    سؤال را همان‌طور بنویسید که بیمار می‌پرسد — «ایمپلنت چقدر طول می‌کشد؟» — نه به‌صورت تیتر.
+                </p>
+
+                {% if services %}
+                    <form method="post" class="core-form" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="core-form__nonfield" role="alert">
+                                <i class="fas fa-triangle-exclamation"></i>
+                                <span>{{ form.non_field_errors|first }}</span>
+                            </div>
+                        {% endif %}
+
+                        {% for field in form %}
+                            <div class="core-form__field {% if field.errors %}has-error{% endif %}">
+                                <label for="{{ field.id_for_label }}">
+                                    <span>{{ field.label }}</span>
+                                    {% if field.field.required %}<span class="req">*</span>{% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="core-form__hint">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <p class="core-form__error" role="alert">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ field.errors|first }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <div class="core-form__actions">
+                            <button type="submit" class="ds-btn ds-btn--primary">
+                                <i class="fas fa-save"></i>
+                                <span>ثبت سؤال</span>
+                            </button>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="core-list__empty">
+                        <i class="fas fa-info-circle"></i>
+                        <span>
+                            هنوز خدمتی ثبت نشده. سؤال متداول به یک خدمت تعلق می‌گیرد، پس اول
+                            <a href="{% url 'service:add_service' %}">یک خدمت اضافه کنید</a>.
+                        </span>
+                    </div>
+                {% endif %}
+            </article>
+
+            <div class="core-panel">
+                <h2 class="core-panel__title">
+                    <i class="fas fa-list"></i>
+                    <span>خدمات و تعداد سؤال‌ها</span>
+                </h2>
+
+                {% if services %}
+                    <ul class="core-list" role="list">
+                        {% for service in services %}
+                            <li class="core-list__item">
+                                <div>
+                                    <strong>{{ service.title }}</strong>
+                                    {% with count=service.faqs.all|length %}
+                                        {% if count %}
+                                            <span>{{ count }} سؤال ثبت شده</span>
+                                        {% else %}
+                                            <span class="core-list__warn">هنوز سؤالی ندارد</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                                <div class="core-list__actions">
+                                    <a href="?service={{ service.pk }}#faq-new"
+                                       class="core-list__btn" title="افزودن سؤال به این خدمت" aria-label="افزودن سؤال">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                    <a href="{% url 'service:service_detail' service.slug %}"
+                                       class="core-list__btn" title="مشاهده صفحه عمومی" aria-label="مشاهده">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'service:update_service' service.pk %}#svc-faq-edit-title"
+                                       class="core-list__btn" title="ویرایش سؤالات" aria-label="ویرایش سؤالات">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="core-list__empty">
+                        <i class="fas fa-info-circle"></i>
+                        <span>هنوز خدمتی ثبت نشده.</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}پزشکان مطب دندانپزشکی دکتر بابایی و بهمدی | مشهد و قوچان{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="پزشکان مطب دندانپزشکی دکتر بابایی و بهمدی در مشهد و قوچان؛ رزومه، تخصص، سوابق و رزرو نوبت آنلاین.">
+    <meta property="og:title" content="پزشکان مطب دندانپزشکی دکتر بابایی و بهمدی">
+    <meta property="og:description" content="رزومه و تخصص پزشکان، به همراه رزرو نوبت آنلاین.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ canonical_url }}">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'doctors/css/doctors.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container">
+        <header class="ds-heading">
+            <p class="ds-heading__eyebrow">تیم درمان</p>
+            <h1 class="ds-heading__title">پزشکان مطب</h1>
+            <p class="ds-heading__lead">
+                هر پزشک صفحه‌ی رزومه‌ی خودش را دارد — تحصیلات، سوابق، خدمات
+                تخصصی و محل کار.
+            </p>
+        </header>
+
+        {% if doctors %}
+            <div class="doc-list__grid">
+                {% for d in doctors %}
+                    <a href="{{ d.get_absolute_url }}" class="ds-card ds-card--hover doc-list__card">
+                        <span class="doc-list__avatar">
+                            {% if d.user.image %}
+                                <img src="{{ d.user.image.url }}"
+                                     alt="{{ d.display_name }}{% if d.specialty %}، {{ d.specialty }}{% endif %}"
+                                     width="120" height="120" loading="lazy">
+                            {% else %}
+                                <i class="fas fa-user-md" aria-hidden="true"></i>
+                            {% endif %}
+                        </span>
+
+                        <h2 class="doc-list__name">{{ d.display_name }}</h2>
+
+                        {% if d.headline %}
+                            <p class="doc-list__headline">{{ d.headline }}</p>
+                        {% elif d.specialty %}
+                            <p class="doc-list__headline">{{ d.specialty }}</p>
+                        {% endif %}
+
+                        <ul class="doc-list__meta" role="list">
+                            {% if d.experience_years %}
+                                <li>{{ d.experience_years }} سال تجربه</li>
+                            {% endif %}
+                            {% for b in d.branches.all %}
+                                <li>{{ b.city }}</li>
+                            {% endfor %}
+                        </ul>
+
+                        <span class="doc-list__more">
+                            <span>مشاهده رزومه</span>
+                            <i class="fas fa-angle-left" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="ds-heading__lead">هنوز پزشکی ثبت نشده است.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

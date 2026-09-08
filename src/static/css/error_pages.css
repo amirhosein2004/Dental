@@ -1,0 +1,262 @@
+/* ============================================================================
+   404 / 403 error pages — big playful code + tooth mascot + quick links.
+   Consumes design-system.css tokens.
+   ============================================================================ */
+
+.err-page {
+    position: relative;
+    min-height: calc(100vh - 68px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: clamp(2.5rem, 6vw, 4rem);
+    isolation: isolate;
+    overflow: hidden;
+    text-align: center;
+}
+
+.err-page__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+.err-page__blob {
+    position: absolute;
+    width: 380px; height: 380px;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: .35;
+}
+.err-page__blob--1 { background: var(--brand); top: -140px; inset-inline-end: -120px; }
+.err-page__blob--2 { background: var(--accent); bottom: -180px; inset-inline-start: -140px; opacity: .3; }
+.err-page--danger .err-page__blob--1 { background: var(--danger); opacity: .3; }
+
+.err-page__inner {
+    max-width: 640px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* ============================================================ CODE + MASCOT ==== */
+.err-page__code {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(.75rem, 2vw, 1.25rem);
+    margin-bottom: .5rem;
+    /* Numerals like 404/403/500 are always read left-to-right, even inside an
+       RTL page — force LTR so flex order matches the intended digit sequence. */
+    direction: ltr;
+}
+.err-page__digit {
+    font-size: clamp(6rem, 15vw, 10rem);
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    letter-spacing: -0.08em;
+}
+.err-page__code--danger .err-page__digit {
+    background: linear-gradient(135deg, var(--danger) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.err-page__code--server .err-page__digit {
+    background: linear-gradient(135deg, var(--warning) 0%, var(--brand) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Tooth mascot in place of "0" for 404 */
+.err-page__tooth {
+    display: inline-flex;
+    width: clamp(90px, 15vw, 140px);
+    height: clamp(90px, 15vw, 140px);
+    flex-shrink: 0;
+    perspective: 500px;
+}
+.err-page__tooth svg {
+    width: 100%; height: 100%;
+    transform-origin: 60% 70%;
+    animation: err-tooth-wobble 3.6s ease-in-out infinite;
+    filter: drop-shadow(0 12px 20px rgba(15, 118, 110, 0.32));
+    will-change: transform;
+}
+:root[data-theme="dark"] .err-page__tooth svg {
+    filter: drop-shadow(0 12px 22px rgba(45, 212, 191, 0.35));
+}
+@keyframes err-tooth-wobble {
+    0%, 100% { transform: rotate(-5deg) translateY(0); }
+    50%      { transform: rotate(5deg)  translateY(-6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .err-page__tooth svg { animation: none; }
+}
+
+/* Lock in place of "0" for 403 */
+.err-page__lock {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(90px, 15vw, 140px);
+    height: clamp(90px, 15vw, 140px);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.5), transparent 55%),
+        linear-gradient(135deg, color-mix(in srgb, var(--danger) 25%, transparent), var(--bg-elevated));
+    color: var(--danger);
+    font-size: clamp(3rem, 7vw, 4.5rem);
+    box-shadow: var(--shadow-xl);
+    border: 2px solid color-mix(in srgb, var(--danger) 25%, var(--border));
+    animation: err-lock-pulse 2.2s ease-in-out infinite;
+}
+@keyframes err-lock-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.05); box-shadow: var(--shadow-xl), 0 0 40px color-mix(in srgb, var(--danger) 40%, transparent); }
+}
+
+/* Server icon (500) — orange glow + shaking sparks */
+.err-page__server {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(90px, 15vw, 140px);
+    height: clamp(90px, 15vw, 140px);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.5), transparent 55%),
+        linear-gradient(135deg, color-mix(in srgb, var(--warning) 22%, transparent), var(--bg-elevated));
+    color: var(--warning);
+    font-size: clamp(2.8rem, 7vw, 4.2rem);
+    box-shadow: var(--shadow-xl);
+    border: 2px solid color-mix(in srgb, var(--warning) 30%, var(--border));
+    animation: err-server-shake 1.4s ease-in-out infinite;
+}
+@keyframes err-server-shake {
+    0%, 100%       { transform: rotate(-2deg); }
+    25%            { transform: rotate(3deg); }
+    50%            { transform: rotate(-2deg); }
+    75%            { transform: rotate(2deg); }
+}
+.err-page__spark {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--warning);
+    filter: drop-shadow(0 0 8px var(--warning));
+    animation: err-spark 1.8s ease-in-out infinite;
+}
+.err-page__spark--a { top: 10%; inset-inline-start: 15%; animation-delay: 0s;   }
+.err-page__spark--b { top: 20%; inset-inline-end: 12%;   animation-delay: .4s;  background: var(--danger); filter: drop-shadow(0 0 8px var(--danger)); }
+.err-page__spark--c { bottom: 15%; inset-inline-start: 20%; animation-delay: .9s;  background: var(--brand);  filter: drop-shadow(0 0 8px var(--brand));  }
+@keyframes err-spark {
+    0%, 100% { opacity: 0; transform: scale(.6); }
+    50%      { opacity: 1; transform: scale(1.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .err-page__server,
+    .err-page__spark { animation: none; }
+}
+
+/* ============================================================ TEXT ==== */
+.err-page__eyebrow {
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    margin-bottom: .35rem;
+}
+:root[data-theme="dark"] .err-page__eyebrow { color: var(--brand); }
+.err-page__eyebrow--danger {
+    background: color-mix(in srgb, var(--danger) 15%, transparent);
+    color: var(--danger);
+}
+.err-page__eyebrow--warning {
+    background: color-mix(in srgb, var(--warning) 18%, transparent);
+    color: var(--warning);
+}
+
+.err-page__title {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    color: var(--fg);
+    margin: 0 0 .35rem 0;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+.err-page__lead {
+    color: var(--fg-muted);
+    font-size: 1.02rem;
+    line-height: 1.9;
+    margin: 0 0 1.25rem 0;
+    max-width: 52ch;
+    text-wrap: pretty;
+}
+.err-page__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    color: var(--fg-subtle);
+    font-size: .88rem;
+    margin: .75rem 0 0 0;
+}
+.err-page__hint i { color: var(--brand); }
+
+/* ============================================================ ACTIONS ==== */
+.err-page__actions {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: .5rem;
+}
+
+.err-page__links {
+    list-style: none;
+    padding: 0;
+    margin: 1.75rem 0 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: center;
+    padding-top: 1.5rem;
+    border-top: 1px dashed var(--border);
+    width: 100%;
+    max-width: 480px;
+}
+.err-page__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .5rem 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    font-size: .85rem;
+    transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease;
+}
+.err-page__links a:hover {
+    color: var(--brand-strong);
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    transform: translateY(-2px);
+}
+:root[data-theme="dark"] .err-page__links a:hover { color: var(--brand); }
+.err-page__links a i { color: var(--brand); font-size: .85em; }
+
+/* ============================================================ RESPONSIVE ==== */
+@media (max-width: 639.98px) {
+    .err-page__actions { flex-direction: column; align-items: stretch; width: 100%; max-width: 340px; }
+    .err-page__actions .ds-btn { width: 100%; justify-content: center; }
+    .err-page__links { flex-direction: column; align-items: stretch; }
+    .err-page__links a { justify-content: center; }
+}

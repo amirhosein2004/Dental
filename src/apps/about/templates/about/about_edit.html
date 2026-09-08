@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}درباره ما | پنل مدیریت{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'core/css/core.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container ds-container--narrow">
+        <header class="core-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">پنل مدیریت</span>
+                <h1 class="core-page__title">
+                    <i class="fas fa-circle-info"></i>
+                    <span>درباره ما</span>
+                </h1>
+                {% comment %}
+                    Address and phone are not on this form any more. They
+                    belong to a location and the practice has two, so they are
+                    edited per practice on the branch screen — which is also
+                    the only place the footer and the contact page read them
+                    from. This page is what the "درباره ما" page is for: who
+                    the practice is.
+                {% endcomment %}
+                <p class="core-page__lead">
+                    معرفی مطب — نام، ایمیل، متن معرفی و تصویر. این محتوا در
+                    صفحه‌ی «درباره ما» نمایش داده می‌شود.
+                    <br>
+                    آدرس، تلفن و ساعات کاری هر مطب در
+                    <a href="{% url 'about:branch_list' %}">بخش مطب‌ها</a> ثبت می‌شود.
+                </p>
+            </div>
+            <div>
+                <a href="{% url 'core:manage' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>بازگشت به مدیریت</span>
+                </a>
+            </div>
+        </header>
+
+        <article class="core-form__panel">
+            <form method="post" enctype="multipart/form-data" class="core-form" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="core-form__alert" role="alert">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        <span>{{ form.non_field_errors|first }}</span>
+                    </div>
+                {% endif %}
+
+                {# Image field — sits on top with live preview. #}
+                <div class="core-form__field core-form__field--image {% if form.image.errors %}has-error{% endif %}">
+                    <label for="{{ form.image.id_for_label }}">
+                        <i class="fas fa-image"></i>
+                        <span>{{ form.image.label }}</span>
+                    </label>
+
+                    <div class="core-form__cover">
+                        {% if form.instance.image %}
+                            <img src="{{ form.instance.image.url }}" alt="{{ form.instance.name }}" id="clinicCoverPreview">
+                        {% else %}
+                            <div class="core-form__cover-empty" id="clinicCoverPreview">
+                                <i class="fas fa-image"></i>
+                                <span>هنوز تصویری انتخاب نشده</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {{ form.image }}
+
+                    {% if form.image.errors %}
+                        <p class="core-form__error">
+                            <i class="fas fa-circle-exclamation"></i>
+                            {{ form.image.errors|first }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                {% for field in form.visible_fields %}
+                    {% if field.name != 'image' %}
+                        <div class="core-form__field {% if field.errors %}has-error{% endif %}">
+                            <label for="{{ field.id_for_label }}">
+                                <i class="fas
+                                   {% if field.name == 'name' %}fa-hospital
+                                   {% elif field.name == 'email' %}fa-envelope
+                                   {% elif field.name == 'description' %}fa-align-right
+                                   {% else %}fa-circle-info{% endif %}"></i>
+                                <span>{{ field.label }}</span>
+                                {% if field.field.required %}<span class="req">*</span>{% endif %}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <p class="core-form__error">
+                                    <i class="fas fa-circle-exclamation"></i>
+                                    {{ field.errors|first }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <div class="core-form__actions">
+                    <a href="{% url 'core:manage' %}" class="ds-btn ds-btn--ghost">
+                        <i class="fas fa-xmark"></i>
+                        <span>انصراف</span>
+                    </a>
+                    <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg">
+                        <i class="fas fa-save"></i>
+                        <span>{% if has_about %}ذخیره تغییرات{% else %}ثبت اطلاعات{% endif %}</span>
+                    </button>
+                </div>
+            </form>
+        </article>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Live preview for the cover image picker.
+    (function () {
+        var input = document.getElementById('{{ form.image.id_for_label }}');
+        var preview = document.getElementById('clinicCoverPreview');
+        if (!input || !preview) return;
+        input.addEventListener('change', function () {
+            var file = input.files && input.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                if (preview.tagName === 'IMG') {
+                    preview.src = e.target.result;
+                    return;
+                }
+                var img = document.createElement('img');
+                img.id = 'clinicCoverPreview';
+                img.src = e.target.result;
+                img.alt = 'پیش‌نمایش';
+                preview.replaceWith(img);
+                preview = img;
+            };
+            reader.readAsDataURL(file);
+        });
+    })();
+</script>
+{% endblock %}

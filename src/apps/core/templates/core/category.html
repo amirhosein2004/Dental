@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}دسته‌بندی‌ها | پنل مدیریت{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'core/css/core.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container">
+        <header class="core-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">پنل مدیریت</span>
+                <h1 class="core-page__title">
+                    <i class="fas fa-tags"></i>
+                    <span>دسته‌بندی‌ها</span>
+                </h1>
+                <p class="core-page__lead">
+                    این دسته‌ها در وبلاگ و گالری استفاده می‌شوند.
+                </p>
+            </div>
+            <a href="{% url 'core:manage' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                <i class="fas fa-arrow-right"></i>
+                <span>بازگشت به پنل</span>
+            </a>
+        </header>
+
+        <div class="core-layout">
+            <!-- Add form -->
+            <aside class="core-panel">
+                <h3 class="core-panel__title">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>افزودن دسته جدید</span>
+                </h3>
+
+                <form method="post" action="{% url 'core:add_category' %}" class="core-form" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="core-form__error">
+                            <i class="fas fa-triangle-exclamation"></i>
+                            <span>{{ form.non_field_errors|first }}</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="core-form__field {% if form.name.errors %}has-error{% endif %}">
+                        <label for="{{ form.name.id_for_label }}">
+                            نام دسته
+                            <span class="req">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <p class="core-form__error">
+                                <i class="fas fa-circle-exclamation"></i>
+                                {{ form.name.errors|first }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="ds-btn ds-btn--primary">
+                        <i class="fas fa-save"></i>
+                        <span>افزودن</span>
+                    </button>
+                </form>
+            </aside>
+
+            <!-- Existing list -->
+            <article class="core-panel">
+                <h3 class="core-panel__title">
+                    <i class="fas fa-list"></i>
+                    <span>دسته‌های موجود</span>
+                    <span class="core-panel__badge">{{ categories|length }}</span>
+                </h3>
+
+                {% if categories %}
+                    <ul class="core-list" role="list">
+                        {% for category in categories %}
+                            <li class="core-list__item">
+                                <div>
+                                    <strong>{{ category.name }}</strong>
+                                    <span>ID: {{ category.id }}</span>
+                                </div>
+                                <div class="core-list__actions">
+                                    <button type="button" class="core-list__btn"
+                                            data-dialog-open="#catEdit-{{ category.id }}"
+                                            title="ویرایش">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <form method="post" action="{% url 'core:remove_category' category.id %}"
+                                          class="core-list__form"
+                                          data-confirm
+                                          data-confirm-title="حذف دسته"
+                                          data-confirm-text="دسته‌ی «{{ category.name }}» حذف شود؟ آیتم‌های وابسته (بلاگ و گالری) بدون دسته می‌مانند."
+                                          data-confirm-ok="حذف دسته">
+                                        {% csrf_token %}
+                                        <button type="submit" class="core-list__btn core-list__btn--del"
+                                                title="حذف">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="core-list__empty">
+                        <i class="fas fa-info-circle"></i>
+                        <span>هنوز دسته‌ای ثبت نشده. از فرم کنار اضافه کنید.</span>
+                    </div>
+                {% endif %}
+            </article>
+        </div>
+    </div>
+</section>
+
+{% comment %}
+    Edit dialogs. Native <dialog> rather than a Bootstrap modal so the page
+    carries no CDN dependency; opened by `data-dialog-open` in static/js/dialogs.js.
+{% endcomment %}
+{% for category in categories %}
+    <dialog id="catEdit-{{ category.id }}" class="cd-dialog" aria-label="ویرایش دسته">
+        <form method="post" action="{% url 'core:update_category' category.id %}" class="cd-dialog__body">
+            {% csrf_token %}
+            <h3 class="cd-dialog__title">ویرایش دسته</h3>
+            <div class="cd-dialog__field">
+                <label for="cat-edit-{{ category.id }}">نام دسته</label>
+                <input type="text" name="name" id="cat-edit-{{ category.id }}"
+                       value="{{ category.name }}" class="form-control" required>
+            </div>
+            <div class="cd-dialog__actions">
+                <button type="button" class="ds-btn ds-btn--ghost" data-dialog-close>انصراف</button>
+                <button type="submit" class="ds-btn ds-btn--primary">
+                    <i class="fas fa-save"></i>
+                    <span>ذخیره</span>
+                </button>
+            </div>
+        </form>
+    </dialog>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}افزودن گالری جدید | مدیریت گالری{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'gallery/css/gallery_form.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section gal-form-page">
+    <div class="ds-container">
+        <header class="gal-form-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">مدیریت گالری</span>
+                <h1 class="gal-form-page__title">
+                    <i class="fas fa-images"></i>
+                    <span>افزودن گالری جدید</span>
+                </h1>
+                <p class="gal-form-page__lead">
+                    یک دسته‌بندی انتخاب کن و چند تصویر آپلود کن. پیش‌نمایش لحظه‌ای پایین نشان داده می‌شود.
+                </p>
+            </div>
+            <a href="{% url 'gallery:gallery_list' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                <i class="fas fa-arrow-right"></i>
+                <span>لیست گالری‌ها</span>
+            </a>
+        </header>
+
+        <form method="post" enctype="multipart/form-data" class="gal-form" novalidate id="galleryCreateForm">
+            {% csrf_token %}
+
+            <div class="gal-form__grid">
+                <!-- Category panel -->
+                <aside class="gal-form__panel">
+                    <h3 class="gal-form__panel-title">
+                        <i class="fas fa-tag"></i>
+                        <span>دسته‌بندی</span>
+                        {% if gallery_form.category.field.required %}<span class="req">*</span>{% endif %}
+                    </h3>
+
+                    <div class="gal-form__field {% if gallery_form.category.errors %}has-error{% endif %}">
+                        {% comment %}
+                            Wrapper plus our own caret. The bare control was
+                            drawn by the OS: a light-grey box in a dark panel,
+                            with a native arrow, and a popup the browser sized
+                            to its own metrics rather than the field — on a
+                            tablet it opened wider than the card it sits in.
+                        {% endcomment %}
+                        <div class="gal-form__select">
+                            {{ gallery_form.category }}
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <small class="gal-form__hint">
+                            <i class="fas fa-info-circle"></i>
+                            دسته‌بندی برای فیلتر گالری در صفحه عمومی استفاده می‌شود.
+                        </small>
+                        {% if gallery_form.category.errors %}
+                            <p class="gal-form__error">
+                                <i class="fas fa-circle-exclamation"></i>
+                                {{ gallery_form.category.errors|first }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <ul class="gal-form__tips" role="list">
+                        <li><i class="fas fa-check"></i><span>حداکثر ۵ مگابایت هر تصویر</span></li>
+                        <li><i class="fas fa-check"></i><span>فرمت JPG یا PNG</span></li>
+                        <li><i class="fas fa-check"></i><span>می‌توانید چند تصویر همزمان انتخاب کنید</span></li>
+                    </ul>
+                </aside>
+
+                <!-- Drop zone -->
+                <div class="gal-form__uploader {% if image_form.image.errors %}has-error{% endif %}"
+                     data-gal-dropzone>
+                    <label class="gal-drop" for="gal-file-input">
+                        <div class="gal-drop__icon"><i class="fas fa-cloud-arrow-up"></i></div>
+                        <h4 class="gal-drop__title">تصاویر را اینجا رها کنید</h4>
+                        <p class="gal-drop__lead">یا کلیک کنید و از فایل‌های خود انتخاب کنید</p>
+                        <span class="gal-drop__btn">
+                            <i class="fas fa-folder-open"></i>
+                            <span>انتخاب تصاویر</span>
+                        </span>
+                    </label>
+                    <input type="file"
+                           name="{{ image_form.image.name }}"
+                           id="gal-file-input"
+                           accept="image/jpeg,image/png"
+                           multiple required
+                           data-gal-file>
+
+                    {% if image_form.image.errors %}
+                        <p class="gal-form__error">
+                            <i class="fas fa-circle-exclamation"></i>
+                            {{ image_form.image.errors|first }}
+                        </p>
+                    {% endif %}
+
+                    <!-- live preview grid -->
+                    <div class="gal-previews" data-gal-previews>
+                        <p class="gal-previews__empty" data-gal-empty>
+                            <i class="fas fa-image"></i>
+                            <span>پیش‌نمایش تصاویر انتخاب‌شده اینجا نمایش داده می‌شود</span>
+                        </p>
+                    </div>
+
+                    <p class="gal-form__meta" data-gal-summary hidden>
+                        <i class="fas fa-images"></i>
+                        <strong data-gal-count>0</strong>
+                        <span>تصویر انتخاب‌شده</span>
+                        <span aria-hidden="true">•</span>
+                        <span data-gal-size>0</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="gal-form__actions">
+                <a href="{% url 'gallery:gallery_list' %}" class="ds-btn ds-btn--ghost">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>انصراف</span>
+                </a>
+                <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg">
+                    <i class="fas fa-save"></i>
+                    <span>ایجاد گالری</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'gallery/js/create_gallery.js' %}" defer></script>
+{% endblock %}

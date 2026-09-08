@@ -1,0 +1,130 @@
+# Shared skeleton. Never run on its own — always with an overlay:
+#
+#   docker compose -f deploy/base.yml -f deploy/stage.yml up -d
+#
+# No `container_name` anywhere on purpose. Fixed names are globally unique on
+# a host, so develop and stage could not both be up at once. Compose derives
+# names from COMPOSE_PROJECT_NAME instead, which each overlay's env file sets.
+
+services:
+  db:
+    # Pinned to a major version, never `:latest`: Postgres does not upgrade its
+    # own data directory, so a floating tag means the day the tag moves the
+    # container starts against a directory it refuses to read.
+    #
+    # This must move together with PG_MAJOR in the Dockerfile — pg_dump and
+    # the server have to match, or backups write files the server cannot
+    # restore. See docs/operations.md.
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # The condition the web container actually waits on. `depends_on` alone
+      # waits for the process to start, which happens well before Postgres
+      # finishes its first-run initialisation.
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # Cache, rate-limit counters, login throttle and the Celery broker all live
+    # here. `allkeys-lru` means a full instance evicts cold cache entries
+    # instead of refusing writes — which would take the site down, since the
+    # response cache is on the request path.
+    command: >
+      redis-server
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    # `image` and `build` together: locally `compose build` builds and tags it,
+    # while a server given APP_IMAGE pulls that exact tag instead. CI builds
+    # once and both the server and the tests then run the same bytes — a
+    # server that builds for itself is running something nobody tested.
+    image: ${APP_IMAGE:-dental-app:local}
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # The web container owns the shared setup steps; the worker skips them so
+      # two `migrate` runs cannot race.
+      RUN_MIGRATIONS: "1"
+      RUN_COLLECTSTATIC: "1"
+    volumes:
+      - static_files:/app/staticfiles
+      - media_files:/app/media
+      # Dumps land on the host, not in the container's writable layer.
+      #
+      # `manage.py backup_db` writes to /app/backups, and without this that
+      # directory is part of the container — so every dump `scripts/backup.sh`
+      # took was destroyed by the next `up --build`, and `scripts/restore.sh`,
+      # which opens the file from the host, could never find one to restore.
+      # A backup that only exists inside the thing it is protecting is not a
+      # backup.
+      #
+      # A bind mount rather than a named volume, because the point of a dump
+      # is to be copied off the machine: `scp server:/srv/dental/backups/...`
+      # needs a path, and `docker volume inspect` is not one. The image runs
+      # as uid 1000, which is the first non-root account on a Debian or Ubuntu
+      # host, so the deploy user usually owns these files already.
+      #
+      # One directory per environment, named by DJANGO_ENV from the env file.
+      # They shared `backups/` for exactly one afternoon: `backup_db --keep 3`
+      # rotates by age across everything it finds, so taking a stage backup
+      # deleted develop's dumps — and `restore.sh backups/dental-<stamp>.sql`
+      # offered a filename with nothing in it to say which database it came
+      # from.
+      #
+      # `:?` so a compose run that forgot --env-file stops with a readable
+      # message instead of mounting `backups/` itself and mixing them again.
+      - ../backups/${DJANGO_ENV:?set by deploy/env/.env.<environment>}:/app/backups
+
+  worker:
+    # Same image as web — one build, three roles.
+    image: ${APP_IMAGE:-dental-app:local}
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      RUN_MIGRATIONS: "0"
+      RUN_COLLECTSTATIC: "0"
+    command: ["celery", "-A", "config", "worker", "--loglevel=info", "--concurrency=2"]
+    volumes:
+      # The worker writes uploads too (image processing on save), so it needs
+      # the same media volume — but not staticfiles, which it never reads.
+      - media_files:/app/media
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_files:
+  media_files:

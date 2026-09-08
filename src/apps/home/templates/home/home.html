@@ -1,0 +1,454 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}مطب دندانپزشکی دکتر بابایی و بهمدی | خدمات تخصصی، زیبایی و ایمپلنت دندان{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="مطب دندانپزشکی دکتر بابایی و بهمدی؛ ارائه‌دهنده خدمات تخصصی دندانپزشکی، زیبایی، ایمپلنت و ارتودنسی با تیمی حرفه‌ای و تجهیزات مدرن در قوچان.">
+    <meta property="og:title" content="مطب دندانپزشکی دکتر بابایی و بهمدی">
+    <meta property="og:description" content="خدمات تخصصی دندانپزشکی، زیبایی و ایمپلنت با تیمی حرفه‌ای و تجهیزات مدرن در قوچان.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sbdental.ir/">
+    <meta property="og:image" content="https://sbdental.ir/static/img/site-logo.png">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'home/css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- ============================================================ HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__bg" aria-hidden="true">
+            <span class="hero__blob hero__blob--1"></span>
+            <span class="hero__blob hero__blob--2"></span>
+            <span class="hero__grid"></span>
+        </div>
+
+        <div class="ds-container ds-container--wide hero__grid-wrap">
+            <div class="hero__content">
+                <span class="hero__badge">
+                    <i class="fas fa-tooth"></i>
+                    <span>خدمات تخصصی دندانپزشکی</span>
+                </span>
+                <h1 id="hero-title" class="hero__title">
+                    لبخندی که <span class="hero__title-accent">شایسته شماست</span>
+                    <br>در دستان متخصصین ما
+                </h1>
+                <p class="hero__lead">
+                    مطب تخصصی دندان‌پزشکی دکتر بابایی و بهمدی؛ ترکیبی از دانش روز،
+                    تجهیزات پیشرفته و مراقبتی صمیمی — برای همه‌ی اعضای خانواده.
+                </p>
+
+                <div class="hero__actions">
+                    {% include '_cta_actions.html' with cta_size='lg' %}
+                </div>
+
+                <ul class="hero__points" role="list">
+                    <li><i class="fas fa-check-circle"></i><span>مشاوره اولیه رایگان</span></li>
+                    <li><i class="fas fa-check-circle"></i><span>پرداخت اقساطی</span></li>
+                    <li><i class="fas fa-check-circle"></i><span>تجهیزات به‌روز</span></li>
+                </ul>
+            </div>
+
+            <aside class="hero__visual" aria-hidden="true">
+                <div class="hero__card hero__card--tilt">
+                    <div class="hero__card-glow"></div>
+                    <img src="{% static 'img/tooth-home.png' %}" alt="" class="hero__card-img">
+                </div>
+                <div class="hero__mini hero__mini--top">
+                    <i class="fas fa-user-md"></i>
+                    <div><strong>{{ doctors|length|default:'۲+' }}</strong><span>پزشک متخصص</span></div>
+                </div>
+                <div class="hero__mini hero__mini--bottom">
+                    <i class="fas fa-star"></i>
+                    <div><strong>۴٫۹/۵</strong><span>رضایت بیماران</span></div>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <!-- ==================================================== TRUST STRIP -->
+    <section class="trust-strip" aria-label="آمار مطب">
+        <div class="ds-container">
+            <ul class="trust-strip__list" role="list">
+                <li>
+                    <strong>+۱۰</strong>
+                    <span>سال تجربه</span>
+                </li>
+                <li>
+                    <strong>+۵۰۰۰</strong>
+                    <span>بیمار موفق</span>
+                </li>
+                <li>
+                    <strong>+۲۰</strong>
+                    <span>نوع خدمت تخصصی</span>
+                </li>
+                <li>
+                    <strong>۱۰۰٪</strong>
+                    <span>مواد استاندارد FDA</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ================================================= ADVANTAGES -->
+    <section class="ds-section advantages" aria-labelledby="advantages-title">
+        <div class="ds-container">
+            <header class="ds-heading">
+                <span class="ds-heading__eyebrow">چرا ما</span>
+                <h2 class="ds-heading__title" id="advantages-title">تجربه‌ای متفاوت در دندان‌پزشکی</h2>
+                <p class="ds-heading__lead">با استانداردهای جهانی، مراقبتی که واقعا برایتان طراحی شده است.</p>
+            </header>
+
+            <div class="advantages__grid">
+                <article class="advantages__card">
+                    <span class="advantages__icon"><i class="fas fa-award"></i></span>
+                    <h3>کیفیت جهانی</h3>
+                    <p>پیشرفته‌ترین تجهیزات و مواد تأییدشده FDA برای پایدارترین نتیجه.</p>
+                </article>
+                <article class="advantages__card">
+                    <span class="advantages__icon"><i class="fas fa-coins"></i></span>
+                    <h3>قیمت شفاف</h3>
+                    <p>هزینه‌ها قبل از هر درمان کاملا اعلام می‌شود — بدون سورپرایز.</p>
+                </article>
+                <article class="advantages__card">
+                    <span class="advantages__icon"><i class="fas fa-credit-card"></i></span>
+                    <h3>پرداخت اقساطی</h3>
+                    <p>امکان اقساط بدون بهره برای درمان‌های سنگین‌تر.</p>
+                </article>
+                <article class="advantages__card">
+                    <span class="advantages__icon"><i class="fas fa-user-md"></i></span>
+                    <h3>تیم متخصص</h3>
+                    <p>دندانپزشکان با مدارک معتبر و سال‌ها تجربه بالینی.</p>
+                </article>
+                <article class="advantages__card">
+                    <span class="advantages__icon"><i class="fas fa-comments"></i></span>
+                    <h3>مشاوره رایگان</h3>
+                    <p>ارزیابی اولیه و مشاوره درمانی رایگان توسط کارشناسان.</p>
+                </article>
+                <article class="advantages__card">
+                    <span class="advantages__icon"><i class="fas fa-microchip"></i></span>
+                    <h3>فناوری پیشرفته</h3>
+                    <p>رادیوگرافی دیجیتال، اسکنر داخل‌دهانی و تجهیزات نسل جدید.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================================================== DOCTORS -->
+    <section class="ds-section doctors" aria-labelledby="doctors-title">
+        <div class="ds-container">
+            <header class="ds-heading">
+                <span class="ds-heading__eyebrow">متخصصین ما</span>
+                <h2 class="ds-heading__title" id="doctors-title">با تیم دندانپزشکی ما آشنا شوید</h2>
+                <p class="ds-heading__lead">پزشکانی که با تعهد و دقت، بهترین تجربه درمانی را برای شما رقم می‌زنند.</p>
+            </header>
+
+            {% if doctors %}
+                <div class="doctors__grid">
+                    {% for doctor in doctors %}
+                        <article class="doctor-card">
+                            <div class="doctor-card__media">
+                                {% if doctor.user.image %}
+                                    <img src="{{ doctor.user.image.url }}"
+                                         alt="دکتر {{ doctor.user.get_full_name }}"
+                                         loading="lazy">
+                                {% else %}
+                                    <div class="doctor-card__placeholder">
+                                        <i class="fas fa-user-md"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="doctor-card__body">
+                                <h3 class="doctor-card__name">
+                                    {% comment %}
+                                        The name links to the doctor's own page.
+                                        The bio here is a truncated preview, and
+                                        until this link existed the "…" led
+                                        nowhere — while the page that carries
+                                        the full CV, the credentials and the
+                                        registration number is the one visitors
+                                        actually search for by name.
+                                    {% endcomment %}
+                                    <a href="{{ doctor.get_absolute_url }}">دکتر {{ doctor.user.get_full_name }}</a>
+                                </h3>
+                                {% if doctor.headline or doctor.specialty %}
+                                    <p class="doctor-card__headline">{{ doctor.headline|default:doctor.specialty }}</p>
+                                {% endif %}
+                                <p class="doctor-card__bio">{{ doctor.description|truncatechars:180 }}</p>
+                                {% comment %}
+                                    The two buttons are one group; the social
+                                    link is not part of it. Sharing a wrapping
+                                    flex row meant the Instagram circle usually
+                                    wrapped onto a line of its own and read as
+                                    a leftover icon dropped under the card
+                                    rather than as the doctor's account. It has
+                                    its own row now, behind a rule.
+                                {% endcomment %}
+                                <div class="doctor-card__foot">
+                                    <div class="doctor-card__actions">
+                                        <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--primary ds-btn--sm">
+                                            <i class="fas fa-calendar-check"></i>
+                                            <span>دریافت نوبت</span>
+                                        </a>
+                                        <a href="{{ doctor.get_absolute_url }}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                                            <i class="fas fa-id-card"></i>
+                                            <span>رزومه و سوابق</span>
+                                        </a>
+                                    </div>
+                                    {% if doctor.instagram %}
+                                        <a href="{{ doctor.instagram }}" target="_blank" rel="noopener"
+                                           class="doctor-card__social"
+                                           aria-label="اینستاگرام {{ doctor.display_name }}">
+                                            <i class="fab fa-instagram" aria-hidden="true"></i>
+                                            <span>اینستاگرام</span>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+                {% comment %}
+                    The bios here are shortened previews, so the section needs a
+                    destination. It points at the doctors index rather than the
+                    About page: each doctor there has a page of their own with
+                    the full CV, which is what a visitor searching a name is
+                    looking for.
+                {% endcomment %}
+                <div class="services-preview__more">
+                    <a href="{% url 'doctors:doctor_list' %}" class="ds-btn ds-btn--ghost">
+                        <span>معرفی کامل تیم درمانی</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+            {% else %}
+                <p class="empty-note">در حال حاضر اطلاعاتی از متخصصین موجود نیست.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ==================================================== SERVICES -->
+    <section class="ds-section services-preview" aria-labelledby="services-title">
+        <div class="ds-container">
+            <header class="ds-heading">
+                <span class="ds-heading__eyebrow">خدمات مطب</span>
+                <h2 class="ds-heading__title" id="services-title">خدمات تخصصی ما</h2>
+                <p class="ds-heading__lead">راه‌حل کاملی برای همه‌ی نیازهای دندان‌پزشکی شما.</p>
+            </header>
+
+            {% if services %}
+                <div class="services-preview__grid">
+                    {% for service in services %}
+                        <article class="service-card">
+                            <div class="service-card__media">
+                                <img src="{{ service.image.url }}"
+                                     alt="{{ service.title }}"
+                                     loading="lazy">
+                            </div>
+                            <div class="service-card__body">
+                                <h3 class="service-card__title">{{ service.title }}</h3>
+                                <p class="service-card__desc">{{ service.description|striptags|truncatechars:120 }}</p>
+                                <a href="{% url 'service:service_list' %}" class="service-card__link">
+                                    <span>اطلاعات بیشتر</span>
+                                    <i class="fas fa-arrow-left"></i>
+                                </a>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+                <div class="services-preview__more">
+                    <a href="{% url 'service:service_list' %}" class="ds-btn ds-btn--ghost">
+                        <span>مشاهده همه خدمات</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+            {% else %}
+                <p class="empty-note">در حال حاضر خدماتی موجود نیست.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ================================================ CLINIC -->
+    {% comment %}
+        The "آشنایی با ما" band.
+
+        It used to be one boxed card: a photo glued to a wall of text, with
+        the two practices' addresses, numbers and hours crammed into a
+        three-column strip inside the same paragraph flow — so the section
+        that is meant to introduce the clinic read as a second footer.
+
+        Now the photo is framed and carries the one number worth pulling out,
+        the introduction stands on its own, and each practice is a card of its
+        own with its address, hours and a tappable number. The email is gone
+        from here: it is in the footer of this very page and on the contact
+        page, and it was the one line in the strip nobody was looking for.
+    {% endcomment %}
+    {% if about %}
+    <section class="ds-section clinic" aria-labelledby="clinic-title">
+        <div class="clinic__bg" aria-hidden="true">
+            <span class="clinic__blob clinic__blob--1"></span>
+            <span class="clinic__blob clinic__blob--2"></span>
+        </div>
+
+        <div class="ds-container ds-container--wide">
+            <div class="clinic__grid">
+                <figure class="clinic__media">
+                    <img src="{{ about.image.url }}" alt="مطب {{ about.name }}" loading="lazy">
+                    <figcaption class="clinic__stat">
+                        <strong>+۱۰</strong>
+                        <span>سال در کنار شما</span>
+                    </figcaption>
+                </figure>
+
+                <div class="clinic__body">
+                    <span class="ds-heading__eyebrow">آشنایی با ما</span>
+                    <h2 class="clinic__title" id="clinic-title">{{ about.name }}</h2>
+                    <p class="clinic__desc">{{ about.description|truncatechars:280 }}</p>
+
+                    <ul class="clinic__features" role="list">
+                        <li><i class="fas fa-user-md"></i><span>کادر تخصصی</span></li>
+                        <li><i class="fas fa-tools"></i><span>تجهیزات مدرن</span></li>
+                        <li><i class="fas fa-heart"></i><span>مراقبت اختصاصی</span></li>
+                    </ul>
+
+                    {% if branches %}
+                        <div class="clinic__branches">
+                            {% for branch in branches %}
+                                <article class="clinic__branch">
+                                    <h3 class="clinic__branch-name">
+                                        <i class="fas fa-hospital" aria-hidden="true"></i>
+                                        <span>{{ branch.display_title }}</span>
+                                    </h3>
+                                    <p class="clinic__branch-line">
+                                        <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                        <span>{{ branch.address }}</span>
+                                    </p>
+                                    {% if branch.hours_list %}
+                                        <p class="clinic__branch-line">
+                                            <i class="fas fa-clock" aria-hidden="true"></i>
+                                            <span>
+                                                {% for line in branch.hours_list %}<em>{{ line }}</em>{% endfor %}
+                                            </span>
+                                        </p>
+                                    {% endif %}
+                                    <div class="clinic__branch-phones">
+                                        {% for number in branch.phone_list %}
+                                            <a href="tel:{{ number }}" class="clinic__phone">
+                                                <i class="fas fa-phone" aria-hidden="true"></i>
+                                                <span dir="ltr">{{ number }}</span>
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% include '_cta_actions.html' %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ================================================ BLOG PREVIEW -->
+    {% if blogs %}
+    <section class="ds-section blog-preview" aria-labelledby="blog-title">
+        <div class="ds-container">
+            <header class="ds-heading">
+                <span class="ds-heading__eyebrow">وبلاگ آموزشی</span>
+                <h2 class="ds-heading__title" id="blog-title">آخرین مقالات آموزشی</h2>
+                <p class="ds-heading__lead">نکات مراقبتی، آموزش‌ها و تجربه‌های تخصصی از تیم ما.</p>
+            </header>
+
+            <div class="blog-preview__grid">
+                {% for blog in blogs|slice:":3" %}
+                    <article class="blog-card">
+                        <a href="{% url 'blog:blog_detail' blog.slug %}" class="blog-card__media">
+                            <img src="{{ blog.image.url }}" alt="{{ blog.title }}" loading="lazy">
+                        </a>
+                        <div class="blog-card__body">
+                            <div class="blog-card__tags">
+                                {% for category in blog.categories.all|slice:":2" %}
+                                    <span class="blog-card__tag">{{ category }}</span>
+                                {% endfor %}
+                            </div>
+                            <h3 class="blog-card__title">
+                                <a href="{% url 'blog:blog_detail' blog.slug %}">{{ blog.title }}</a>
+                            </h3>
+                            <a href="{% url 'blog:blog_detail' blog.slug %}" class="blog-card__link">
+                                <span>ادامه مطلب</span>
+                                <i class="fas fa-arrow-left"></i>
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            <div class="services-preview__more">
+                <a href="{% url 'blog:blog_list' %}" class="ds-btn ds-btn--ghost">
+                    <span>مشاهده همه مقالات</span>
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ================================================ PORTFOLIO -->
+    {% if galleries %}
+    <section class="ds-section portfolio" aria-labelledby="portfolio-title">
+        <div class="ds-container">
+            <header class="ds-heading">
+                <span class="ds-heading__eyebrow">نمونه کار</span>
+                <h2 class="ds-heading__title" id="portfolio-title">نمونه کارهای اخیر</h2>
+                <p class="ds-heading__lead">نتایج واقعی از درمان‌های اخیر بیماران ما.</p>
+            </header>
+
+            <div class="portfolio__grid">
+                {% for gallery in galleries %}
+                    <article class="portfolio-card">
+                        <div class="portfolio-card__stack">
+                            {% for img in gallery.images.all|slice:":3" %}
+                                <figure class="portfolio-card__figure">
+                                    <img src="{{ img.image.url }}" alt="نمونه کار" loading="lazy">
+                                </figure>
+                            {% endfor %}
+                        </div>
+                        <a href="{% url 'gallery:gallery_list' %}" class="portfolio-card__link">
+                            <span>مشاهده گالری کامل</span>
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ================================================ FINAL CTA -->
+    <section class="final-cta" aria-labelledby="final-cta-title">
+        <div class="ds-container">
+            <div class="ds-cta-card ds-cta-card--brand">
+                <span class="ds-cta-card__icon"><i class="fas fa-star"></i></span>
+                <div class="ds-cta-card__body">
+                    <span class="ds-heading__eyebrow">همین حالا شروع کنید</span>
+                    <h2 id="final-cta-title">آماده‌اید تا لبخندی درخشان داشته باشید؟</h2>
+                    <p>
+                        همین امروز نوبت مشاوره خود را رزرو کنید. تیم ما در کنار شماست
+                        تا بهترین تجربه دندان‌پزشکی را برای شما رقم بزنیم.
+                    </p>
+                </div>
+                {% include '_cta_actions.html' with cta_size='lg' %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'home/js/home.js' %}"></script>
+{% endblock %}

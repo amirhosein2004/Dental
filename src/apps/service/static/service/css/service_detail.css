@@ -1,0 +1,335 @@
+/* =============================================================================
+   One treatment, one page.
+
+   Tokens only — no literal colours — so both themes and any later palette
+   change apply here without edits.
+   ============================================================================= */
+
+.svd__hero {
+    padding-block: clamp(1.5rem, 4vw, 2.5rem) clamp(2rem, 5vw, 3.5rem);
+    background: linear-gradient(165deg, var(--bg-muted), var(--bg));
+    border-bottom: 1px solid var(--border);
+}
+
+.svd__crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: clamp(1.25rem, 3vw, 2rem);
+    font-size: .85rem;
+    color: var(--fg-muted);
+}
+
+.svd__crumbs a { color: var(--fg-muted); text-decoration: none; transition: color .2s ease; }
+.svd__crumbs a:hover { color: var(--brand); }
+.svd__crumbs i { font-size: .7rem; color: var(--fg-subtle); }
+.svd__crumbs [aria-current] { color: var(--fg); font-weight: 600; }
+
+.svd__hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: center;
+}
+
+.svd__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 4.5vw, 2.75rem);
+    font-weight: 800;
+    line-height: 1.3;
+    color: var(--fg);
+}
+
+.svd__lead {
+    margin: 1rem 0 0;
+    font-size: clamp(.95rem, 2vw, 1.08rem);
+    line-height: 2.1;
+    color: var(--fg-muted);
+}
+
+.svd__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1.75rem;
+}
+
+.svd__hero-media {
+    margin: 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    aspect-ratio: 4 / 3;
+}
+
+.svd__hero-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ------------------------------------------------------------------ BODY -- */
+
+.svd__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 19rem;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    padding-block: var(--section-y);
+    align-items: start;
+}
+
+.svd__main > * + * { margin-top: clamp(2rem, 5vw, 3rem); }
+
+.svd__section-title {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    margin: 0 0 1.25rem;
+    font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+    font-weight: 700;
+    color: var(--fg);
+}
+
+.svd__section-title i {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    font-size: .95rem;
+}
+
+/* The body comes from CKEditor, so the rules below target bare tags rather
+   than classes — nothing in that output carries one. */
+.svd__prose { color: var(--fg-muted); line-height: 2.15; font-size: 1rem; }
+.svd__prose > * + * { margin-top: 1rem; }
+
+.svd__prose h2,
+.svd__prose h3 {
+    color: var(--fg);
+    font-weight: 700;
+    line-height: 1.5;
+    margin-top: 2rem;
+}
+
+.svd__prose h2 { font-size: 1.3rem; }
+.svd__prose h3 { font-size: 1.1rem; }
+.svd__prose ul, .svd__prose ol { padding-inline-start: 1.5rem; }
+.svd__prose li { margin-bottom: .5rem; }
+.svd__prose a { color: var(--brand); }
+
+.svd__prose img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+}
+
+/* Wide content scrolls inside itself rather than pushing the page sideways. */
+.svd__prose table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+}
+
+.svd__prose td, .svd__prose th {
+    border: 1px solid var(--border);
+    padding: .6rem .8rem;
+}
+
+/* ------------------------------------------------------------------- FAQ -- */
+
+.svd__faq-list { display: grid; gap: .65rem; }
+
+.svd__faq-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    overflow: hidden;
+}
+
+.svd__faq-item[open] { border-color: var(--brand); }
+
+.svd__faq-q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--fg);
+    list-style: none;
+}
+
+.svd__faq-q::-webkit-details-marker { display: none; }
+.svd__faq-q i { color: var(--brand); font-size: .8rem; transition: transform .25s ease; }
+.svd__faq-item[open] .svd__faq-q i { transform: rotate(180deg); }
+
+.svd__faq-a {
+    padding: 0 1.15rem 1.15rem;
+    color: var(--fg-muted);
+    line-height: 2.05;
+    font-size: .95rem;
+}
+
+.svd__faq-a p { margin: 0 0 .75rem; }
+.svd__faq-a p:last-child { margin-bottom: 0; }
+
+/* --------------------------------------------------------------- DOCTORS -- */
+
+.svd__doctor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: .75rem;
+}
+
+.svd__doctor {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: .85rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .2s ease, transform .2s ease;
+}
+
+.svd__doctor:hover { border-color: var(--brand); transform: translateY(-2px); }
+
+.svd__doctor img,
+.svd__doctor-fallback {
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    background: var(--brand-soft);
+    color: var(--brand);
+}
+
+.svd__doctor-body { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
+.svd__doctor-body strong { font-size: .95rem; color: var(--fg); }
+.svd__doctor-body em { font-size: .8rem; font-style: normal; color: var(--fg-muted); }
+
+/* --------------------------------------------------------------- RELATED -- */
+
+.svd__related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: .65rem;
+}
+
+.svd__related-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .85rem 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-muted);
+    border: 1px solid transparent;
+    color: var(--fg);
+    text-decoration: none;
+    font-size: .92rem;
+    font-weight: 600;
+    transition: border-color .2s ease, background .2s ease;
+}
+
+.svd__related-item:hover { border-color: var(--brand); background: var(--bg-elevated); }
+.svd__related-item i { color: var(--brand); font-size: .8rem; }
+
+/* ----------------------------------------------------------------- ASIDE -- */
+
+.svd__aside { position: sticky; top: 5.5rem; display: grid; gap: 1rem; }
+
+.svd__branch { padding: 1.25rem; }
+
+.svd__branch h2 {
+    margin: 0 0 .85rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--fg);
+}
+
+.svd__branch p {
+    display: flex;
+    align-items: flex-start;
+    gap: .55rem;
+    margin: 0 0 .55rem;
+    font-size: .88rem;
+    line-height: 1.9;
+    color: var(--fg-muted);
+}
+
+.svd__branch i { color: var(--brand); font-size: .85rem; margin-top: .35rem; flex-shrink: 0; }
+.svd__branch a { color: var(--fg-muted); text-decoration: none; }
+.svd__branch a:hover { color: var(--brand); }
+
+/* Opening hours: one line per entry, kept inside the card that names the
+   practice — the two cities do not keep the same hours. */
+.svd__branch-hours span { display: grid; gap: .15rem; min-width: 0; }
+.svd__branch-hours em { font-style: normal; }
+
+.svd__branch-map {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    margin-top: .25rem;
+    padding: .4rem .8rem;
+    border-radius: var(--radius-pill);
+    background: var(--brand-soft);
+    color: var(--brand-strong) !important;
+    font-size: .82rem;
+    font-weight: 700;
+}
+:root[data-theme="dark"] .svd__branch-map { color: var(--brand) !important; }
+.svd__branch-map i { margin-top: 0; }
+
+.svd__doctor-note {
+    margin: -.35rem 0 1rem;
+    font-size: .85rem;
+    color: var(--fg-muted);
+}
+
+.svd__book {
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    background: linear-gradient(150deg, var(--brand), var(--brand-strong));
+    border: none;
+    color: #fff;
+}
+
+.svd__book > i { font-size: 1.75rem; opacity: .9; }
+
+.svd__book p {
+    margin: .75rem 0 1rem;
+    font-size: .9rem;
+    line-height: 1.9;
+    color: rgba(255, 255, 255, .94);
+}
+
+.svd__book .ds-btn--primary { background: #fff; color: var(--brand-strong); box-shadow: none; }
+.svd__book .ds-btn--primary:hover { color: var(--brand-strong); }
+
+/* ----------------------------------------------------------- RESPONSIVE -- */
+
+@media (max-width: 980px) {
+    .svd__layout { grid-template-columns: 1fr; }
+    .svd__aside { position: static; }
+}
+
+@media (max-width: 780px) {
+    .svd__hero-grid { grid-template-columns: 1fr; }
+    .svd__hero-media { order: -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .svd__doctor, .svd__faq-q i { transition: none; }
+    .svd__doctor:hover { transform: none; }
+}

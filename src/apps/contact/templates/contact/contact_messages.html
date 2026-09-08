@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}مدیریت پیام‌های تماس | مطب{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'contact/css/contact_messages.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section msg-page">
+    <div class="ds-container">
+        <header class="msg-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">مدیریت</span>
+                <h1 class="msg-page__title">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span>پیام‌های تماس</span>
+                </h1>
+                <p class="msg-page__lead">
+                    مشاهده، علامت‌گذاری و پاک‌سازی پیام‌های دریافتی از فرم تماس.
+                </p>
+            </div>
+            <a href="{% url 'contact:contact' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                <i class="fas fa-arrow-right"></i>
+                <span>صفحه تماس</span>
+            </a>
+        </header>
+
+        {% comment %}
+            Browser notifications. Per-device, not per-account: permission is
+            granted by a browser, so the doctor's phone and the reception PC
+            each have to switch this on once. The script reflects whichever
+            state this browser is already in.
+        {% endcomment %}
+        <div class="msg-push" role="group" aria-label="اعلان مرورگر" data-push-card>
+            <span class="msg-push__icon" aria-hidden="true">
+                <i class="fas fa-bell"></i>
+            </span>
+
+            <div class="msg-push__text">
+                <span class="msg-push__title">
+                    اعلان روی این دستگاه
+                    {% comment %}
+                        The state pill is the only thing on the card that says
+                        whether this browser is actually subscribed. push.js
+                        flips `data-state` on the card; everything else here is
+                        styled from that one attribute.
+                    {% endcomment %}
+                    <span class="msg-push__state" data-push-state>
+                        <span class="msg-push__dot"></span>
+                        <span data-push-state-label>خاموش</span>
+                    </span>
+                </span>
+                <span class="msg-push__status" data-push-status>
+                    با روشن کردن اعلان، پیام‌های جدید بلافاصله روی همین دستگاه نمایش داده می‌شوند.
+                </span>
+            </div>
+
+            <div class="msg-push__actions">
+                <button type="button" class="ds-btn ds-btn--primary ds-btn--sm msg-push__toggle"
+                        data-push-toggle
+                        data-vapid-key="{{ vapid_public_key }}"
+                        {# Not read from the cookie: CSRF_COOKIE_HTTPONLY hides it from JS in production. #}
+                        data-csrf="{{ csrf_token }}"
+                        data-subscribe-url="{% url 'notifications:push_subscribe' %}"
+                        data-unsubscribe-url="{% url 'notifications:push_unsubscribe' %}">
+                    <i class="fas fa-bell" data-push-icon></i>
+                    <span data-push-label>فعال‌سازی اعلان</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ============================================================ TOOLBAR -->
+        <div class="msg-toolbar">
+            <nav class="msg-tabs" aria-label="فیلتر پیام‌ها">
+                <a href="?filter=all"
+                   class="msg-tab {% if filter_status == 'all' %}is-active{% endif %}"
+                   aria-current="{% if filter_status == 'all' %}page{% endif %}">
+                    <i class="fas fa-inbox"></i>
+                    <span>همه</span>
+                </a>
+                <a href="?filter=unread"
+                   class="msg-tab {% if filter_status == 'unread' %}is-active{% endif %}"
+                   aria-current="{% if filter_status == 'unread' %}page{% endif %}">
+                    <i class="fas fa-envelope"></i>
+                    <span>خوانده‌نشده</span>
+                </a>
+                <a href="?filter=read"
+                   class="msg-tab {% if filter_status == 'read' %}is-active{% endif %}"
+                   aria-current="{% if filter_status == 'read' %}page{% endif %}">
+                    <i class="fas fa-envelope-open"></i>
+                    <span>خوانده‌شده</span>
+                </a>
+            </nav>
+
+            <div class="msg-toolbar__actions">
+                <form action="{% url 'contact:mark_all_read' %}" method="post"
+                      data-confirm
+                      data-confirm-title="علامت‌گذاری همه"
+                      data-confirm-text="همه‌ی پیام‌های خوانده‌نشده به‌عنوان خوانده‌شده علامت بخورند؟"
+                      data-confirm-ok="بله، همه">
+                    {% csrf_token %}
+                    <button type="submit" class="ds-btn ds-btn--ghost ds-btn--sm">
+                        <i class="fas fa-check-double"></i>
+                        <span>علامت همه به‌عنوان خوانده‌شده</span>
+                    </button>
+                </form>
+                <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm msg-toolbar__danger"
+                        data-dialog-open="#cleanupDialog">
+                    <i class="fas fa-broom"></i>
+                    <span>پاک‌سازی قدیمی‌ها</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ============================================================ COUNT PILL -->
+        <div class="msg-count">
+            <i class="fas fa-hashtag"></i>
+            <strong>{{ messages_list|length }}</strong>
+            <span>پیام
+                {% if filter_status == 'read' %}خوانده‌شده
+                {% elif filter_status == 'unread' %}خوانده‌نشده
+                {% endif %}
+            </span>
+        </div>
+
+        <!-- ============================================================ MESSAGES LIST -->
+        {% if messages_list %}
+            <ol class="msg-list" role="list">
+                {% for message in messages_list %}
+                    <li class="msg-item {% if not message.is_read %}is-unread{% endif %}">
+                        <div class="msg-item__avatar" aria-hidden="true">
+                            <span>{{ message.name|first|upper }}</span>
+                            {% if not message.is_read %}<span class="msg-item__dot" title="خوانده‌نشده"></span>{% endif %}
+                        </div>
+
+                        <div class="msg-item__body">
+                            <div class="msg-item__header">
+                                <strong class="msg-item__name">{{ message.name|truncatechars:35 }}</strong>
+                                <a href="tel:{{ message.phone }}" class="msg-item__phone" dir="ltr">
+                                    <i class="fas fa-phone"></i>
+                                    <span>{{ message.phone }}</span>
+                                </a>
+                                <span class="msg-item__date">
+                                    <i class="fas fa-calendar"></i>
+                                    <time>{{ message.get_created_at_jalali }}</time>
+                                </span>
+                            </div>
+                            <p class="msg-item__preview">{{ message.message|truncatechars:180 }}</p>
+                        </div>
+
+                        <div class="msg-item__actions">
+                            {% if not message.is_read %}
+                                <form action="{% url 'contact:mark_as_read' message.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="msg-item__btn msg-item__btn--read"
+                                            title="علامت‌گذاری خوانده‌شده" aria-label="خوانده‌شده">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="msg-item__badge" title="خوانده‌شده">
+                                    <i class="fas fa-check-double"></i>
+                                </span>
+                            {% endif %}
+                            <button type="button" class="msg-item__btn"
+                                    data-dialog-open="#messageDialog{{ message.id }}"
+                                    title="مشاهده کامل" aria-label="مشاهده کامل">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ol>
+        {% else %}
+            <div class="msg-empty">
+                <div class="msg-empty__glow"></div>
+                <i class="fas fa-inbox"></i>
+                <h3>هیچ پیامی یافت نشد</h3>
+                <p>
+                    {% if filter_status == 'unread' %}همه‌ی پیام‌ها خوانده شده‌اند.
+                    {% elif filter_status == 'read' %}هنوز پیامی خوانده نشده.
+                    {% else %}صندوق پیام‌ها خالی است.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% comment %}
+    Native <dialog> instead of Bootstrap modals — the only reason Bootstrap
+    was still loaded site-wide. Opened by data-dialog-open, closed by
+    data-dialog-close or a backdrop click (static/js/dialogs.js).
+{% endcomment %}
+
+<!-- ============================================================ CLEANUP DIALOG -->
+<dialog id="cleanupDialog" class="cd-dialog" aria-label="پاک‌سازی پیام‌های قدیمی">
+    <form action="{% url 'contact:cleanup_old' %}" method="post" class="cd-dialog__body">
+        {% csrf_token %}
+        <div class="cd-dialog__icon cd-dialog__icon--danger">
+            <i class="fas fa-broom"></i>
+        </div>
+        <h3 class="cd-dialog__title">پاک‌سازی پیام‌های قدیمی</h3>
+        <p class="cd-dialog__text">
+            پیام‌های قدیمی‌تر از تعداد روز مشخص‌شده حذف می‌شوند.
+            این عملیات <strong>قابل بازگشت نیست</strong>.
+        </p>
+        <div class="cd-dialog__field">
+            <label for="cleanupDaysInput">قدیمی‌تر از (روز)</label>
+            <input type="number" id="cleanupDaysInput" name="days" value="180"
+                   min="7" max="3650" required class="form-control" dir="ltr">
+            <small>حداقل ۷ و حداکثر ۳۶۵۰ روز.</small>
+        </div>
+        <div class="cd-dialog__actions">
+            <button type="button" class="ds-btn ds-btn--ghost" data-dialog-close>لغو</button>
+            <button type="submit" class="ds-btn cd-dialog__ok">
+                <i class="fas fa-trash"></i>
+                <span>حذف</span>
+            </button>
+        </div>
+    </form>
+</dialog>
+
+<!-- ============================================================ FULL-VIEW DIALOGS -->
+{% for message in messages_list %}
+    <dialog id="messageDialog{{ message.id }}" class="cd-dialog cd-dialog--wide" aria-label="پیام کامل">
+        <div class="cd-dialog__body msg-modal">
+            <h3 class="cd-dialog__title">
+                <i class="fas fa-envelope-open-text"></i>
+                پیام کامل
+            </h3>
+
+            <div class="msg-modal__meta">
+                <div>
+                    <span class="msg-modal__label">فرستنده</span>
+                    <strong>{{ message.name }}</strong>
+                </div>
+                <div>
+                    <span class="msg-modal__label">شماره تماس</span>
+                    <a href="tel:{{ message.phone }}" dir="ltr">{{ message.phone }}</a>
+                </div>
+                <div>
+                    <span class="msg-modal__label">تاریخ</span>
+                    <strong>{{ message.get_created_at_jalali }}</strong>
+                </div>
+            </div>
+
+            <div class="msg-modal__text">{{ message.message|linebreaks }}</div>
+
+            <div class="cd-dialog__actions">
+                <button type="button" class="ds-btn ds-btn--ghost" data-dialog-close>بستن</button>
+                <a href="tel:{{ message.phone }}" class="ds-btn ds-btn--ghost">
+                    <i class="fas fa-phone"></i>
+                    <span>تماس با فرستنده</span>
+                </a>
+                {% if not message.is_read %}
+                    <form action="{% url 'contact:mark_as_read' message.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="ds-btn ds-btn--primary">
+                            <i class="fas fa-check"></i>
+                            <span>علامت‌گذاری خوانده‌شده</span>
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </dialog>
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/push.js' %}" defer></script>
+{% endblock %}
+
+{% comment %}
+    No page script: contact_messages.js was left over from the old table
+    layout — it hijacked both mark-as-read forms with fetch() and then
+    tried to open Bootstrap modals that no longer exist, so every submit
+    threw and the form never went through. The views already redirect with
+    a flash message, so plain form posts are enough.
+{% endcomment %}

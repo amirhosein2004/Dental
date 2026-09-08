@@ -1,80 +1,43 @@
-amqp==5.3.1
-annotated-types==0.7.0
-asgiref==3.8.1
-attrs==25.3.0
-billiard==4.2.1
-boto3==1.37.27
-botocore==1.37.27
+# =============================================================================
+# Dental Clinic Management System — direct runtime dependencies only.
+# Transitive packages (kombu, billiard, botocore, cryptography, Pillow deps,
+# django-ckeditor's Willow/draftjs_exporter/telepath, etc.) are installed
+# automatically by pip; do NOT add them here manually.
+# =============================================================================
+
+# --- Core framework --------------------------------------------------------
+# 5.2 is the LTS line, supported to April 2028. 5.1 reached end of life and
+# stopped receiving security releases, which is the reason for the move —
+# not any single advisory.
+Django==5.2.17
+
+# --- Data layer ------------------------------------------------------------
+psycopg2-binary==2.9.10       # PostgreSQL driver (prod)
+redis==5.2.1                  # Cache backend + Celery broker
+
+# --- Background tasks ------------------------------------------------------
 celery==5.4.0
-certifi==2025.1.31
-cffi==1.17.1
-click==8.1.8
-click-didyoumean==0.3.1
-click-plugins==1.1.1
-click-repl==0.3.0
-colorama==0.4.6
-cryptography==44.0.2
-defusedxml==0.7.1
-Django==5.1.7
-django-appconf==1.1.0
-django-axes==7.0.2
-django-ckeditor-5==0.2.17
-django-compressor==4.5.1
-django-filter==24.3
-django-formtools==2.5.1
-django-js-asset==3.1.2
-django-modelcluster==6.4
-django-permissionedforms==0.1
-django-ratelimit==4.1.0
-django-recaptcha==3.0.0
-django-storages==1.14.6
-django-stubs-ext==5.1.3
-django-taggit==6.1.0
-django-tasks==0.6.1
-django-treebeard==4.7.1
-djangorestframework==3.15.2
-dparse==0.6.4
-draftjs_exporter==5.1.0
-filetype==1.2.0
-gunicorn==23.0.0
+
+# --- Django third-party apps ----------------------------------------------
+django-ckeditor-5==0.2.17     # Rich text editor for blog content
+django-filter==24.3           # Query filtering for list views
+django-ratelimit==4.1.0       # Per-view rate limiting mixin
+django-storages==1.14.6       # S3-compatible media storage (Liara bucket)
+nh3==0.2.20                   # HTML sanitiser for blog bodies rendered with |safe
+pywebpush==2.0.3              # Web Push (browser notifications) for staff alerts
+Pillow==12.3.0                # Image validation + captcha rendering
+
+# --- Cloud storage ---------------------------------------------------------
+boto3==1.37.27                # S3 client used by django-storages
+
+# --- Persian/Jalali dates --------------------------------------------------
 jdatetime==5.1.0
-jalali_core==1.0.0
-jmespath==1.0.1
-kombu==5.5.0
-laces==0.1.2
-packaging==24.2
-pillow==11.1.0
-pillow_heif==0.21.0
-prompt_toolkit==3.0.50
-psycopg2-binary==2.9.10
-pycparser==2.22
-pydantic==2.9.2
-pydantic_core==2.23.4
-Pygments==2.19.1
-python-dateutil==2.9.0.post0
-python-dotenv==1.0.1
-PyYAML==6.0.2
-rcssmin==1.1.2
-redis==5.2.1
-referencing==0.36.2
-rjsmin==1.2.2
-rpds-py==0.24.0
-ruamel.yaml==0.18.10
-ruamel.yaml.clib==0.2.12
-s3transfer==0.11.4
-safety-schemas==0.0.11
-sentry-sdk==2.24.1
-six==1.17.0
-soupsieve==2.6
-sqlparse==0.5.3
-telepath==0.3.1
-traitlets==5.14.3
-typing_extensions==4.12.2
-tzdata==2025.1
-urllib3==2.3.0
-vine==5.1.0
-wcwidth==0.2.13
-Werkzeug==3.1.3
-Willow==1.9.0
-googletrans==4.0.0rc1
+
+# --- Environment / secrets -------------------------------------------------
+python-dotenv==1.2.3
+
+# --- Production ------------------------------------------------------------
+gunicorn==23.0.0              # WSGI server
+
+# --- Development -----------------------------------------------------------
 django-debug-toolbar==6.0.0
