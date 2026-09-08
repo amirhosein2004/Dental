@@ -22,8 +22,8 @@
 
     /* The CSRF token, from the page rather than from `document.cookie`.
 
-       `CSRF_COOKIE_HTTPONLY = True` in production settings — and stage
-       inherits it — so `document.cookie` cannot see `csrftoken` at all there.
+       `CSRF_COOKIE_HTTPONLY = True` in production settings, so
+       `document.cookie` cannot see `csrftoken` at all there.
        Reading it from the cookie returned an empty string, and every
        subscribe / unsubscribe POST came back 403: the button said
        "فعال‌سازی ناموفق بود", no row was ever written, and every later push

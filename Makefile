@@ -1,14 +1,14 @@
-# One entry point for all three environments.
+# One entry point for both environments.
 #
 # Every compose command in this project carries the same three arguments — an
 # env file and two overlays — and getting one wrong is not obvious. Leaving
-# out --env-file drops COMPOSE_PROJECT_NAME, and a stage `up` then attaches to
-# develop's database volume with nothing anywhere saying so. This file builds
-# that line once.
+# out --env-file drops COMPOSE_PROJECT_NAME, and a production `up` then
+# attaches to develop's database volume with nothing anywhere saying so. This
+# file builds that line once.
 #
 #   make up                  # develop, the default
-#   make ENV=stage up
-#   make ENV=stage logs
+#   make ENV=production up
+#   make ENV=production logs
 #
 # Needs GNU make and a POSIX sh. On Windows both come with Git:
 # `winget install ezwinports.make`, and make picks up Git's sh.exe from PATH.
@@ -38,7 +38,7 @@ endif
 
 ENV ?= develop
 
-VALID_ENVS := develop stage production
+VALID_ENVS := develop production
 ifeq ($(filter $(ENV),$(VALID_ENVS)),)
 $(error ENV must be one of: $(VALID_ENVS) - got '$(ENV)')
 endif
@@ -47,16 +47,14 @@ ENV_FILE := deploy/env/.env.$(ENV)
 COMPOSE  := docker compose --env-file $(ENV_FILE) \
               -f deploy/base.yml -f deploy/$(ENV).yml
 
-# The name of the Cloudflare tunnel that publishes stage. See docs/deploying.md.
-TUNNEL ?= dental-stage
 
 .DEFAULT_GOAL := help
 .PHONY: help env-check up up-build build down down-volumes restart ps logs \
         logs-web shell dbshell manage migrate makemigrations collectstatic \
-        test check seed superuser backup restore tunnel
+        test check seed superuser backup restore
 
 help:  ## Show this help
-	@echo 'usage: make [ENV=develop|stage|production] <target>'
+	@echo 'usage: make [ENV=develop|production] <target>'
 	@echo ''
 	@grep -hE '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 	  | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-16s %s\n", $$1, $$2}'
@@ -122,17 +120,16 @@ shell: env-check  ## Open a shell inside the web container
 	$(COMPOSE) exec web sh
 
 # The name and user come from the container's own POSTGRES_* variables rather
-# than from anything written here: the database is called dental_develop,
-# dental_stage or dental_production depending on the env file, so a hardcoded
-# `-d dental` fails with `database "dental" does not exist` in every
-# environment there is.
+# than from anything written here: the database is called dental_develop or
+# dental_production depending on the env file, so a hardcoded `-d dental`
+# fails with `database "dental" does not exist` in every environment there is.
 dbshell: env-check  ## Open psql on the stack's database
 	$(COMPOSE) exec db sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
 
 # --- Django -----------------------------------------------------------------
 
 # Escape hatch for anything without its own target:
-#   make ENV=stage manage ARGS="changepassword amir"
+#   make ENV=production manage ARGS="changepassword amir"
 manage: env-check  ## Run manage.py ARGS="..."
 	$(COMPOSE) exec -T web python manage.py $(ARGS)
 
@@ -167,12 +164,3 @@ backup:  ## Take a database dump now
 restore:  ## Restore a dump: make restore FILE=backups/<env>/dental-<stamp>.sql
 	@test -n "$(FILE)" || { echo "usage: make ENV=$(ENV) restore FILE=backups/$(ENV)/dental-<stamp>.sql"; exit 1; }
 	DENTAL_ENV=$(ENV) sh scripts/restore.sh $(FILE)
-
-# --- Publishing stage -------------------------------------------------------
-
-# QUIC rather than the http2 fallback on purpose: on a connection that
-# inspects TLS, cloudflared's http2 transport fails its handshake with the
-# edge outright, while QUIC rides over UDP and is left alone.
-tunnel:  ## Publish stage at its Cloudflare hostname
-	cloudflared tunnel --no-autoupdate --edge-ip-version 4 \
-	  --protocol quic --retries 20 run $(TUNNEL)

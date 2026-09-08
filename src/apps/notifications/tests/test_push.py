@@ -302,8 +302,8 @@ class PushToggleCsrfTests(TestCase):
     """
     The toggle has to be able to prove it is not a cross-site request.
 
-    ``CSRF_COOKIE_HTTPONLY = True`` in production settings, and stage inherits
-    it, so ``document.cookie`` cannot see ``csrftoken`` there at all. push.js
+    ``CSRF_COOKIE_HTTPONLY = True`` in production settings, so
+    ``document.cookie`` cannot see ``csrftoken`` there at all. push.js
     read the token from the cookie and got an empty string, so every subscribe
     POST on the deployed site came back 403, no row was ever written, and every
     push after that reported "0 sent, 0 failed". Development leaves HTTPONLY

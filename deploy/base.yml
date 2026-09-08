@@ -1,10 +1,11 @@
 # Shared skeleton. Never run on its own — always with an overlay:
 #
-#   docker compose -f deploy/base.yml -f deploy/stage.yml up -d
+#   docker compose -f deploy/base.yml -f deploy/production.yml up -d
 #
 # No `container_name` anywhere on purpose. Fixed names are globally unique on
-# a host, so develop and stage could not both be up at once. Compose derives
-# names from COMPOSE_PROJECT_NAME instead, which each overlay's env file sets.
+# a host, so develop and production could not both be up at once. Compose
+# derives names from COMPOSE_PROJECT_NAME instead, which each overlay's env
+# file sets.
 
 services:
   db:
@@ -93,10 +94,10 @@ services:
       #
       # One directory per environment, named by DJANGO_ENV from the env file.
       # They shared `backups/` for exactly one afternoon: `backup_db --keep 3`
-      # rotates by age across everything it finds, so taking a stage backup
-      # deleted develop's dumps — and `restore.sh backups/dental-<stamp>.sql`
-      # offered a filename with nothing in it to say which database it came
-      # from.
+      # rotates by age across everything it finds, so taking a backup in one
+      # environment deleted the other's dumps — and
+      # `restore.sh backups/dental-<stamp>.sql` offered a filename with nothing
+      # in it to say which database it came from.
       #
       # `:?` so a compose run that forgot --env-file stops with a readable
       # message instead of mounting `backups/` itself and mixing them again.

@@ -75,13 +75,13 @@ python src/manage.py generate_vapid_keys
 ```
 
 Set once per environment. Rotating them silently unsubscribes every device.
-Stage must have its own pair, or a test fires notifications at phones that
-subscribed on the live site.
+develop must have its own pair, or a local test fires notifications at phones
+that subscribed on the live site.
 
 ## SMS
 
 `SMS_BACKEND=console` logs instead of sending, and is the default everywhere
-except production. Stage forces it regardless of what its env file says.
+except production.
 
 **Kavenegar**, 200 recipients per API call, batched automatically.
 

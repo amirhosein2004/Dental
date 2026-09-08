@@ -3,7 +3,7 @@
 #   docker compose --env-file env/.env.production \
 #       -f deploy/base.yml -f deploy/production.yml up -d
 #
-# Differences from stage are all about exposure and durability: TLS on 443,
+# Differences from develop are all about exposure and durability: TLS on 443,
 # nothing else published, more gunicorn workers, and log rotation so a busy
 # week cannot fill the disk.
 #
@@ -30,7 +30,7 @@ services:
     expose:
       - "8000"
     logging: *logging
-    # More workers than stage, and a longer graceful window so a deploy does
+    # More workers than develop, and a longer graceful window so a deploy does
     # not cut off a request mid-upload.
     command: ["gunicorn", "config.wsgi:application",
               "--bind", "0.0.0.0:8000",
@@ -132,9 +132,6 @@ services:
       # more than anyone wants to re-enter from paper. Seven copies then span
       # a week, which is long enough to notice corruption that a three-deep
       # rotation would have overwritten before anyone looked.
-      #
-      # Stage deliberately runs looser (every third day, keeping three): the
-      # data there is disposable and the dumps are the same size.
       BACKUP_INTERVAL_DAYS: "1"
     volumes:
       # Same host directory the web container and the scripts use, so a

@@ -4,8 +4,13 @@
 # The shape:
 #
 #   push anywhere      -> test
-#   push to develop    -> test, build, deploy to stage      (automatic)
-#   push to main       -> test, build, deploy to production (manual button)
+#   push to develop    -> test, build
+#   push to master     -> test, build, deploy to production (manual button)
+#
+# There is no stage environment. develop is verified locally with
+# `make up`; the pipeline's job on that branch is to prove the suite still
+# passes and the image still builds, so the merge to master has nothing
+# left to discover.
 #
 # Production is a button, not a push. See "Why production is manual" in
 # docs/cicd.md — briefly: the entrypoint applies migrations on the way up, so
@@ -141,37 +146,6 @@ build:
     # Get the value with: ssh-keyscan -H your.server
     - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-
-deploy:stage:
-  <<: *deploy
-  environment:
-    name: stage
-    url: http://$DEPLOY_HOST:8080
-  script:
-    - |
-      ssh "$DEPLOY_USER@$DEPLOY_HOST" bash -s <<SSH
-        set -euo pipefail
-        cd "$DEPLOY_PATH"
-        # Expanded by the runner, not by the server. Escaped as `\$...` these
-        # arrived at the far end as literal variable names; the server has no
-        # such variables, so `docker login` ran with an empty password, every
-        # `pull` below came back `unauthorized`, and the deploy quietly left
-        # whatever image was already running in place.
-        #
-        # The expanded values travel inside the heredoc, which reaches ssh on
-        # stdin - they are never arguments, so they never appear in `ps` on the
-        # server. The single quotes are what the *remote* shell sees, so the
-        # token is not re-expanded there. GitLab masks it in the job log.
-        echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY'
-        export APP_IMAGE="$APP_IMAGE"
-        docker compose --env-file deploy/env/.env.stage \
-          -f deploy/base.yml -f deploy/stage.yml pull
-        docker compose --env-file deploy/env/.env.stage \
-          -f deploy/base.yml -f deploy/stage.yml up -d
-        docker image prune -f
-      SSH
-  rules:
-    - if: $CI_COMMIT_BRANCH == "develop"
 
 deploy:production:
   <<: *deploy

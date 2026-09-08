@@ -2,9 +2,9 @@
 Test-time configuration, applied by the runner rather than by a settings file.
 
 There used to be a `Dental/settings/test.py`. It was never a deployment
-environment — nothing ever ran on it — but sitting beside `develop.py`,
-`stage.py` and `production.py` it read like a fourth one, and every command
-had to name it explicitly.
+environment — nothing ever ran on it — but sitting beside `develop.py` and
+`production.py` it read like a third one, and every command had to name it
+explicitly.
 
 What it held was infrastructure for running tests, and that is what this is.
 Setting `TEST_RUNNER` in `base.py` means `manage.py test` picks these up
@@ -23,8 +23,8 @@ Four overrides, each load-bearing:
   run could evict a developer's real cache.
 * **Celery inline.** Otherwise they need a live broker and worker.
 * **No HTTPS redirect.** `production.py` sets `SECURE_SSL_REDIRECT`, and the
-  test client speaks plain HTTP: run the suite against stage or production
-  settings and every request comes back as a 301 to https before the view is
+  test client speaks plain HTTP: run the suite against production settings
+  and every request comes back as a 301 to https before the view is
   reached, so 287 of 518 tests failed on an assertion about a page that was
   never rendered. Nothing about a redirect belongs in a unit test; the tests
   that care about it set it themselves.
@@ -33,7 +33,8 @@ Four overrides, each load-bearing:
   — slow at best, and writing into a real bucket at worst. Static files drop
   back to plain names for a different reason: `ManifestStaticFilesStorage`
   renames `js/pwa.js` to `js/pwa.3ac137dd4a34.js`, so an assertion about a
-  script tag passed under develop and failed under stage over a hash. It also
+  script tag passed under develop and failed under production over a hash. It
+  also
   needs `staticfiles.json`, which only exists after `collectstatic` — a
   checkout that has never run one could not start the suite at all.
 

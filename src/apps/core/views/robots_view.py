@@ -2,7 +2,7 @@
 robots.txt.
 
 Served by a view rather than a static file for one reason: the sitemap line
-has to carry an absolute URL, and the host is different on develop, stage and
+has to carry an absolute URL, and the host is different on develop and
 production. A static file would hardcode one of the three, and the two hosts
 it got wrong would advertise a sitemap that does not exist.
 """
@@ -48,10 +48,6 @@ class RobotsTxtView(View):
     carries a `noindex` meta tag. `Disallow` saves crawl budget; `noindex`
     controls indexing. They are separate mechanisms and this project uses
     both.
-
-    Staging is a different case again: `utils.http.staging.NoIndexMiddleware`
-    puts an `X-Robots-Tag` on every response there, so nothing on that host is
-    indexed regardless of what this file says.
     """
 
     def get(self, request, *args, **kwargs):

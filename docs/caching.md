@@ -136,7 +136,7 @@ costs a cold cache and nothing else.
 from a shell does *not* clear the running server's cache. Restart it.
 
 **Static files are not in this cache.** They are content-hashed by
-`ManifestStaticFilesStorage` in stage and production, so a changed file has a
+`ManifestStaticFilesStorage` in production, so a changed file has a
 changed URL and there is nothing to invalidate. In develop they are served
 straight from the source tree, which is why a hard refresh is sometimes needed
 after pulling.
