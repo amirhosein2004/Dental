@@ -25,10 +25,10 @@ nobody watching. Same file extension, different category — see
 Every script reads `DENTAL_ENV`, defaulting to `production`:
 
 ```bash
-DENTAL_ENV=stage scripts/backup.sh
+DENTAL_ENV=develop scripts/backup.sh
 ```
 
-It must be `develop`, `stage` or `production` — anything else is refused
+It must be `develop` or `production` — anything else is refused
 rather than guessed at.
 
 ## Backups
@@ -37,9 +37,8 @@ There are **two** ways backups happen, and you only need one.
 
 ### Inside the stack (nothing to install)
 
-`stage.yml` and `production.yml` include a `backup` service that runs every
-three days for as long as the stack is up. This is the default and needs no
-setup.
+`production.yml` includes a `backup` service that runs nightly for as long as
+the stack is up. This is the default and needs no setup.
 
 ### From the host's cron
 
@@ -49,7 +48,7 @@ prefer them alongside the machine's other scheduled jobs:
 ```bash
 scripts/install-cron.sh                     # every 3 days at 03:00
 BACKUP_EVERY_DAYS=1 scripts/install-cron.sh # nightly
-DENTAL_ENV=stage scripts/install-cron.sh
+DENTAL_ENV=develop scripts/install-cron.sh
 ```
 
 Idempotent — run it again and you still have one entry, because it matches on

@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 
 # ---------------------------------------------------------------------------
-# One image for every environment. What changes between develop, stage and
+# One image for both environments. What changes between develop and
 # production is the command and the environment file, never the image — so
-# what staging proved is the thing production runs.
+# what develop proved is the thing production runs.
 #
 # `-slim` rather than the full image: the default python image carries a
 # compiler toolchain and ~700MB of headers this project never uses at runtime.

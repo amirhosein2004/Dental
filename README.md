@@ -101,7 +101,7 @@ python src/manage.py backup_db               # dump, keeping the newest 3
 ```
 src/            the application — nothing else
   apps/         fourteen apps, split by subject rather than by layer
-  config/       settings (develop / stage / production), urls, celery
+  config/       settings (develop / production), urls, celery
   utils/        cross-app helpers: security, http, data, mail
   static/  templates/  manage.py
 deploy/         compose overlays, nginx, entrypoint, env templates
@@ -115,7 +115,7 @@ docs/           everything below
 |---|---|
 | [getting-started.md](docs/getting-started.md) | clone to running site |
 | [architecture.md](docs/architecture.md) | the apps and how they fit |
-| [environments.md](docs/environments.md) | develop / stage / production |
+| [environments.md](docs/environments.md) | develop / production |
 | [deploying.md](docs/deploying.md) | **step by step, first deploy to rollback** |
 | [cicd.md](docs/cicd.md) | the GitLab pipeline |
 | [caching.md](docs/caching.md) | what is cached, what invalidates it |

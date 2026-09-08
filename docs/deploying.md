@@ -1,11 +1,11 @@
 # Deploying — step by step
 
-The runbook for all three environments. Follow it top to bottom the first
-time; after that only [Every deploy after the first](#every-deploy-after-the-first)
+The runbook for both environments. Follow it top to bottom the first time;
+after that only [Every deploy after the first](#every-deploy-after-the-first)
 applies.
 
 Reference material lives elsewhere and is linked where it becomes relevant:
-[environments.md](environments.md) for what differs between the three,
+[environments.md](environments.md) for what differs between the two,
 [`../deploy/README.md`](../deploy/README.md) for the compose layout,
 [`../scripts/README.md`](../scripts/README.md) for the helper scripts,
 [operations.md](operations.md) for what to do when something breaks.
@@ -17,7 +17,7 @@ Reference material lives elsewhere and is linked where it becomes relevant:
 Every command is `make <target>`, and the environment is a variable:
 
 ```bash
-make ENV=stage up
+make ENV=production up
 make ENV=production logs
 make up                  # ENV defaults to develop
 make                     # lists every target
@@ -25,7 +25,7 @@ make                     # lists every target
 
 `ENV` picks both the env file and the compose overlay together — they must
 always change as a pair. Getting that wrong is not obvious: without the right
-`--env-file` there is no `COMPOSE_PROJECT_NAME`, and a stage `up` then
+`--env-file` there is no `COMPOSE_PROJECT_NAME`, and a production `up` then
 attaches to develop's database volume with nothing anywhere saying so. The
 [`Makefile`](../Makefile) builds that line once so it cannot be typed wrong.
 
@@ -40,12 +40,12 @@ directly, need Git Bash.
 <summary>Without make</summary>
 
 ```bash
-C="docker compose --env-file deploy/env/.env.stage \
-     -f deploy/base.yml -f deploy/stage.yml"
+C="docker compose --env-file deploy/env/.env.production \
+     -f deploy/base.yml -f deploy/production.yml"
 $C up -d
 ```
 
-Same three arguments, typed every time. `make ENV=stage up` is this.
+Same three arguments, typed every time. `make ENV=production up` is this.
 </details>
 
 ---
@@ -122,113 +122,17 @@ make test
 
 > **Never expose develop.** `DEBUG=True` is forced, not defaulted, and its
 > `SECRET_KEY` is published in this repository. To show the site to someone,
-> use stage, which was built for exactly that.
-
----
-
-# stage
-
-Production's settings with production's teeth pulled: real gunicorn, real
-nginx, hashed static — but SMS to the console, email to a file, and
-`X-Robots-Tag: noindex` on every response.
-
-### 1. The env file
-
-```bash
-cp deploy/env/.env.stage.example deploy/env/.env.stage
-```
-
-Three values are generated, not invented:
-
-```bash
-# SECRET_KEY and OTP_SECRET_KEY — run it twice, they must differ
-python -c "from django.core.management.utils import get_random_secret_key as k; print(k())"
-
-# VAPID keys for web push — both values
-python src/manage.py generate_vapid_keys
-```
-
-Set `DB_PASSWORD` to something random too, and `SECURE_ADMIN_PANEL` to a
-random path — that is the admin URL, and a random one is not found by the
-scanners that walk the internet trying `/admin/`.
-
-`ALLOWED_HOSTS` must name the hostname you will actually use:
-
-```
-ALLOWED_HOSTS=stage.sbdental.ir,.trycloudflare.com,localhost,127.0.0.1
-```
-
-Then check it before anything runs against it:
-
-```bash
-DJANGO_ENV=stage python src/manage.py check --deploy
-```
-
-Cheapest step in the whole list, and it catches a wrong `ALLOWED_HOSTS` or a
-`DEBUG` left on — which are otherwise found by a user.
-
-### 2. Start it
-
-```bash
-make ENV=stage up-build
-make ENV=stage ps
-```
-
-Six services: `db`, `redis`, `web`, `worker`, `nginx`, `backup`.
-
-### 3. Confirm it works
-
-```bash
-curl -I http://127.0.0.1:8080/healthz
-make ENV=stage check
-```
-
-`curl http://127.0.0.1:8080/` answers **301**, and that is correct rather than
-broken: stage inherits `SECURE_SSL_REDIRECT` from production and this
-container is only ever spoken to over plain HTTP. To see a real page, send
-the headers the proxy in front would send:
-
-```bash
-curl -I -H 'X-Forwarded-Proto: https' -H 'Host: stage.sbdental.ir' \
-     http://127.0.0.1:8080/
-```
-
-### 4. An admin account
-
-```bash
-make ENV=stage superuser
-```
-
-### 5. Publish it
-
-```bash
-make tunnel
-```
-
-See [Showing stage to someone](#showing-stage-to-someone-from-a-machine-with-no-public-address).
-
-### 6. Prove the backup works
-
-The backup service takes its first dump about 90 seconds after `up`:
-
-```bash
-make ENV=stage manage ARGS="shell -c \"import os; print(os.listdir('/app/backups'))\""
-```
-
-**Then restore it before you need to.** An untested backup is a file, not a
-recovery plan — the first real restore of this project reported success while
-silently leaving post-backup rows in place and dropping a whole table, and
-only a rehearsal found it.
-
-```bash
-make ENV=stage restore FILE=backups/stage/dental-<stamp>.sql
-```
+> put it in front of a tunnel only long enough for them to look — see
+> [Showing the site to someone](#showing-the-site-to-someone-from-a-machine-with-no-public-address)
+> — and never point a real domain at it.
 
 ---
 
 # production
 
-Everything in stage, plus TLS, real SMS and email, S3 media, and no `noindex`.
+The live site: TLS, real SMS and email, media in the object-storage bucket.
+Everything in it is reachable by a patient, which is the only real difference
+from develop.
 
 ### 1. The env file
 
@@ -237,8 +141,9 @@ cp deploy/env/.env.production.example deploy/env/.env.production
 ```
 
 Fill in **every** `CHANGE-ME` — Kavenegar, SMTP, the S3 bucket, and the same
-generated values as stage. This file is gitignored and never leaves the
-server. Its `SECURE_ADMIN_PANEL` must be its own value, not stage's.
+generated values as develop, generated again — never copied. This file is
+gitignored and never leaves the server, and every secret in it is its own:
+reusing a value that has been on a laptop is the same as not having one.
 
 ```bash
 DJANGO_ENV=production python src/manage.py check --deploy
@@ -352,8 +257,8 @@ More in [operations.md](operations.md#common-problems).
 ## Shutting down
 
 ```bash
-make ENV=stage down                             # containers go, database stays
-make ENV=stage down-volumes CONFIRM=yes         # database deleted, no undo
+make ENV=develop down                           # containers go, database stays
+make ENV=develop down-volumes CONFIRM=yes       # database deleted, no undo
 ```
 
 `down-volumes` is a separate target and demands `CONFIRM=yes` on purpose:
@@ -408,6 +313,13 @@ any of step 2 above applies.
 | Nothing — a bare VPS | yours, from Let's Encrypt | **yes**, `init-letsencrypt.sh` |
 | A managed platform (Liara and similar) | theirs, automatic | no |
 | Cloudflare proxy or tunnel | theirs at the edge, free | no |
+| ArvanCloud CDN, DNS only (grey) | yours, from Let's Encrypt | **yes** |
+| ArvanCloud CDN, proxied | theirs at the edge — **and** still yours on the origin | **yes**, see below |
+
+ArvanCloud proxied is the row that catches people out: it is two certificates,
+not one. Theirs answers the visitor, ours answers ArvanCloud, and ours is still
+required because the origin must be reachable over HTTPS (see
+[Behind ArvanCloud](#behind-arvancloud)).
 
 **Do not run two of these at once.** It is not that two certificates for one
 domain are forbidden — a CA will issue them — it is that certbot's HTTP-01
@@ -430,50 +342,49 @@ Cloudflare already knows you own the zone.
 
 ---
 
-## Showing stage to someone, from a machine with no public address
+## Showing the site to someone, from a machine with no public address
 
-A laptop or a desktop at home has no reachable address: the IP is dynamic,
-the connection is behind NAT, and Iranian home lines generally refuse inbound
-80 and 443. So stage does not get a certificate of its own — something in
-front of it terminates TLS and reaches back over an outbound connection.
+**Everything in this section is Cloudflare-specific, and it is the one thing
+here that still is.** `cloudflared`, `trycloudflare.com`, the `Full` encryption
+mode — all of it is Cloudflare's tunnel product, and none of it has an
+ArvanCloud equivalent. Production DNS is on ArvanCloud now (see
+[Behind ArvanCloud](#behind-arvancloud)), so a *named* tunnel on a
+`sbdental.ir` subdomain is no longer possible at all: those records live in
+ArvanCloud's zone, and `cloudflared tunnel route dns` writes into Cloudflare's.
 
-A Cloudflare quick tunnel touches no DNS record at all:
+What still works is a **quick tunnel**, which touches no DNS record of ours and
+hands back a throwaway `trycloudflare.com` name. That is now the way to show
+work in progress to someone — there is no stage host to point them at. Other
+outbound tunnels (`ngrok`, `tailscale funnel`) or an SSH reverse tunnel to the
+production VPS do the same job if Cloudflare is out of the picture entirely.
+
+A laptop or a desktop at home has no reachable address: the IP is dynamic, the
+connection is behind NAT, and Iranian home lines generally refuse inbound 80
+and 443. So nothing local gets a certificate of its own — something in front
+terminates TLS and reaches back over an outbound connection.
 
 ```bash
-make ENV=stage up
-cloudflared tunnel --url http://127.0.0.1:8080
+make up                                     # develop, on 8000
+cloudflared tunnel --url http://127.0.0.1:8000
 ```
 
 It prints an `https://<random>.trycloudflare.com` and holds it open until
-Ctrl-C.
+Ctrl-C. **Only for as long as you are watching it.** Develop forces
+`DEBUG=True` and its `SECRET_KEY` is published in this repository, so anyone
+with that URL sees tracebacks with settings in them and can forge a session
+cookie. Close the tunnel when the person has finished looking.
 
-For a name of your own the domain has to be on Cloudflare, and then it is a
-named tunnel — created once:
-
-```bash
-cloudflared tunnel login
-cloudflared tunnel create dental-stage
-cloudflared tunnel route dns dental-stage stage.sbdental.ir
-```
-
-That last line writes the DNS record itself (a CNAME to
-`<uuid>.cfargotunnel.com`); do not create one by hand. Point `config.yml` at
-`http://127.0.0.1:8080`, and from then on:
-
-```bash
-make tunnel
-```
-
-Three things this needs, all already in place:
+Two things it needs, both already in place:
 
 * **`.trycloudflare.com` in `ALLOWED_HOSTS`.** The leading dot matches any
   subdomain, which a quick tunnel needs because the name changes every run.
-* **`X-Forwarded-Proto` honoured, not overwritten.** `stage.conf` maps the
-  incoming header through rather than passing `$scheme`. Pass `$scheme` and
-  Django redirects to HTTPS, the tunnel hands the same request back, and the
-  browser loops forever.
-* **Cloudflare's encryption mode on `Full`.** `Flexible` sends
-  `X-Forwarded-Proto: http` and produces the same loop.
+* **Develop does not force HTTPS.** `develop.py` leaves `SECURE_SSL_REDIRECT`
+  off, so the tunnel terminating TLS and speaking plain HTTP inward is fine.
+  Point a tunnel at a stack running production settings and every request
+  redirects to HTTPS, the tunnel hands the same request back, and the browser
+  loops forever — the failure that used to need `stage.conf` to map
+  `X-Forwarded-Proto` through instead of passing `$scheme`. Cloudflare's
+  `Flexible` encryption mode causes the same loop, for the same reason.
 
 `127.0.0.1`, not `localhost`: `localhost` can resolve to `::1` first, and the
 published port is IPv4 only, so the tunnel answers 502 with nothing in its own
@@ -484,11 +395,91 @@ inspects TLS, cloudflared's http2 transport fails its handshake with the edge
 outright (`TLS handshake with edge error: EOF`) while QUIC rides over UDP and
 is left alone.
 
-Worth knowing before moving a domain to Cloudflare: the live site's DNS moves
-with it, and **records are not always imported**. Check every one before the
-nameserver change takes effect — apex, `www`, `MX`, any verification `TXT`.
-Keep the production records on **grey cloud**: proxying an Iran-hosted site
-through a European edge makes it slower for the audience it has.
+Worth knowing before moving a domain to *any* DNS provider, Cloudflare or
+ArvanCloud: the live site's DNS moves with it, and **records are not always
+imported**. Check every one before the nameserver change takes effect — apex,
+`www`, `MX`, any verification `TXT`. Cloudflare specifically: keep the
+production records on **grey cloud**, because proxying an Iran-hosted site
+through a European edge makes it slower for the audience it has. That is the
+reason the domain is on ArvanCloud now — an edge inside the country, in front
+of an origin inside the country.
+
+---
+
+## Behind ArvanCloud
+
+Production DNS is on ArvanCloud, not Cloudflare. Nothing above this line
+changes — the stack, certbot and `production.conf` are the same — but four
+things are specific to it, and three of them are silent failures.
+
+**DNS only, or proxied.** Both work. "DNS only" (the cloud icon off) makes
+ArvanCloud a nameserver and nothing more: visitors reach the VPS directly and
+every note below about certificates and the origin firewall is moot. Proxied
+puts their edge in front, which is the point of moving here — an Iranian edge
+for an Iranian audience. The rest of this section is about proxied.
+
+**The origin must speak HTTPS.** In the CDN settings the origin protocol has to
+be `HTTPS`, matching what `production.conf` actually serves. Set it to `HTTP`
+and the edge fetches over port 80, nginx answers `301 https://…`, the edge
+follows it back to itself, and the visitor gets a redirect loop that shows up
+nowhere in the application log. This is the same failure Cloudflare's
+`Flexible` mode causes, for the same reason, and the fix is the same: never let
+a proxy in front reach the origin over plaintext.
+
+**Certificates: two, not one.** ArvanCloud issues the certificate the visitor
+sees, at the edge. The origin still needs its own, because of the paragraph
+above — so `certbot` stays in `deploy/production.yml` and
+`scripts/init-letsencrypt.sh` still runs. The catch is renewal: HTTP-01 needs
+`http://sbdental.ir/.well-known/acme-challenge/…` to reach *our* nginx, and
+with the record proxied it reaches ArvanCloud first. Either
+
+* issue and renew while the record is on DNS-only, then turn the proxy back
+  on — workable but manual every 60 days, and easy to forget until the
+  certificate has already expired; or
+* add a cache/forwarding rule that passes `/.well-known/acme-challenge/*`
+  straight to the origin uncached, and leave the proxy on permanently. This is
+  the one to set up once and stop thinking about.
+
+Do **not** run certbot against a hostname that ArvanCloud is also issuing for
+without one of those in place: five failures per hostname per hour is Let's
+Encrypt's rate limit, the renewal loop reaches it, and then keeps failing
+against a wall with nothing serving an error.
+
+**Lock the origin down, or the CDN is decoration.** The VPS's own IP still
+answers on 80 and 443, so anyone who learns it can skip the edge entirely —
+and with it the WAF, the rate limits at the edge, and the visitor's real
+address. Restrict inbound 80/443 at the firewall to ArvanCloud's ranges
+(`https://www.arvancloud.ir/fa/ips.txt`), leaving SSH on whatever it uses:
+
+```bash
+# One-time, on the VPS. Re-run when their ranges change.
+for cidr in $(curl -fsS https://www.arvancloud.ir/fa/ips.txt); do
+  ufw allow proto tcp from "$cidr" to any port 80,443
+done
+ufw deny 80/tcp
+ufw deny 443/tcp
+```
+
+Note that this makes HTTP-01 renewal impossible from anywhere but the edge,
+which is another reason to prefer the forwarding rule over the DNS-only dance.
+
+**The visitor's IP is already handled.** ArvanCloud sends the real client
+address in an `ar-real-ip` header, and `deploy/nginx/production.conf` lists
+their ranges under `set_real_ip_from` and reads it. Without that, `$remote_addr`
+would be the edge for every request — and since the login lockout, every
+`django-ratelimit` bucket and the captcha limit are all keyed on the client
+address, five failed logins by any one person would lock out the entire site.
+The ranges are pinned in that file: re-check them against
+`https://www.arvancloud.ir/fa/ips.txt` when ArvanCloud announces new ones.
+
+**Uploads go to an ArvanCloud bucket.** `AWS_*` in
+`deploy/env/.env.production.example` — endpoint `https://s3.ir-thr-at1.arvanstorage.ir`
+for the Simin (Tehran) region, `ir-thr-at1` as the region name. The bucket has
+to be set to **public** access: `AWS_QUERYSTRING_AUTH = False` in
+`production.py` produces plain permanent URLs, and against a private bucket
+every image on the site 403s. Leave the three credential variables blank and
+uploads fall back to the `media/` volume on disk, which nginx serves — that is
+still a valid way to run, just not a durable one.
 
 ---
 

@@ -1,13 +1,12 @@
 # Deployment
 
-Three environments, one image. What changes between them is the environment
-file and the compose overlay — never the image — so what staging proved is the
+Two environments, one image. What changes between them is the environment
+file and the compose overlay — never the image — so what develop proved is the
 thing production runs.
 
 | | Where | Settings | Database | Reaches patients? |
 |---|---|---|---|---|
 | **develop** | your machine | `config.settings.develop` | throwaway container | no — SMS and email are stubbed |
-| **stage** | a test host | `config.settings.stage` | its own | **no** — forced to console/file |
 | **production** | the live server | `config.settings.production` | the real one | yes |
 
 There is no separate "local": `python src/manage.py runserver` with
@@ -34,7 +33,7 @@ language it is written in.
 
 ```bash
 cp deploy/env/.env.develop.example deploy/env/.env.develop
-# stage and production: same, then fill in every CHANGE-ME
+# production: same, then fill in every CHANGE-ME
 ```
 
 Compose is run **from the repo root**, so the build context includes the
@@ -45,10 +44,6 @@ project:
 docker compose --env-file deploy/env/.env.develop \
   -f deploy/base.yml -f deploy/develop.yml up
 
-# stage
-docker compose --env-file deploy/env/.env.stage \
-  -f deploy/base.yml -f deploy/stage.yml up -d
-
 # production
 docker compose --env-file deploy/env/.env.production \
   -f deploy/base.yml -f deploy/production.yml up -d
@@ -56,7 +51,7 @@ docker compose --env-file deploy/env/.env.production \
 
 `--env-file` is not optional: `COMPOSE_PROJECT_NAME` lives in it, and that is
 what keeps each environment's containers and volumes separate. Without it,
-bringing up stage would reuse develop's database volume.
+bringing up production would reuse develop's database volume.
 
 ---
 
@@ -124,7 +119,7 @@ terminates TLS, runs the proxy and serves static itself. What still applies:
 
 - `config/settings/production.py`, unchanged
 - the variables in `deploy/env/.env.production.example`, set in Liara's panel
-- `develop.yml` and `stage.yml`, which work the same either way
+- `develop.yml`, which works the same either way
 
 You would add a `liara.json` naming the platform, the Python version and the
 `DJANGO_ENV=production` variable. Everything else here stays as-is.

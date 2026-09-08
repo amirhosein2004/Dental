@@ -34,7 +34,7 @@ Compose with `--env-file`.
 |---|---|
 | `python src/manage.py runserver` | `.env` |
 | the develop stack in Docker | `deploy/env/.env.develop` |
-| stage / production | `deploy/env/.env.stage` / `.env.production` |
+| production | `deploy/env/.env.production` |
 
 They are not copies of each other. `.env` describes a machine with no
 Postgres, no Redis and no Celery worker: `develop.py` sees

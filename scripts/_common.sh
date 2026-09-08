@@ -20,9 +20,9 @@ cd "$PROJECT_ROOT"
 DENTAL_ENV="${DENTAL_ENV:-production}"
 
 case "$DENTAL_ENV" in
-    develop|stage|production) ;;
+    develop|production) ;;
     *)
-        echo "DENTAL_ENV must be develop, stage or production (got: $DENTAL_ENV)" >&2
+        echo "DENTAL_ENV must be develop or production (got: $DENTAL_ENV)" >&2
         exit 2
         ;;
 esac

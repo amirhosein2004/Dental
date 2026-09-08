@@ -6,7 +6,7 @@ Written for the next developer on this project — including you in six months.
 |---|---|
 | [getting-started.md](getting-started.md) | Clone to running site |
 | [architecture.md](architecture.md) | What the apps are and how they fit |
-| [environments.md](environments.md) | develop / stage / production |
+| [environments.md](environments.md) | develop / production |
 | [deploying.md](deploying.md) | **step by step, first deploy to rollback** |
 | [cicd.md](cicd.md) | GitLab pipeline: what deploys itself, what waits |
 | [caching.md](caching.md) | What is cached, and what invalidates it |

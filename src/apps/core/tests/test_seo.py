@@ -49,7 +49,7 @@ class RobotsTests(TestCase):
     def test_the_sitemap_is_advertised_absolutely(self):
         """
         A relative path here is ignored by crawlers, and the host differs
-        between develop, stage and production — which is why this is a view
+        between develop and production — which is why this is a view
         and not a static file.
         """
         body = self.client.get('/robots.txt').content.decode()

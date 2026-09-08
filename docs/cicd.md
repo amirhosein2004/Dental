@@ -5,15 +5,16 @@ GitLab. The pipeline lives in [`../.gitlab-ci.yml`](../.gitlab-ci.yml).
 | Push to | What happens |
 |---|---|
 | any branch, or a merge request | tests + dependency audit |
-| `develop` | tests, build, **deploy to stage automatically** |
+| `develop` | tests, build — no deploy |
 | `master` | tests, build, then a **button** for production |
 
 ---
 
 ## Why production is a button
 
-Stage deploys itself; production waits for a person. The reason is
-`deploy/entrypoint.sh`: it runs `migrate` on the way up.
+Production is the only environment the pipeline deploys at all, and it waits
+for a person. The reason is `deploy/entrypoint.sh`: it runs `migrate` on the
+way up.
 
 That is the right behaviour — it means a deploy cannot forget the migration —
 but it also means an automatic production deploy runs an unreviewed schema
@@ -32,7 +33,7 @@ that job. Do that as a deliberate decision, not by accident.
 ## The image is built once
 
 CI builds one image, tags it with the commit SHA, pushes it to GitLab's
-registry. Stage pulls that tag. Production pulls that same tag.
+registry. Production pulls that tag — the same bytes the tests ran against.
 
 The alternative — the server running `docker compose build` for itself — means
 the bytes on production were compiled from source at a different time, on a
