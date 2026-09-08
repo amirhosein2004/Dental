@@ -10,22 +10,6 @@
 # If the site is hosted on Liara rather than a VPS, this overlay is unused —
 # Liara terminates TLS and serves static itself. See deploy/README.md.
 
-# Repeated from base.yml rather than shared with it: a YAML anchor is resolved
-# while its own file is parsed, so `*app-build` defined over there is an
-# "unknown anchor" error here. The two must stay identical — `backup` runs the
-# same image as `web`, and a build argument set in one file and not the other
-# produces two images from one tag.
-x-app-build: &app-build
-  context: ..
-  dockerfile: Dockerfile
-  args:
-    APT_MIRROR: ${APT_MIRROR:-}
-    PGDG_URL: ${PGDG_URL:-https://apt.postgresql.org/pub/repos/apt}
-    PGDG_ASC_URL: ${PGDG_ASC_URL:-https://www.postgresql.org/media/keys/ACCC4CF8.asc}
-    PYPI_INDEX_URL: ${PYPI_INDEX_URL:-}
-    PYPI_TRUSTED_HOST: ${PYPI_TRUSTED_HOST:-}
-    USE_PGDG: ${USE_PGDG:-1}
-
 services:
   db:
     # No `ports`. The database is reachable only over the compose network; a
@@ -130,7 +114,9 @@ services:
   # no configuration on whatever machine the stack lands on.
   backup:
     image: ${APP_IMAGE:-dental-app:local}
-    build: *app-build
+    build:
+      context: ..
+      dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
       db:

@@ -14,8 +14,8 @@ running tests, not of a place to deploy.
 
 There was a **stage** environment and it has been removed. It earned its keep
 while the containerised stack was new and nobody trusted a deploy yet; once
-the develop stack ran the same Postgres, Redis, gunicorn and `DEBUG = False`
-render path from the same Dockerfile, stage was a third set of
+the pipeline built one image and the develop stack ran the same Postgres,
+Redis, gunicorn and `DEBUG = False` render path, stage was a third set of
 secrets, a third env file and a third deploy job that proved nothing develop
 had not already proved. What it *did* protect against — a test run reaching
 real patients — develop protects against by the same means: SMS to the

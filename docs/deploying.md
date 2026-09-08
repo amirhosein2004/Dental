@@ -220,79 +220,18 @@ machine this is a local snapshot rather than a backup.
 
 ## Every deploy after the first
 
-From the laptop, in a clean checkout of what you want live:
-
 ```bash
-make ship
-```
-
-`git pull` is not an option on that server: it reaches neither GitHub nor
-GitLab. `make ship` streams the current commit over SSH with `git archive`,
-extracts it into `/srv/dental`, takes a database backup, and runs
-`docker compose build && up -d` at the far end. Then it checks
-`https://sbdental.ir/healthz` from *here*, which is the path a visitor takes —
-so an nginx or a certificate that is broken from outside shows up even when
-the container looks healthy.
-
-Uncommitted changes are deliberately not shipped; `SHIP_DIRTY=1 make ship`
-overrides that for a quick try, and `SHIP_REF=<sha> sh scripts/ship.sh` ships
-an older commit.
-
-Building on the server rather than shipping an image is the whole reason this
-works at all — its 855Mb line to Iranian mirrors beats a home upstream, and it
-is the only side of the connection that can reach a Docker registry it is
-allowed to use. The trade is that production compiles its own bytes; see
-[cicd.md](cicd.md#the-image-is-built-on-the-server).
-
-If you are already on the server — for an env-file change, which needs no
-rebuild:
-
-```bash
-make ENV=production up
+git pull
+make ENV=production up-build
 make ENV=production logs-web
 ```
 
-`up-build` rather than `up` when code changed: a container keeps the code
-baked into its image, so a changed file changes nothing until the image is
-rebuilt.
+`up-build` rather than `up`: a container keeps the code baked into its image,
+so changing a file on the server changes nothing until the image is rebuilt.
+An env-only change needs just `make ENV=production up`.
 
 The entrypoint migrates and re-collects static on the way up. Nothing else to
 remember.
-
-### The first time, on the server
-
-Before any of that builds, the machine needs its mirrors. It reaches neither
-Debian's archive, nor `apt.postgresql.org`, nor PyPI, nor Docker Hub directly:
-
-```bash
-sh scripts/check-mirrors.sh
-```
-
-Every FAIL is a value to set — `APT_MIRROR`, `PYPI_INDEX_URL`,
-`PYPI_TRUSTED_HOST`, `USE_PGDG` at the bottom of
-`deploy/env/.env.production`, and for the images `registry-mirrors` in
-`/etc/docker/daemon.json`:
-
-```json
-{ "registry-mirrors": ["https://<mirror-host>"] }
-```
-
-then `sudo systemctl restart docker`.
-
-Two mistakes that cost an afternoon each. `python:3.12-slim` is Debian
-**trixie** — an **Ubuntu** mirror in `APT_MIRROR`, or one that only carries
-bookworm, answers 404 on every index file, and apt reports that as a missing
-release rather than as a wrong host.
-The second is a saving. `apt.postgresql.org` has no Iranian mirror either —
-but trixie ships `postgresql-client-17` in its own archive, so at
-`PG_MAJOR=17` that repository is not needed. Set `USE_PGDG=0` in
-`deploy/env/.env.production` and the build needs exactly two mirrors: Debian's
-and PyPI's.
-
-Only while the versions line up. `pg_dump` has to match the server's Postgres,
-and the day `PG_MAJOR` goes past what Debian ships, `USE_PGDG=1` comes back —
-a mismatch is silent until a restore fails with
-`ERROR: unrecognized configuration parameter "transaction_timeout"`.
 
 If it looks wrong afterwards:
 
