@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static perms %}
+
+{% block title %}مقالات دندانپزشکی | نکات، آموزش و تازه‌های مطب{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="جدیدترین مقالات و آموزش‌های دندانپزشکی، نکات مراقبت از دندان، ایمپلنت، ارتودنسی و زیبایی توسط تیم مطب دکتر بابایی و بهمدی.">
+    <meta property="og:title" content="مقالات دندانپزشکی | مطب دکتر بابایی و بهمدی">
+    <meta property="og:description" content="جدیدترین مقالات و آموزش‌های دندانپزشکی توسط تیم متخصص مطب.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sbdental.ir/blog/">
+    <meta property="og:image" content="https://sbdental.ir/static/img/site-logo.png">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- ============================================================ HERO -->
+    <section class="blg-hero">
+        <div class="blg-hero__bg" aria-hidden="true"></div>
+        <div class="ds-container blg-hero__inner">
+            <span class="ds-heading__eyebrow">وبلاگ مطب</span>
+            <h1 class="blg-hero__title">
+                <span>دانش دندان‌پزشکی</span>
+                <span class="blg-hero__title-accent">به زبان ساده</span>
+            </h1>
+            <p class="blg-hero__lead">
+                نکات مراقبتی، پاسخ سوالات رایج و تجربه‌های تخصصی از تیم درمانی ما — همه در یک جا.
+            </p>
+
+            {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
+                <a href="{% url 'blog:create_blog' %}" class="blg-hero__manage">
+                    <i class="fas fa-pen-to-square"></i>
+                    <span>نوشتن مقاله جدید</span>
+                </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============================================================ FILTER -->
+    <section class="blg-filter" aria-label="فیلتر مقالات">
+        <div class="ds-container">
+            <form method="GET" class="blg-filter__form" id="blogFilterForm">
+                <div class="blg-filter__searchbar">
+                    <div class="blg-filter__field">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <input
+                            type="text"
+                            id="{{ filter.form.title.id_for_label }}"
+                            name="{{ filter.form.title.html_name }}"
+                            placeholder="عنوان مقاله را جست‌وجو کنید..."
+                            value="{{ filter.form.title.value|default_if_none:'' }}"
+                            aria-label="جست‌وجوی عنوان">
+                    </div>
+                    <div class="blg-filter__divider" aria-hidden="true"></div>
+                    {% comment %}
+                        The author is picked, not typed.
+
+                        It was a text box matched loosely against the writer's
+                        first or last name: "بابایی" worked, "دکتر بابایی" did
+                        not, and a typo returned an empty page that looked
+                        like the clinic had no articles. Then it was a bare
+                        native <select>, which the browser paints in its own
+                        chrome — a white OS control sitting inside the dark
+                        pill, with its own caret next to ours.
+
+                        This is the same list built out of markup we control,
+                        so it carries each doctor's photo and specialty and
+                        matches the rest of the page in both themes. The
+                        inputs are radios inside the filter form, so the
+                        choice submits with everything else and the picker
+                        works with the script blocked; blog.js only submits on
+                        pick to save the extra press.
+                    {% endcomment %}
+                    <div class="blg-filter__field blg-filter__field--author">
+                        <details class="blg-author" id="blogAuthorPicker">
+                            <summary class="blg-author__trigger">
+                                <span class="blg-author__avatar">
+                                    {% if filter.selected_writer.user.image %}
+                                        <img src="{{ filter.selected_writer.user.image.url }}"
+                                             alt="" width="32" height="32" loading="lazy">
+                                    {% else %}
+                                        <i class="fas fa-user-md" aria-hidden="true"></i>
+                                    {% endif %}
+                                </span>
+                                <span class="blg-author__current">
+                                    <small>نویسنده</small>
+                                    <strong>{{ filter.selected_writer.display_name|default:"همه‌ی نویسندگان" }}</strong>
+                                </span>
+                                <i class="fas fa-chevron-down blg-author__caret" aria-hidden="true"></i>
+                            </summary>
+
+                            <div class="blg-author__menu" role="group" aria-label="انتخاب نویسنده">
+                                <label class="blg-author__item">
+                                    <input type="radio"
+                                           name="{{ filter.form.writer.html_name }}"
+                                           value=""
+                                           {% if not filter.selected_writer %}checked{% endif %}>
+                                    <span class="blg-author__avatar blg-author__avatar--all">
+                                        <i class="fas fa-users" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="blg-author__name">
+                                        <strong>همه‌ی نویسندگان</strong>
+                                        <small>مقالات همه‌ی پزشکان مطب</small>
+                                    </span>
+                                    <i class="fas fa-check blg-author__tick" aria-hidden="true"></i>
+                                </label>
+
+                                {% for doctor in filter.form.writer.field.queryset %}
+                                    <label class="blg-author__item">
+                                        <input type="radio"
+                                               name="{{ filter.form.writer.html_name }}"
+                                               value="{{ doctor.pk }}"
+                                               {% if filter.selected_writer.pk == doctor.pk %}checked{% endif %}>
+                                        <span class="blg-author__avatar">
+                                            {% if doctor.user.image %}
+                                                <img src="{{ doctor.user.image.url }}"
+                                                     alt="" width="32" height="32" loading="lazy">
+                                            {% else %}
+                                                <i class="fas fa-user-md" aria-hidden="true"></i>
+                                            {% endif %}
+                                        </span>
+                                        <span class="blg-author__name">
+                                            <strong>{{ doctor.display_name }}</strong>
+                                            {% if doctor.headline or doctor.specialty %}
+                                                <small>{{ doctor.headline|default:doctor.specialty }}</small>
+                                            {% endif %}
+                                        </span>
+                                        <i class="fas fa-check blg-author__tick" aria-hidden="true"></i>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    </div>
+                    <button type="submit" class="blg-filter__submit" aria-label="اعمال فیلتر">
+                        <i class="fas fa-filter"></i>
+                        <span>فیلتر</span>
+                    </button>
+                    <a href="{% url 'blog:blog_list' %}" class="blg-filter__reset" aria-label="بازنشانی فیلترها">
+                        <i class="fas fa-rotate-left"></i>
+                    </a>
+                </div>
+
+                <div class="blg-filter__cats" role="group" aria-label="دسته‌بندی‌ها">
+                    <span class="blg-filter__cats-label"><i class="fas fa-tags"></i> دسته‌بندی</span>
+                    {% for category in filter.form.category.field.queryset %}
+                        <label class="blg-catchip">
+                            <input type="checkbox"
+                                   name="{{ filter.form.category.html_name }}"
+                                   value="{{ category.id }}"
+                                   {% if category.id|stringformat:"s" in filter.form.category.value %}checked{% endif %}>
+                            <span>{{ category.name }}</span>
+                        </label>
+                    {% empty %}
+                        <span class="blg-filter__empty">هنوز دسته‌ای ثبت نشده</span>
+                    {% endfor %}
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- ============================================================ LIST -->
+    <section class="ds-section blg-list" aria-label="لیست مقالات">
+        <div class="ds-container">
+            {% if blogs %}
+                <div class="blg-grid" id="blog-container">
+                    {% for blog in blogs %}
+                        {% include 'blog/_blog_card.html' with feature=forloop.first %}
+                    {% endfor %}
+                </div>
+
+                <div class="blg-loadmore">
+                    <button id="load-more" type="button" class="ds-btn ds-btn--primary ds-btn--lg"
+                            data-offset="{{ next_offset }}"
+                            data-url="{% url 'blog:load_more_blogs' %}"
+                            {% if not has_more %}hidden{% endif %}>
+                        <i class="fas fa-plus"></i>
+                        <span>مقالات بیشتر</span>
+                    </button>
+                    <p id="no-more-blogs" class="blg-loadmore__end" {% if has_more %}hidden{% endif %}>
+                        <i class="fas fa-check-circle"></i>
+                        <span>پایان مقالات</span>
+                    </p>
+                </div>
+            {% else %}
+                <div class="blg-empty">
+                    <div class="blg-empty__glow"></div>
+                    <i class="fas fa-book-open"></i>
+                    <h3>مقاله‌ای با این جست‌وجو یافت نشد</h3>
+                    <p>فیلترها را تغییر دهید یا به‌زودی برای مقالات جدید سر بزنید.</p>
+                    <a href="{% url 'blog:blog_list' %}" class="ds-btn ds-btn--primary">
+                        <i class="fas fa-rotate-left"></i>
+                        <span>پاک‌سازی فیلتر</span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============================================================ NEWSLETTER-STYLE CTA -->
+    <section class="blg-cta">
+        <div class="ds-container">
+            <div class="ds-cta-card">
+                <span class="ds-cta-card__icon"><i class="fas fa-lightbulb"></i></span>
+                <div class="ds-cta-card__body">
+                    <span class="ds-heading__eyebrow">مشاوره رایگان</span>
+                    <h2>سوالی درباره درمان دارید؟</h2>
+                    <p>تیم ما آماده‌ی پاسخ به سوالات دندان‌پزشکی شماست — مشاوره‌ی اولیه رایگان است.</p>
+                </div>
+                {% include '_cta_actions.html' with cta_size='lg' %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'blog/js/blog.js' %}" defer></script>
+    <script src="{% static 'blog/js/load_more.js' %}" defer></script>
+{% endblock %}

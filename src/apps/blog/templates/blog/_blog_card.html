@@ -1,0 +1,64 @@
+{% load perms %}
+{% comment %}
+    One blog card. Rendered both by the initial list and by the "load more"
+    endpoint, so the AJAX-appended markup can never drift from the first page.
+
+    Context: `blog`, plus `feature` (bool) for the oversized first tile.
+{% endcomment %}
+<article class="blg-post {% if feature %}blg-post--feature{% endif %}"
+         itemscope itemtype="http://schema.org/BlogPosting"
+         data-blog-id="{{ blog.id }}">
+    <a href="{% url 'blog:blog_detail' blog.slug %}" class="blg-post__media" aria-label="{{ blog.title }}">
+        <img src="{{ blog.image.url }}"
+             alt="{{ blog.title }}"
+             loading="lazy"
+             itemprop="image">
+        <div class="blg-post__categories">
+            {% for category in blog.categories.all|slice:":2" %}
+                <span class="blg-post__cat" itemprop="keywords">{{ category.name }}</span>
+            {% endfor %}
+        </div>
+    </a>
+    {% if user|can_manage:blog.writer %}
+        <div class="blg-post__admin" role="toolbar" aria-label="مدیریت مقاله">
+            <a href="{% url 'blog:update_blog' blog.pk %}"
+               class="blg-post__admin-btn"
+               title="ویرایش مقاله" aria-label="ویرایش مقاله">
+                <i class="fas fa-pen"></i>
+            </a>
+            <form method="post" action="{% url 'blog:delete_blog' blog.pk %}"
+                  class="blg-post__admin-form"
+                  data-confirm
+                  data-confirm-title="حذف مقاله"
+                  data-confirm-text="مقاله «{{ blog.title }}» حذف شود؟ این عمل قابل بازگشت نیست."
+                  data-confirm-ok="حذف مقاله">
+                {% csrf_token %}
+                <button type="submit"
+                        class="blg-post__admin-btn blg-post__admin-btn--del"
+                        title="حذف مقاله" aria-label="حذف مقاله">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+        </div>
+    {% endif %}
+    <div class="blg-post__body">
+        <h2 class="blg-post__title" itemprop="headline">
+            <a href="{% url 'blog:blog_detail' blog.slug %}">{{ blog.title }}</a>
+        </h2>
+        <div class="blg-post__meta">
+            <span class="blg-post__author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <i class="fas fa-user-md"></i>
+                <span itemprop="name">{{ blog.writer.user.get_full_name|default:'ناشناس' }}</span>
+            </span>
+            <span class="blg-post__dot">•</span>
+            <span class="blg-post__date">
+                <i class="fas fa-calendar"></i>
+                <time datetime="{{ blog.updated_at|date:'c' }}">{{ blog.get_updated_at_jalali }}</time>
+            </span>
+        </div>
+        <a href="{% url 'blog:blog_detail' blog.slug %}" class="blg-post__cta">
+            <span>خواندن مقاله</span>
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </div>
+</article>

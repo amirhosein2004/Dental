@@ -1,0 +1,603 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}پنل پزشک | {{ doctor.user.get_full_name|default:doctor.user.username }}{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section dsh-page">
+    <div class="ds-container ds-container--wide">
+
+        <!-- ============================================================== HERO -->
+        <header class="dsh-hero">
+            <div class="dsh-hero__avatar">
+                {% if doctor.user.image %}
+                    <img id="dshAvatarPreview"
+                         src="{{ doctor.user.image.url }}"
+                         alt="عکس پروفایل {{ doctor.user.get_full_name|default:doctor.user.username }}">
+                {% else %}
+                    <span class="dsh-hero__avatar-fallback" id="dshAvatarPreview" aria-label="عکس پیش‌فرض">
+                        <i class="fas fa-user-doctor"></i>
+                    </span>
+                {% endif %}
+                <label for="id_image" class="dsh-hero__avatar-picker" title="تعویض عکس پروفایل">
+                    <i class="fas fa-camera"></i>
+                </label>
+            </div>
+
+            <div class="dsh-hero__meta">
+                <span class="ds-heading__eyebrow">پنل پزشک</span>
+                <h1 class="dsh-hero__title">
+                    {% if doctor.user.get_full_name %}
+                        دکتر {{ doctor.user.get_full_name }}
+                    {% else %}
+                        {{ doctor.user.username }}
+                    {% endif %}
+                </h1>
+                <p class="dsh-hero__sub">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ doctor.user.email }}</span>
+                </p>
+                <div class="dsh-hero__stats">
+                    <a href="#dshBlogs" class="dsh-stat">
+                        <span class="dsh-stat__num">{{ blogs|length }}</span>
+                        <span class="dsh-stat__lbl">مقاله</span>
+                    </a>
+                    <a href="#dshGalleries" class="dsh-stat">
+                        <span class="dsh-stat__num">{{ galleries|length }}</span>
+                        <span class="dsh-stat__lbl">گالری</span>
+                    </a>
+                    <span class="dsh-stat">
+                        <span class="dsh-stat__num">
+                            <i class="fas {% if doctor.user.is_superuser %}fa-crown{% else %}fa-user-doctor{% endif %}"></i>
+                        </span>
+                        <span class="dsh-stat__lbl">
+                            {% if doctor.user.is_superuser %}مدیر{% else %}پزشک{% endif %}
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ============================================================== PROFILE FORM -->
+        <article class="dsh-card" id="dshProfile">
+            <header class="dsh-card__head">
+                <div>
+                    <h2 class="dsh-card__title">
+                        <i class="fas fa-user-pen"></i>
+                        <span>اطلاعات پروفایل</span>
+                    </h2>
+                    <p class="dsh-card__sub">اطلاعات کاربری، متن معرفی، و شبکه‌های اجتماعی خود را ویرایش کنید.</p>
+                </div>
+            </header>
+
+            <form method="post" enctype="multipart/form-data" class="dsh-form" novalidate id="dshProfileForm">
+                {% csrf_token %}
+
+                {% if user_form.non_field_errors or doctor_form.non_field_errors %}
+                    <div class="dsh-alert dsh-alert--error" role="alert">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        <span>{{ user_form.non_field_errors|first }}{{ doctor_form.non_field_errors|first }}</span>
+                    </div>
+                {% endif %}
+
+                <!-- ---- Account block ---- -->
+                <div class="dsh-block">
+                    <h3 class="dsh-block__title">
+                        <i class="fas fa-id-badge"></i>
+                        <span>اطلاعات کاربری</span>
+                    </h3>
+
+                    {# Hidden file input — connected to hero avatar picker above #}
+                    <div class="dsh-form__hidden-file">{{ user_form.image }}</div>
+                    {% if user_form.image.errors %}
+                        <p class="dsh-form__error">
+                            <i class="fas fa-circle-exclamation"></i>
+                            {{ user_form.image.errors|first }}
+                        </p>
+                    {% endif %}
+
+                    <div class="dsh-form__grid">
+                        <div class="dsh-form__field {% if user_form.first_name.errors %}has-error{% endif %}">
+                            <label for="{{ user_form.first_name.id_for_label }}">
+                                <i class="fas fa-user"></i>
+                                <span>{{ user_form.first_name.label }}</span>
+                            </label>
+                            {{ user_form.first_name }}
+                            {% if user_form.first_name.errors %}
+                                <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ user_form.first_name.errors|first }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="dsh-form__field {% if user_form.last_name.errors %}has-error{% endif %}">
+                            <label for="{{ user_form.last_name.id_for_label }}">
+                                <i class="fas fa-user"></i>
+                                <span>{{ user_form.last_name.label }}</span>
+                            </label>
+                            {{ user_form.last_name }}
+                            {% if user_form.last_name.errors %}
+                                <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ user_form.last_name.errors|first }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="dsh-form__field {% if user_form.username.errors %}has-error{% endif %}">
+                            <label for="{{ user_form.username.id_for_label }}">
+                                <i class="fas fa-at"></i>
+                                <span>{{ user_form.username.label }}</span>
+                            </label>
+                            {{ user_form.username }}
+                            {% if user_form.username.errors %}
+                                <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ user_form.username.errors|first }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="dsh-form__field {% if user_form.email.errors %}has-error{% endif %}">
+                            <label for="{{ user_form.email.id_for_label }}">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ user_form.email.label }}</span>
+                            </label>
+                            {{ user_form.email }}
+                            {% if user_form.email.errors %}
+                                <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ user_form.email.errors|first }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ---- About block ---- -->
+                <div class="dsh-block">
+                    <h3 class="dsh-block__title">
+                        <i class="fas fa-file-signature"></i>
+                        <span>معرفی تخصصی</span>
+                    </h3>
+                    <div class="dsh-form__field {% if doctor_form.description.errors %}has-error{% endif %}">
+                        <label for="{{ doctor_form.description.id_for_label }}" class="ds-visually-hidden">
+                            {{ doctor_form.description.label }}
+                        </label>
+                        {{ doctor_form.description }}
+                        <small class="dsh-form__hint">
+                            <i class="fas fa-info-circle"></i>
+                            متنی که در صفحه‌ی «درباره ما» زیر نام شما نمایش داده می‌شود.
+                        </small>
+                        {% if doctor_form.description.errors %}
+                            <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ doctor_form.description.errors|first }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- ---- Social block ---- -->
+                <div class="dsh-block">
+                    <h3 class="dsh-block__title">
+                        <i class="fas fa-share-nodes"></i>
+                        <span>شبکه‌های اجتماعی</span>
+                    </h3>
+                    <p class="dsh-form__hint">
+                        <i class="fas fa-info-circle"></i>
+                        فقط شناسه‌ی خود را وارد کنید — آدرس کامل را ما می‌سازیم.
+                    </p>
+                    <div class="dsh-form__grid">
+                        {% for field, prefix in doctor_form.social_fields %}
+                            <div class="dsh-form__field dsh-social dsh-social--{{ field.name }} {% if field.errors %}has-error{% endif %}">
+                                <label for="{{ field.id_for_label }}">
+                                    <i class="fab fa-{{ field.name }}"></i>
+                                    <span>{{ field.label }}</span>
+                                </label>
+                                <div class="dsh-social__input">
+                                    <span class="dsh-social__prefix" dir="ltr" aria-hidden="true">{{ prefix }}</span>
+                                    {{ field }}
+                                </div>
+                                {% if field.errors %}
+                                    <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ field.errors|first }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="dsh-form__actions">
+                    <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg">
+                        <i class="fas fa-save"></i>
+                        <span>ذخیره تغییرات</span>
+                    </button>
+                </div>
+            </form>
+        </article>
+
+        <!-- ============================================================== RESUME / CV -->
+        {% comment %}
+            The CV behind the public profile page.
+
+            Every one of these fields was already rendered on that page and
+            none of them had a form — the degree, the council number, the
+            education history could only be filled in from the Django admin,
+            so on a real install the profile shipped mostly empty. It posts
+            separately from the profile card above: same row, but two screens
+            of fields, and an error in one must not discard the other.
+        {% endcomment %}
+        <article class="dsh-card" id="dshResume">
+            <header class="dsh-card__head">
+                <div>
+                    <h2 class="dsh-card__title">
+                        <i class="fas fa-id-card"></i>
+                        <span>رزومه و سوابق</span>
+                    </h2>
+                    <p class="dsh-card__sub">
+                        همان چیزی که در صفحه‌ی عمومی رزومه‌ی شما دیده می‌شود.
+                        {% if doctor.slug %}
+                            <a href="{{ doctor.get_absolute_url }}" target="_blank" rel="noopener">مشاهده صفحه</a>
+                        {% endif %}
+                    </p>
+                </div>
+            </header>
+
+            <form method="post" class="dsh-form" novalidate id="dshResumeForm">
+                {% csrf_token %}
+                <input type="hidden" name="form_kind" value="resume">
+
+                {% if resume_form.non_field_errors %}
+                    <div class="dsh-alert dsh-alert--error" role="alert">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        <span>{{ resume_form.non_field_errors|first }}</span>
+                    </div>
+                {% endif %}
+
+                <div class="dsh-form__section">
+                    <h3 class="dsh-form__legend"><i class="fas fa-user-doctor"></i><span>معرفی حرفه‌ای</span></h3>
+                    <div class="dsh-form__grid">
+                        {% for field in resume_form.intro_fields %}
+                            <div class="dsh-form__field {% if field.errors %}has-error{% endif %}">
+                                <label for="{{ field.id_for_label }}"><span>{{ field.label }}</span></label>
+                                {{ field }}
+                                {% if field.help_text %}<small class="dsh-form__hint">{{ field.help_text }}</small>{% endif %}
+                                {% if field.errors %}
+                                    <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ field.errors|first }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% comment %}
+                    Four list fields with one convention: one item per line.
+                    Saying it once above them beats repeating the same hint
+                    four times, and it is the only thing a writer has to know
+                    to get the bullets on the public page right.
+                {% endcomment %}
+                <div class="dsh-form__section">
+                    <h3 class="dsh-form__legend"><i class="fas fa-list-ul"></i><span>سوابق</span></h3>
+                    <p class="dsh-form__hint dsh-form__hint--block">
+                        <i class="fas fa-circle-info"></i>
+                        در هر کادر، <strong>هر مورد را در یک خط جدا</strong> بنویسید. هر خط در صفحه‌ی رزومه یک آیتم فهرست می‌شود.
+                    </p>
+                    <div class="dsh-form__grid">
+                        {% for field in resume_form.line_fields %}
+                            <div class="dsh-form__field {% if field.errors %}has-error{% endif %}">
+                                <label for="{{ field.id_for_label }}"><span>{{ field.label }}</span></label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ field.errors|first }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% comment %}
+                    The practices, and nothing else.
+
+                    The specialty checkboxes that used to sit beside them
+                    picked which treatments this doctor performs — a
+                    catalogue-wide decision that no page on the site reads,
+                    so filling it in changed nothing and leaving it empty
+                    looked like an unfinished form.
+                {% endcomment %}
+                <div class="dsh-form__section">
+                    <h3 class="dsh-form__legend"><i class="fas fa-hospital"></i><span>مطب‌های محل کار</span></h3>
+                    <div class="dsh-form__field {% if resume_form.branches.errors %}has-error{% endif %}">
+                        <div class="dsh-checks">{{ resume_form.branches }}</div>
+                        <small class="dsh-form__hint">
+                            <i class="fas fa-circle-info"></i>
+                            آدرس، تلفن و ساعات کاری هر مطب در صفحه‌ی رزومه‌ی شما نمایش داده می‌شود.
+                        </small>
+                        {% if resume_form.branches.errors %}
+                            <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ resume_form.branches.errors|first }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% comment %}
+                    Superuser only, and absent from the form itself rather
+                    than hidden here — a hidden field still posts, so a
+                    doctor saving their CV would blank the meta text and
+                    unpublish their own page. Whether a profile is public,
+                    where it sorts and what Google prints under its title are
+                    site-wide answers, not part of anyone's CV.
+                {% endcomment %}
+                {% if resume_form.has_site_fields %}
+                    <div class="dsh-form__section">
+                        <h3 class="dsh-form__legend"><i class="fas fa-magnifying-glass"></i><span>نمایش و گوگل</span></h3>
+                        <div class="dsh-form__grid">
+                            <div class="dsh-form__field {% if resume_form.meta_description.errors %}has-error{% endif %}">
+                                <label for="{{ resume_form.meta_description.id_for_label }}"><span>{{ resume_form.meta_description.label }}</span></label>
+                                {{ resume_form.meta_description }}
+                                {% if resume_form.meta_description.errors %}
+                                    <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ resume_form.meta_description.errors|first }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="dsh-form__field {% if resume_form.order.errors %}has-error{% endif %}">
+                                <label for="{{ resume_form.order.id_for_label }}"><span>{{ resume_form.order.label }}</span></label>
+                                {{ resume_form.order }}
+                                <small class="dsh-form__hint">عدد کوچک‌تر بالاتر نمایش داده می‌شود.</small>
+                            </div>
+                        </div>
+                        <label class="dsh-form__check">
+                            {{ resume_form.is_published }}
+                            <span>
+                                <strong>{{ resume_form.is_published.label }}</strong>
+                                <small>{{ resume_form.is_published.help_text }}</small>
+                            </span>
+                        </label>
+                    </div>
+                {% endif %}
+
+                <div class="dsh-form__actions">
+                    <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg">
+                        <i class="fas fa-save"></i>
+                        <span>ذخیره رزومه</span>
+                    </button>
+                </div>
+            </form>
+        </article>
+
+        <!-- ============================================================== PASSWORD FORM -->
+        <article class="dsh-card" id="dshSecurity">
+            <header class="dsh-card__head">
+                <div>
+                    <h2 class="dsh-card__title">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>تغییر رمز عبور</span>
+                    </h2>
+                    <p class="dsh-card__sub">پس از تغییر رمز، سایر نشست‌های شما همچنان معتبر می‌مانند.</p>
+                </div>
+            </header>
+
+            <form method="post" class="dsh-form" novalidate
+                  action="{% url 'accounts:change_password' doctor.user.id %}">
+                {% csrf_token %}
+                {% comment %}
+                    Hidden username helps password managers associate the change with this account.
+                    Kept in the DOM (not display:none) so Chrome accessibility checker doesn't flag it.
+                {% endcomment %}
+                <input type="text" name="username" autocomplete="username"
+                       value="{{ doctor.user.username }}" tabindex="-1"
+                       readonly class="ds-visually-hidden" aria-hidden="true">
+
+                <div class="dsh-form__grid dsh-form__grid--3">
+                    <div class="dsh-form__field dsh-form__field--password {% if password_form.old_password.errors %}has-error{% endif %}">
+                        <label for="{{ password_form.old_password.id_for_label }}">
+                            <i class="fas fa-lock"></i>
+                            <span>رمز فعلی</span>
+                        </label>
+                        <div class="dsh-form__pw">
+                            {{ password_form.old_password }}
+                            <button type="button" class="dsh-form__pw-toggle" data-target="{{ password_form.old_password.id_for_label }}"
+                                    aria-label="نمایش رمز">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if password_form.old_password.errors %}
+                            <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ password_form.old_password.errors|first }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="dsh-form__field dsh-form__field--password {% if password_form.new_password1.errors %}has-error{% endif %}">
+                        <label for="{{ password_form.new_password1.id_for_label }}">
+                            <i class="fas fa-key"></i>
+                            <span>رمز جدید</span>
+                        </label>
+                        <div class="dsh-form__pw">
+                            {{ password_form.new_password1 }}
+                            <button type="button" class="dsh-form__pw-toggle" data-target="{{ password_form.new_password1.id_for_label }}"
+                                    aria-label="نمایش رمز">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if password_form.new_password1.errors %}
+                            <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ password_form.new_password1.errors|first }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="dsh-form__field dsh-form__field--password {% if password_form.new_password2.errors %}has-error{% endif %}">
+                        <label for="{{ password_form.new_password2.id_for_label }}">
+                            <i class="fas fa-key"></i>
+                            <span>تکرار رمز جدید</span>
+                        </label>
+                        <div class="dsh-form__pw">
+                            {{ password_form.new_password2 }}
+                            <button type="button" class="dsh-form__pw-toggle" data-target="{{ password_form.new_password2.id_for_label }}"
+                                    aria-label="نمایش رمز">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if password_form.new_password2.errors %}
+                            <p class="dsh-form__error"><i class="fas fa-circle-exclamation"></i>{{ password_form.new_password2.errors|first }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="dsh-form__actions">
+                    <a href="{% url 'accounts:password_reset' %}" class="dsh-form__link">
+                        <i class="fas fa-circle-question"></i>
+                        <span>رمز فعلی را فراموش کرده‌ام</span>
+                    </a>
+                    <button type="submit" class="ds-btn ds-btn--primary">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>تغییر رمز</span>
+                    </button>
+                </div>
+            </form>
+        </article>
+
+        <!-- ============================================================== CONTENT GRID -->
+        <div class="dsh-content-grid">
+
+            <!-- ---- Blogs ---- -->
+            <article class="dsh-card" id="dshBlogs">
+                <header class="dsh-card__head">
+                    <div>
+                        <h2 class="dsh-card__title">
+                            <i class="fas fa-newspaper"></i>
+                            <span>مقاله‌های من</span>
+                            <span class="dsh-badge">{{ blogs|length }}</span>
+                        </h2>
+                        <p class="dsh-card__sub">مقاله‌های وبلاگ که به نام شما ثبت شده‌اند.</p>
+                    </div>
+                    <a href="{% url 'blog:create_blog' %}" class="ds-btn ds-btn--primary ds-btn--sm">
+                        <i class="fas fa-plus"></i>
+                        <span>مقاله جدید</span>
+                    </a>
+                </header>
+
+                {% if blogs %}
+                    <ul class="dsh-list">
+                        {% for blog in blogs %}
+                            <li class="dsh-item">
+                                <div class="dsh-item__body">
+                                    <a href="{% url 'blog:blog_detail' blog.slug %}" class="dsh-item__title">
+                                        {{ blog.title }}
+                                    </a>
+                                    <p class="dsh-item__meta">
+                                        <i class="far fa-calendar"></i>
+                                        <span>{{ blog.created_at|date:'Y/m/d' }}</span>
+                                    </p>
+                                </div>
+                                <div class="dsh-item__actions">
+                                    <a href="{% url 'blog:update_blog' blog.pk %}" class="dsh-icon-btn dsh-icon-btn--edit" aria-label="ویرایش {{ blog.title }}">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <button type="button" class="dsh-icon-btn dsh-icon-btn--danger"
+                                            data-delete-url="{% url 'blog:delete_blog' blog.pk %}"
+                                            data-delete-title="{{ blog.title }}"
+                                            aria-label="حذف {{ blog.title }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="dsh-empty">
+                        <i class="far fa-newspaper"></i>
+                        <p>هنوز مقاله‌ای منتشر نکرده‌اید.</p>
+                        <a href="{% url 'blog:create_blog' %}" class="ds-btn ds-btn--primary ds-btn--sm">
+                            <i class="fas fa-plus"></i>
+                            <span>اولین مقاله</span>
+                        </a>
+                    </div>
+                {% endif %}
+            </article>
+
+            <!-- ---- Galleries ---- -->
+            <article class="dsh-card" id="dshGalleries">
+                <header class="dsh-card__head">
+                    <div>
+                        <h2 class="dsh-card__title">
+                            <i class="fas fa-images"></i>
+                            <span>گالری‌های من</span>
+                            <span class="dsh-badge">{{ galleries|length }}</span>
+                        </h2>
+                        <p class="dsh-card__sub">آلبوم‌های تصویری که به نام شما ثبت شده‌اند.</p>
+                    </div>
+                    <a href="{% url 'gallery:add_gallery' %}" class="ds-btn ds-btn--primary ds-btn--sm">
+                        <i class="fas fa-plus"></i>
+                        <span>گالری جدید</span>
+                    </a>
+                </header>
+
+                {% if galleries %}
+                    <ul class="dsh-glist">
+                        {% for gallery in galleries %}
+                            <li class="dsh-gitem">
+                                <div class="dsh-gitem__thumbs">
+                                    {% for image in gallery.images.all|slice:':4' %}
+                                        <img src="{{ image.image.url }}" alt="تصویر گالری {{ gallery.id }} - {{ forloop.counter }}" loading="lazy">
+                                    {% empty %}
+                                        <div class="dsh-gitem__thumb-empty"><i class="far fa-image"></i></div>
+                                    {% endfor %}
+                                </div>
+                                <div class="dsh-gitem__body">
+                                    <h4 class="dsh-gitem__title">گالری #{{ gallery.id }}</h4>
+                                    <p class="dsh-gitem__meta">
+                                        <i class="far fa-image"></i>
+                                        <span>{{ gallery.images.count }} تصویر</span>
+                                    </p>
+                                </div>
+                                <div class="dsh-item__actions">
+                                    <a href="{% url 'gallery:update_gallery' gallery.id %}" class="dsh-icon-btn dsh-icon-btn--edit" aria-label="ویرایش گالری {{ gallery.id }}">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <button type="button" class="dsh-icon-btn dsh-icon-btn--danger"
+                                            data-delete-url="{% url 'gallery:delete_gallery' gallery.id %}"
+                                            data-delete-title="گالری #{{ gallery.id }}"
+                                            aria-label="حذف گالری {{ gallery.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="dsh-empty">
+                        <i class="far fa-images"></i>
+                        <p>هنوز گالری تصویری اضافه نکرده‌اید.</p>
+                        <a href="{% url 'gallery:add_gallery' %}" class="ds-btn ds-btn--primary ds-btn--sm">
+                            <i class="fas fa-plus"></i>
+                            <span>اولین گالری</span>
+                        </a>
+                    </div>
+                {% endif %}
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- Native <dialog> for delete confirm — no bootstrap needed -->
+<dialog id="dshDeleteDialog" class="dsh-dialog" aria-labelledby="dshDeleteTitle">
+    <form method="post" id="dshDeleteForm" class="dsh-dialog__form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'dashboard:dashboard_doctor' doctor.id %}">
+        <div class="dsh-dialog__icon">
+            <i class="fas fa-triangle-exclamation"></i>
+        </div>
+        <h3 id="dshDeleteTitle" class="dsh-dialog__title">تأیید حذف</h3>
+        <p class="dsh-dialog__body">
+            آیا مطمئن هستید که می‌خواهید <strong id="dshDeleteName"></strong> را حذف کنید؟
+            این عمل قابل بازگشت نیست.
+        </p>
+        <div class="dsh-dialog__actions">
+            <button type="button" class="ds-btn ds-btn--ghost" data-dialog-cancel>
+                <i class="fas fa-xmark"></i>
+                <span>انصراف</span>
+            </button>
+            <button type="submit" class="ds-btn dsh-btn-danger">
+                <i class="fas fa-trash"></i>
+                <span>بله، حذف کن</span>
+            </button>
+        </div>
+    </form>
+</dialog>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'dashboard/js/dashboard.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}خدمات دندانپزشکی در مشهد و قوچان | مطب دکتر بابایی و بهمدی{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="خدمات تخصصی دندانپزشکی در مطب دکتر بابایی و بهمدی، مشهد و قوچان: ایمپلنت، ارتودنسی، زیبایی و درمان. هر خدمت صفحه‌ی جداگانه‌ی خود را دارد.">
+    <meta property="og:title" content="خدمات دندانپزشکی | مطب دکتر بابایی و بهمدی">
+    <meta property="og:description" content="ایمپلنت، ارتودنسی، زیبایی و درمان — در مشهد و قوچان.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:image" content="{{ SITE_URL }}{% static 'img/site-logo.png' %}">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'service/css/service.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- ============================================================ HERO -->
+    <section class="svc-hero">
+        <div class="svc-hero__bg" aria-hidden="true"></div>
+        <div class="ds-container ds-container--wide svc-hero__grid">
+            <div class="svc-hero__copy">
+                <span class="ds-heading__eyebrow">کاتالوگ خدمات</span>
+                <h1 class="svc-hero__title">
+                    از یک ترمیم ساده تا طراحی کامل لبخند
+                </h1>
+                <p class="svc-hero__lead">
+                    خدمات درمانی و زیبایی دندان‌پزشکی با کیفیت جهانی، در یک سقف.
+                    گزینه‌ای که مناسب شماست را پیدا کنید یا مشاوره رایگان بگیرید.
+                </p>
+                <div class="svc-hero__actions">
+                    <a href="#svc-list" class="ds-btn ds-btn--primary">
+                        <i class="fas fa-list-ul"></i>
+                        <span>مرور خدمات</span>
+                    </a>
+                    <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--ghost">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>رزرو نوبت</span>
+                    </a>
+                </div>
+
+                {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
+                    <a href="{% url 'service:add_service' %}" class="svc-hero__manage">
+                        <i class="fas fa-plus"></i>
+                        <span>افزودن خدمت جدید</span>
+                    </a>
+                {% endif %}
+            </div>
+
+            <aside class="svc-hero__visual" aria-hidden="true">
+                <div class="svc-hero__orbit">
+                    <span class="svc-hero__orbit-ring svc-hero__orbit-ring--1"></span>
+                    <span class="svc-hero__orbit-ring svc-hero__orbit-ring--2"></span>
+                    <span class="svc-hero__orbit-dot svc-hero__orbit-dot--1"><i class="fas fa-tooth"></i></span>
+                    <span class="svc-hero__orbit-dot svc-hero__orbit-dot--2"><i class="fas fa-star"></i></span>
+                    <span class="svc-hero__orbit-dot svc-hero__orbit-dot--3"><i class="fas fa-heart"></i></span>
+
+                    <div class="svc-hero__core">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="svcCoreBody" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#ffffff"/>
+                                    <stop offset="100%" stop-color="#ccfbf1"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M50 10 C28 10 18 26 18 42 C18 52 24 58 28 68 L34 88 C36 96 42 100 46 96 L48 82 C48.5 78 51.5 78 52 82 L54 96 C58 100 64 96 66 88 L72 68 C76 58 82 52 82 42 C82 26 72 10 50 10 Z"
+                                  fill="url(#svcCoreBody)" stroke="#0f766e" stroke-width="2"/>
+                            <ellipse cx="38" cy="30" rx="10" ry="6" fill="rgba(255,255,255,0.85)"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="svc-hero__badges">
+                    <span class="svc-hero__badge"><i class="fas fa-shield-halved"></i><span>FDA</span></span>
+                    <span class="svc-hero__badge"><i class="fas fa-hand-holding-dollar"></i><span>قیمت شفاف</span></span>
+                    <span class="svc-hero__badge"><i class="fas fa-user-shield"></i><span>گارانتی</span></span>
+                    <span class="svc-hero__badge"><i class="fas fa-clock"></i><span>نوبت دقیق</span></span>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    {% comment %}
+        Category chips removed — Service model has no category field, so the
+        buttons were purely visual and misled users. Re-enable when the model
+        gains a real category relation.
+    {% endcomment %}
+
+    <!-- ============================================================ LIST -->
+    <section class="ds-section svc-list" id="svc-list">
+        <div class="ds-container">
+            {% if services %}
+                <div class="svc-grid">
+                    {% for service in services %}
+                        <article class="svc-card" data-svc-item>
+                            <div class="svc-card__media">
+                                <img src="{{ service.image.url }}" alt="{{ service.title }}" loading="lazy">
+                                <span class="svc-card__badge">
+                                    <i class="fas fa-tooth"></i>
+                                    <span>خدمت تخصصی</span>
+                                </span>
+                            </div>
+                            <div class="svc-card__body">
+                                {% comment %}
+                                    The title is the link. Each treatment now has
+                                    a page, and this grid is what a crawler
+                                    follows to reach them — a card that only
+                                    linked to the booking form left every detail
+                                    page undiscoverable except through the
+                                    sitemap.
+                                {% endcomment %}
+                                <h3 class="svc-card__title">
+                                    <a href="{{ service.get_absolute_url }}">{{ service.title }}</a>
+                                </h3>
+                                {# `description` is rich text now; the card wants the words, not the markup. #}
+                                <p class="svc-card__desc">{{ service.description|striptags|truncatechars:180 }}</p>
+
+                                <ul class="svc-card__meta" role="list">
+                                    <li><i class="fas fa-check"></i><span>مواد استاندارد</span></li>
+                                    <li><i class="fas fa-check"></i><span>مشاوره رایگان</span></li>
+                                    <li><i class="fas fa-check"></i><span>پرداخت اقساطی</span></li>
+                                </ul>
+
+                                <div class="svc-card__footer">
+                                    <a href="{{ service.get_absolute_url }}" class="ds-btn ds-btn--primary ds-btn--sm">
+                                        <i class="fas fa-circle-info"></i>
+                                        <span>جزئیات خدمت</span>
+                                    </a>
+                                    <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                                        <i class="fas fa-calendar-check"></i>
+                                        <span>رزرو</span>
+                                    </a>
+                                    {% if user.is_authenticated and user.is_doctor or user.is_superuser %}
+                                        <div class="svc-card__admin">
+                                            <a href="{% url 'service:update_service' service.id %}"
+                                               class="svc-card__admin-btn svc-card__admin-btn--edit"
+                                               title="ویرایش خدمت"
+                                               aria-label="ویرایش {{ service.title }}">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <form method="post" action="{% url 'service:remove_service' service.id %}"
+                                                  class="svc-card__admin-form"
+                                                  data-confirm
+                                                  data-confirm-title="حذف خدمت"
+                                                  data-confirm-text="خدمت «{{ service.title }}» حذف شود؟ این عملیات قابل بازگشت نیست."
+                                                  data-confirm-ok="حذف خدمت">
+                                            {% csrf_token %}
+                                            <button type="submit"
+                                                    class="svc-card__admin-btn svc-card__admin-btn--del"
+                                                    title="حذف خدمت"
+                                                    aria-label="حذف {{ service.title }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="svc-empty">
+                    <i class="fas fa-folder-open"></i>
+                    <h3>هنوز خدمتی ثبت نشده است</h3>
+                    <p>به‌زودی فهرست کامل خدمات را در این صفحه خواهید دید.</p>
+                    <a href="{% url 'contact:contact' %}" class="ds-btn ds-btn--primary">
+                        <span>تماس با ما</span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============================================================ FAQ -->
+    {% comment %}
+        Each entry carries an icon so the closed list still reads as a set of
+        topics rather than four identical grey bars.
+
+        The old fourth entry promised a 24-hour emergency line. The clinic's
+        published hours are Saturday–Wednesday 9–13 and 16–20, closed Friday,
+        so that answer told visitors something the clinic cannot deliver.
+        Replaced with how booking actually works on this site.
+    {% endcomment %}
+    <section class="ds-section svc-faq" aria-labelledby="svc-faq-title">
+        <div class="ds-container ds-container--narrow">
+            <header class="ds-heading">
+                <span class="ds-heading__eyebrow">سوالات رایج</span>
+                <h2 class="ds-heading__title" id="svc-faq-title">قبل از رزرو، این‌ها را بدانید</h2>
+                <p class="ds-heading__lead">اگر پاسخ سوال‌تان اینجا نیست، خوشحال می‌شویم تلفنی بپرسید.</p>
+            </header>
+
+            <div class="svc-faq__list">
+                <details class="svc-faq__item">
+                    <summary class="svc-faq__q">
+                        <span class="svc-faq__icon"><i class="fas fa-stopwatch"></i></span>
+                        <span class="svc-faq__text">مشاوره اولیه چقدر طول می‌کشد؟</span>
+                        <span class="svc-faq__toggle" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
+                    </summary>
+                    <div class="svc-faq__a">
+                        <p>بسته به وضعیت شما، بین ۱۵ تا ۳۰ دقیقه. در پایان، برنامه‌ی درمان پیشنهادی به همراه هزینه‌ی دقیق ارائه می‌شود.</p>
+                    </div>
+                </details>
+
+                <details class="svc-faq__item">
+                    <summary class="svc-faq__q">
+                        <span class="svc-faq__icon"><i class="fas fa-hand-holding-dollar"></i></span>
+                        <span class="svc-faq__text">هزینه‌ها چگونه محاسبه می‌شوند؟</span>
+                        <span class="svc-faq__toggle" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
+                    </summary>
+                    <div class="svc-faq__a">
+                        <p>
+                            هزینه‌ی هر خدمت قبل از شروع کار، به‌صورت شفاف اعلام می‌شود. برای
+                            درمان‌های چندجلسه‌ای، امکان پرداخت اقساطی فراهم است.
+                        </p>
+                        <a href="{% url 'pricing:pricing_list' %}" class="svc-faq__link">
+                            <span>دیدن تعرفه‌ها</span>
+                            <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </details>
+
+                <details class="svc-faq__item">
+                    <summary class="svc-faq__q">
+                        <span class="svc-faq__icon"><i class="fas fa-shield-halved"></i></span>
+                        <span class="svc-faq__text">آیا مواد و برندهای مصرفی استاندارد هستند؟</span>
+                        <span class="svc-faq__toggle" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
+                    </summary>
+                    <div class="svc-faq__a">
+                        <p>بله. تمام مواد و ایمپلنت‌های مصرفی از برندهای بین‌المللی معتبر و تأییدشده هستند.</p>
+                    </div>
+                </details>
+
+                <details class="svc-faq__item">
+                    <summary class="svc-faq__q">
+                        <span class="svc-faq__icon"><i class="fas fa-calendar-check"></i></span>
+                        <span class="svc-faq__text">چطور نوبت بگیرم؟</span>
+                        <span class="svc-faq__toggle" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
+                    </summary>
+                    <div class="svc-faq__a">
+                        <p>
+                            از صفحه‌ی رزرو نوبت، زمان‌های خالی هر پزشک را برای همین هفته می‌بینید
+                            و با وارد کردن نام، کد ملی و شماره تماس، نوبت‌تان ثبت می‌شود. برنامه‌ی
+                            هر هفته شنبه از نو باز می‌شود. اگر ترجیح می‌دهید تلفنی هماهنگ کنید،
+                            در ساعات کاری با ما تماس بگیرید.
+                        </p>
+                        <a href="{% url 'appointments:board' %}" class="svc-faq__link">
+                            <span>دیدن نوبت‌های خالی</span>
+                            <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ CTA -->
+    <section class="svc-final">
+        <div class="ds-container">
+            <div class="ds-cta-card">
+                <span class="ds-cta-card__icon"><i class="fas fa-comments"></i></span>
+                <div class="ds-cta-card__body">
+                    <span class="ds-heading__eyebrow">مطمئن نیستید؟</span>
+                    <h2>هنوز مطمئن نیستید کدام درمان مناسب شماست؟</h2>
+                    <p>یک مشاوره‌ی رایگان کوتاه بگیرید — بدون تعهد.</p>
+                </div>
+                {% include '_cta_actions.html' with cta_size='lg' %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'service/js/service.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}دسته‌بندی‌های تعرفه | مدیریت{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'pricing/css/pricing.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container">
+        <header class="ds-heading">
+            <span class="ds-heading__eyebrow">مدیریت تعرفه</span>
+            <h1 class="ds-heading__title">دسته‌بندی‌های تعرفه</h1>
+            <p class="ds-heading__lead">
+                دسته‌ها را برای گروه‌بندی خدمات در صفحه‌ی تعرفه‌ها اضافه یا ویرایش کنید.
+                عدد ترتیب کمتر ⇒ نمایش بالاتر.
+            </p>
+        </header>
+
+        <div class="prc-cat-layout">
+            <!-- Add form -->
+            <article class="prc-cat-add">
+                <h3><i class="fas fa-plus-circle"></i> افزودن دسته جدید</h3>
+                <form method="post" action="{% url 'pricing:add_pricing_category' %}" class="prc-form">
+                    {% csrf_token %}
+                    <div class="prc-form__field {% if form.name.errors %}has-error{% endif %}">
+                        <label for="{{ form.name.id_for_label }}">
+                            نام دسته<span aria-hidden="true">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}<p class="prc-form__error">{{ form.name.errors|first }}</p>{% endif %}
+                    </div>
+                    <div class="prc-form__field {% if form.order.errors %}has-error{% endif %}">
+                        <label for="{{ form.order.id_for_label }}">ترتیب نمایش</label>
+                        {{ form.order }}
+                        {% if form.order.errors %}<p class="prc-form__error">{{ form.order.errors|first }}</p>{% endif %}
+                    </div>
+                    <button type="submit" class="ds-btn ds-btn--primary">
+                        <i class="fas fa-save"></i>
+                        <span>افزودن</span>
+                    </button>
+                </form>
+            </article>
+
+            <!-- Existing list -->
+            <article class="prc-cat-list">
+                <h3><i class="fas fa-tags"></i> دسته‌های موجود <span class="prc-cat-list__badge">{{ categories|length }}</span></h3>
+
+                {% if categories %}
+                    <ol class="prc-cat-items" role="list">
+                        {% for cat in categories %}
+                            <li class="prc-cat-item">
+                                <span class="prc-cat-item__order" title="ترتیب نمایش">#{{ cat.order }}</span>
+                                <div class="prc-cat-item__body">
+                                    <strong>{{ cat.name }}</strong>
+                                    <span>{{ cat.items.count }} خدمت</span>
+                                </div>
+                                <div class="prc-cat-item__actions">
+                                    <a href="{% url 'pricing:update_pricing_category' cat.pk %}"
+                                       class="prc-card__admin-btn" title="ویرایش" aria-label="ویرایش">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <form method="post" action="{% url 'pricing:delete_pricing_category' cat.pk %}"
+                                          class="prc-cat-item__form"
+                                          data-confirm
+                                          data-confirm-title="حذف دسته‌بندی"
+                                          data-confirm-text="دسته‌ی «{{ cat.name }}» با {{ cat.items.count }} خدمت حذف شود؟ خدمات آن بدون دسته می‌مانند."
+                                          data-confirm-ok="حذف دسته">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="prc-card__admin-btn prc-card__admin-btn--del"
+                                                title="حذف" aria-label="حذف">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                {% else %}
+                    <p class="prc-cat-list__empty">
+                        <i class="fas fa-info-circle"></i>
+                        هنوز دسته‌ای ثبت نشده. از فرم کنار اولین دسته را اضافه کنید.
+                    </p>
+                {% endif %}
+
+                <div class="prc-cat-list__back">
+                    <a href="{% url 'pricing:pricing_list' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>بازگشت به تعرفه‌ها</span>
+                    </a>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- Delete confirm modals -->
+{% for cat in categories %}
+{% endfor %}
+{% endblock %}

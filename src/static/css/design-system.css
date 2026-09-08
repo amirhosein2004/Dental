@@ -1,0 +1,579 @@
+/* ============================================================================
+   Dental Clinic — Design System (single source of truth)
+   Light + Dark tokens; responsive breakpoints; component primitives.
+   All page CSS should consume these tokens, not hard-coded colors.
+   ============================================================================ */
+
+/* --- Reset lite ---------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.65;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color .25s ease, color .25s ease;
+}
+img, svg { max-width: 100%; display: block; }
+a { color: var(--brand); text-decoration: none; transition: color .2s ease; }
+a:hover { color: var(--brand-strong); }
+/* The browser's own `[hidden] { display: none }` has the weakest possible
+   specificity, so any class rule that sets `display` beats it and the element
+   stays on screen. Bootstrap's reboot used to carry this !important version;
+   dropping Bootstrap is what made the "you've seen everything" notes on the
+   blog and gallery pages appear next to a still-usable "load more" button. */
+[hidden] { display: none !important; }
+:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+/* --- Design tokens: LIGHT (default) -------------------------------------- */
+:root {
+    /* Typography */
+    --font-body: 'Vazirmatn', 'Vazir', Tahoma, sans-serif;
+    --font-display: 'Vazirmatn', 'Vazir', Tahoma, sans-serif;
+
+    /* Brand palette */
+    --brand: #0d9488;             /* teal 600 */
+    --brand-strong: #0f766e;      /* teal 700 */
+    --brand-soft: #ccfbf1;        /* teal 100 */
+    --brand-glow: rgba(13, 148, 136, 0.35);
+    --accent: #f59e0b;            /* amber 500 */
+    --accent-soft: #fef3c7;
+
+    /* Neutrals */
+    --bg: #f8fafc;                /* slate 50 */
+    --bg-elevated: #ffffff;
+    --bg-muted: #f1f5f9;
+    --fg: #0f172a;                /* slate 900 */
+    --fg-muted: #475569;          /* slate 600 */
+    --fg-subtle: #94a3b8;         /* slate 400 */
+    --border: #e2e8f0;            /* slate 200 */
+    --border-strong: #cbd5e1;
+
+    /* Semantic */
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+
+    /* Surfaces */
+    --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.06);
+    --shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.10), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.10), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
+    --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+    --shadow-glow: 0 8px 30px rgba(13, 148, 136, 0.20);
+
+    /* Glass */
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-blur: saturate(180%) blur(14px);
+
+    /* Radii + spacing scale */
+    --radius-xs: 6px;
+    --radius-sm: 10px;
+    --radius: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    --radius-pill: 999px;
+
+    /* Container widths */
+    --w-narrow: 720px;
+    --w-content: 1140px;
+    --w-wide: 1400px;
+
+    /* Section rhythm */
+    --section-y: clamp(3rem, 6vw, 5.5rem);
+    --section-y-lg: clamp(4rem, 9vw, 7rem);
+}
+
+/* --- Design tokens: DARK ------------------------------------------------- */
+:root[data-theme="dark"] {
+    --brand: #2dd4bf;
+    --brand-strong: #5eead4;
+    --brand-soft: rgba(45, 212, 191, 0.14);
+    --brand-glow: rgba(45, 212, 191, 0.42);
+    --accent: #fbbf24;
+    --accent-soft: rgba(251, 191, 36, 0.15);
+
+    --bg: #0b1220;
+    --bg-elevated: #111a2e;
+    --bg-muted: #172033;
+    --fg: #e2e8f0;
+    --fg-muted: #94a3b8;
+    --fg-subtle: #64748b;
+    --border: #1f2a44;
+    --border-strong: #2a3654;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+    --shadow-glow: 0 8px 30px rgba(45, 212, 191, 0.25);
+
+    --glass-bg: rgba(17, 26, 46, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+/* System dark preference honored when user hasn't picked a theme */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        --brand: #2dd4bf;
+        --brand-strong: #5eead4;
+        --brand-soft: rgba(45, 212, 191, 0.14);
+        --brand-glow: rgba(45, 212, 191, 0.42);
+        --accent: #fbbf24;
+        --accent-soft: rgba(251, 191, 36, 0.15);
+
+        --bg: #0b1220;
+        --bg-elevated: #111a2e;
+        --bg-muted: #172033;
+        --fg: #e2e8f0;
+        --fg-muted: #94a3b8;
+        --fg-subtle: #64748b;
+        --border: #1f2a44;
+        --border-strong: #2a3654;
+
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+        --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+        --shadow-glow: 0 8px 30px rgba(45, 212, 191, 0.25);
+
+        --glass-bg: rgba(17, 26, 46, 0.72);
+        --glass-border: rgba(255, 255, 255, 0.08);
+    }
+}
+
+/* --- Typography ---------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--fg);
+    margin: 0 0 .5rem 0;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+h1 { font-size: clamp(1.85rem, 4vw, 3rem); }
+h2 { font-size: clamp(1.5rem, 3vw, 2.25rem); }
+h3 { font-size: clamp(1.2rem, 2vw, 1.5rem); }
+p  { margin: 0 0 1rem 0; color: var(--fg-muted); }
+
+/* --- Layout containers --------------------------------------------------- */
+.ds-container { width: 100%; max-width: var(--w-content); margin-inline: auto; padding-inline: clamp(1rem, 3vw, 2rem); }
+.ds-container--wide   { max-width: var(--w-wide); }
+.ds-container--narrow { max-width: var(--w-narrow); }
+.ds-section { padding-block: var(--section-y); }
+.ds-section--lg { padding-block: var(--section-y-lg); }
+
+/* --- Buttons ------------------------------------------------------------- */
+.ds-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .55rem;
+    padding: .85rem 1.6rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid transparent;
+    font: inherit;
+    font-weight: 600;
+    font-size: .98rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform .18s ease, box-shadow .18s ease, background .2s ease, color .2s ease, border-color .2s ease;
+    line-height: 1;
+    white-space: nowrap;
+}
+.ds-btn:hover { transform: translateY(-2px); }
+.ds-btn:active { transform: translateY(0); }
+
+.ds-btn--primary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+    color: #fff;
+    box-shadow: var(--shadow), 0 0 0 rgba(0,0,0,0);
+}
+.ds-btn--primary:hover {
+    color: #fff;
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.ds-btn--ghost {
+    background: transparent;
+    color: var(--fg);
+    border-color: var(--border-strong);
+}
+.ds-btn--ghost:hover { background: var(--bg-muted); color: var(--fg); }
+
+.ds-btn--accent {
+    background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
+    color: #fff;
+    box-shadow: var(--shadow);
+}
+.ds-btn--accent:hover { color: #fff; box-shadow: var(--shadow-lg); }
+
+.ds-btn--sm { padding: .55rem 1.1rem; font-size: .88rem; }
+.ds-btn--lg { padding: 1.05rem 2rem; font-size: 1.05rem; }
+
+/* --- Cards --------------------------------------------------------------- */
+.ds-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.ds-card--hover:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: color-mix(in srgb, var(--brand) 40%, var(--border));
+}
+
+.ds-card--glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+}
+
+/* --- Section headings ---------------------------------------------------- */
+.ds-heading {
+    text-align: center;
+    max-width: 640px;
+    margin-inline: auto;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+.ds-heading__eyebrow {
+    display: inline-block;
+    padding: .35rem .9rem;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-radius: var(--radius-pill);
+    font-size: .82rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    margin-bottom: 1rem;
+}
+:root[data-theme="dark"] .ds-heading__eyebrow { color: var(--brand); }
+.ds-heading__title { margin-bottom: .75rem; }
+.ds-heading__lead {
+    color: var(--fg-muted);
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+/* --- Form controls -------------------------------------------------------- *
+ * `class="form-control"` is set by ~47 Django widgets across the apps. It used
+ * to be Bootstrap's class, so Bootstrap supplied the whole box — size, border,
+ * radius — while this file only corrected the colours (Bootstrap's
+ * `.form-control:focus` hard-codes `color: var(--bs-body-color)`, near-black,
+ * which vanished against our dark surfaces).
+ *
+ * Bootstrap is gone now, so the full box lives here. The class name is kept
+ * rather than renamed in every widget: one definition, no migration, and app
+ * stylesheets that already restyle `.form-control` still load later and win.
+ * ------------------------------------------------------------------------- */
+.form-control,
+.form-select {
+    display: block;
+    width: 100%;
+    padding: .6rem .9rem;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.6;
+    background-color: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm, .5rem);
+    transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+.form-select {
+    /* Native arrow only; no background-image so it can't 404 once Bootstrap's
+       inline SVG data-URI is gone. */
+    appearance: auto;
+}
+.form-control:focus,
+.form-select:focus {
+    color: var(--fg);
+    background-color: var(--bg-elevated);
+    border-color: var(--brand);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 20%, transparent);
+}
+.form-control::placeholder,
+.form-select::placeholder {
+    color: var(--fg-subtle);
+    opacity: 1;
+}
+.form-control:disabled,
+.form-select:disabled,
+.form-control[readonly] {
+    background-color: var(--bg-muted);
+    color: var(--fg-muted);
+    cursor: not-allowed;
+}
+textarea.form-control { min-height: 7rem; resize: vertical; }
+/* File inputs are not text boxes — a fixed padding/height crops the button. */
+.form-control[type="file"],
+.form-control-file {
+    padding: .5rem;
+    line-height: 1.4;
+}
+/* Native option lists inherit the OS theme unless told otherwise. */
+.form-select option,
+select.form-control option {
+    background-color: var(--bg-elevated);
+    color: var(--fg);
+}
+.form-check-input {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--brand);
+    vertical-align: middle;
+}
+.form-label { display: block; margin-bottom: .4rem; font-weight: 600; }
+.form-text { display: block; margin-top: .35rem; font-size: .85rem; color: var(--fg-muted); }
+
+/* --- Dialogs -------------------------------------------------------------- *
+ * Paired with static/js/dialogs.js. Covers two jobs that used to need two
+ * different things: window.confirm() (an OS alert — Latin font, LTR, unrelated
+ * to the site) and Bootstrap's modal (~110KB of CDN payload for a handful of
+ * boxes). Same `.cd-dialog` shell for both; `--wide` and `__field` are the
+ * additions that let a dialog hold a form or a full message instead of one
+ * question.
+ * ------------------------------------------------------------------------- */
+.cd-dialog {
+    max-width: 440px;
+    width: calc(100% - 2rem);
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    color: var(--fg);
+    box-shadow: var(--shadow-xl);
+}
+.cd-dialog::backdrop {
+    background: rgba(15, 23, 42, .55);
+    backdrop-filter: blur(3px);
+}
+.cd-dialog__body { padding: 1.75rem; text-align: center; }
+.cd-dialog__icon {
+    width: 64px; height: 64px;
+    margin: 0 auto 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--danger, #dc2626) 14%, transparent);
+    color: var(--danger, #dc2626);
+    border-radius: 50%;
+    font-size: 1.8rem;
+}
+.cd-dialog__title { margin: 0 0 .5rem; font-size: 1.2rem; color: var(--fg); }
+.cd-dialog__text {
+    margin: 0 0 1.5rem;
+    color: var(--fg-muted);
+    line-height: 1.8;
+    text-wrap: pretty;
+}
+.cd-dialog__actions {
+    display: flex;
+    justify-content: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+.cd-dialog__ok {
+    background: linear-gradient(135deg, var(--danger, #dc2626), #991b1b);
+    color: #fff;
+    box-shadow: var(--shadow);
+}
+.cd-dialog__ok:hover { color: #fff; box-shadow: var(--shadow-lg); }
+
+/* A dialog that carries content rather than a yes/no question: wider, and
+   read right-to-left like the rest of the page instead of centred. */
+.cd-dialog--wide { max-width: 680px; }
+.cd-dialog--wide .cd-dialog__body { text-align: right; }
+.cd-dialog--wide .cd-dialog__actions { justify-content: flex-start; }
+
+/* One labelled input inside a dialog (e.g. "delete messages older than N days"). */
+.cd-dialog__field {
+    text-align: right;
+    margin: 0 0 1.5rem;
+}
+.cd-dialog__field label {
+    display: block;
+    margin-bottom: .4rem;
+    font-weight: 600;
+    font-size: .95rem;
+}
+.cd-dialog__field small {
+    display: block;
+    margin-top: .35rem;
+    color: var(--fg-subtle);
+    font-size: .82rem;
+}
+
+/* A form inside .cd-dialog__actions must not become a block that pushes the
+   other buttons onto their own line. */
+.cd-dialog__actions form { display: contents; }
+
+@media (max-width: 479.98px) {
+    .cd-dialog__actions { flex-direction: column-reverse; }
+    .cd-dialog__actions .ds-btn { width: 100%; justify-content: center; }
+}
+
+/* --- Shared call-to-action row ------------------------------------------- *
+ * Paired with templates/_cta_actions.html. Wraps to a single full-width
+ * column on phones so the three actions stay tappable instead of shrinking.
+ * ------------------------------------------------------------------------- */
+.cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    align-items: center;
+}
+.cta-actions--center { justify-content: center; }
+
+@media (max-width: 639.98px) {
+    .cta-actions { flex-direction: column; align-items: stretch; }
+    .cta-actions .ds-btn { width: 100%; justify-content: center; }
+}
+
+/* --- Closing call-to-action card ----------------------------------------- *
+ * The block that ends home, about, services, blog, gallery and pricing.
+ *
+ * Each of those pages used to define its own card, and five of the six put the
+ * text and the three buttons side by side with `justify-content: space-between`.
+ * A Persian heading plus three large buttons does not fit on one line, so the
+ * row wrapped: the text kept the full width, the buttons dropped underneath
+ * still pushed to one edge, and the other half of the card was left empty —
+ * different broken-looking spacing on every page.
+ *
+ * One centred stack instead. It cannot wrap into an unbalanced row, it reads
+ * the same on all six pages, and it needs no per-page breakpoint.
+ * ------------------------------------------------------------------------- */
+.ds-cta-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.25rem;
+    padding: clamp(2rem, 5vw, 3.5rem) clamp(1.25rem, 4vw, 3rem);
+    background:
+        radial-gradient(circle at 50% 0%, var(--brand-glow), transparent 60%),
+        linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-muted) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+.ds-cta-card__icon {
+    width: 60px; height: 60px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+:root[data-theme="dark"] .ds-cta-card__icon { color: var(--brand); }
+.ds-cta-card__body { max-width: 46rem; }
+.ds-cta-card__body h2 {
+    margin: .35rem 0 .5rem;
+    color: var(--fg);
+    font-size: clamp(1.4rem, 3.2vw, 2.25rem);
+    text-wrap: balance;
+}
+.ds-cta-card__body p {
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: 1.05rem;
+    text-wrap: pretty;
+}
+.ds-cta-card .cta-actions { justify-content: center; }
+
+/* Filled brand version — used where the CTA closes a visually quiet page
+   (home, gallery, pricing) and needs to carry the eye on its own. */
+.ds-cta-card--brand {
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,.16), transparent 55%),
+        linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: var(--shadow-xl);
+}
+/* On the teal fill a .18 white wash reads as a smudge — the icon and eyebrow
+   need a solid enough plate to stay legible. */
+.ds-cta-card--brand .ds-cta-card__icon {
+    background: rgba(255, 255, 255, .92);
+    color: var(--brand-strong);
+}
+.ds-cta-card--brand .ds-heading__eyebrow {
+    background: rgba(255, 255, 255, .92);
+    color: var(--brand-strong);
+}
+.ds-cta-card--brand .ds-cta-card__body h2 { color: #fff; }
+.ds-cta-card--brand .ds-cta-card__body p  { color: rgba(255, 255, 255, .92); }
+/* On brand the filled button must invert, or white-on-teal loses contrast. */
+.ds-cta-card--brand .ds-btn--primary {
+    background: #fff;
+    color: var(--brand-strong);
+    box-shadow: none;
+}
+.ds-cta-card--brand .ds-btn--primary:hover { color: var(--brand-strong); }
+.ds-cta-card--brand .ds-btn--ghost {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255, 255, 255, .5);
+}
+.ds-cta-card--brand .ds-btn--ghost:hover { background: rgba(255, 255, 255, .14); color: #fff; }
+
+/* --- Divider / small accents -------------------------------------------- */
+.ds-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--brand); display: inline-block; margin-inline: .35rem;
+    box-shadow: 0 0 0 4px var(--brand-soft);
+}
+
+/* --- Utility helpers ----------------------------------------------------- */
+.ds-visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.ds-stack-sm > * + * { margin-top: .5rem; }
+.ds-stack    > * + * { margin-top: 1rem; }
+.ds-stack-lg > * + * { margin-top: 1.75rem; }
+
+/* --- Reduced motion ------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* --- Install-instructions dialog ----------------------------------------- */
+/* The confirm dialog's icon is red because it always precedes a deletion;
+   an install prompt is not a warning. */
+.cd-dialog__icon--brand {
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+}
+:root[data-theme="dark"] .cd-dialog__icon--brand { color: var(--brand); }
+
+.cd-dialog__steps {
+    margin: 0 0 1.5rem;
+    padding-inline-start: 1.25rem;
+    text-align: right;
+    color: var(--fg-muted);
+    line-height: 2;
+    font-size: .95rem;
+}
+.cd-dialog__steps li { margin-bottom: .35rem; }
+.cd-dialog__steps strong { color: var(--fg); }

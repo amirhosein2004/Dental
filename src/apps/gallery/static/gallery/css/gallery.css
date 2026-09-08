@@ -1,0 +1,423 @@
+/* ============================================================================
+   Gallery page — cinematic showcase.
+   Distinct feel: dark image-first tiles, masonry-like layout, overlay meta on
+   hover, per-tile swiper. Uses design-system tokens.
+   ============================================================================ */
+
+/* ============================================================ HERO ==== */
+.gal-hero {
+    position: relative;
+    padding-block: clamp(3rem, 7vw, 5.5rem);
+    text-align: center;
+    overflow: hidden;
+    isolation: isolate;
+}
+.gal-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(700px 300px at 50% 0%, var(--brand-glow), transparent 55%),
+        radial-gradient(500px 400px at 10% 100%, var(--accent-soft), transparent 55%),
+        var(--bg);
+}
+.gal-hero__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle, var(--border) 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: .3;
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+}
+.gal-hero__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+.gal-hero__title {
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: .75rem 0 0 0;
+    max-width: 22ch;
+    text-wrap: balance;
+    color: var(--fg);
+}
+.gal-hero__lead {
+    font-size: 1.05rem;
+    color: var(--fg-muted);
+    max-width: 55ch;
+    line-height: 1.85;
+    margin: 0;
+}
+.gal-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 1.25rem 2rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    margin-top: 1.5rem;
+    box-shadow: var(--shadow-lg);
+}
+.gal-hero__stats > div {
+    text-align: center;
+    padding-inline: 1rem;
+    border-inline-end: 1px solid var(--border);
+}
+.gal-hero__stats > div:last-child { border-inline-end: 0; }
+.gal-hero__stats strong {
+    display: block;
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+    font-weight: 800;
+    color: var(--brand-strong);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: .35rem;
+}
+:root[data-theme="dark"] .gal-hero__stats strong { color: var(--brand); }
+.gal-hero__stats span { font-size: .82rem; color: var(--fg-muted); }
+
+.gal-hero__manage {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .45rem 1rem;
+    background: transparent;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-pill);
+    color: var(--fg-muted);
+    font-size: .82rem;
+    text-decoration: none;
+    margin-top: .5rem;
+    transition: color .2s ease, border-color .2s ease, background .2s ease;
+}
+.gal-hero__manage:hover {
+    color: var(--brand-strong);
+    border-color: var(--brand);
+    background: var(--brand-soft);
+}
+:root[data-theme="dark"] .gal-hero__manage:hover { color: var(--brand); }
+
+/* ============================================================ FILTER ==== */
+.gal-filter {
+    position: sticky;
+    top: 68px;
+    z-index: 20;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-block: 1px solid var(--border);
+}
+.gal-filter__scroller {
+    display: flex;
+    gap: .5rem;
+    overflow-x: auto;
+    padding-block: .85rem;
+    scrollbar-width: none;
+    justify-content: center;
+}
+.gal-filter__scroller::-webkit-scrollbar { display: none; }
+.gal-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .55rem 1.1rem;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--fg-muted);
+    border-radius: var(--radius-pill);
+    font-size: .9rem;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.gal-chip:hover { border-color: var(--brand); color: var(--brand-strong); }
+.gal-chip.is-active {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+}
+:root[data-theme="dark"] .gal-chip:hover { color: var(--brand); }
+:root[data-theme="dark"] .gal-chip.is-active { color: #071013; }
+
+/* ============================================================ MASONRY ==== */
+.gal-masonry {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-auto-rows: 220px;
+    gap: 1.25rem;
+    grid-auto-flow: dense;
+}
+
+.gal-tile {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: #000;
+    box-shadow: var(--shadow);
+    transition: transform .35s cubic-bezier(.2,.7,.3,1.1), box-shadow .35s ease;
+    isolation: isolate;
+}
+/* Variable row spans for masonry rhythm */
+.gal-tile[style*="--gal-span: tall"]   { grid-row: span 2; }
+.gal-tile[style*="--gal-span: wide"]   { grid-column: span 2; }
+.gal-tile[style*="--gal-span: normal"] { }
+.gal-tile:hover { transform: translateY(-4px); box-shadow: var(--shadow-xl); }
+
+.gal-tile__slider { width: 100%; height: 100%; position: relative; }
+.gal-tile__slider .swiper-wrapper { height: 100%; }
+.gal-tile__slider .swiper-slide {
+    width: 100%; height: 100%;
+    background: linear-gradient(180deg, #0b1220 0%, #17223b 100%);
+}
+.gal-tile__slider .swiper-slide img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .8s cubic-bezier(.2,.7,.3,1);
+}
+.gal-tile:hover .swiper-slide-active img { transform: scale(1.05); }
+
+/* Swiper controls — minimal, only on hover */
+.gal-tile__slider .swiper-button-next,
+.gal-tile__slider .swiper-button-prev {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #fff;
+    opacity: 0;
+    transition: opacity .2s ease, background .2s ease;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+}
+.gal-tile__slider .swiper-button-next::after,
+.gal-tile__slider .swiper-button-prev::after { font-size: 14px; font-weight: 900; }
+.gal-tile__slider .swiper-button-next { inset-inline-end: 10px; }
+.gal-tile__slider .swiper-button-prev { inset-inline-start: 10px; }
+.gal-tile:hover .swiper-button-next,
+.gal-tile:hover .swiper-button-prev { opacity: 1; }
+
+.gal-tile__slider .swiper-pagination {
+    bottom: 12px;
+}
+.gal-tile__slider .swiper-pagination-bullet {
+    background: #fff;
+    opacity: .5;
+    transition: opacity .2s ease, transform .2s ease;
+}
+.gal-tile__slider .swiper-pagination-bullet-active {
+    opacity: 1;
+    transform: scale(1.3);
+    background: var(--brand);
+}
+
+/* Overlay meta */
+.gal-tile__overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
+    background: linear-gradient(180deg,
+        rgba(0,0,0,0.5) 0%,
+        rgba(0,0,0,0) 30%,
+        rgba(0,0,0,0) 55%,
+        rgba(0,0,0,0.7) 100%);
+    opacity: 1;
+    transition: background .3s ease;
+}
+.gal-tile:hover .gal-tile__overlay {
+    background: linear-gradient(180deg,
+        rgba(0,0,0,0.55) 0%,
+        rgba(0,0,0,0.15) 40%,
+        rgba(0,0,0,0.15) 60%,
+        rgba(0,0,0,0.8) 100%);
+}
+.gal-tile__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+.gal-tile__tag,
+.gal-tile__doctor {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .3rem .75rem;
+    background: rgba(255, 255, 255, 0.92);
+    color: #0f172a;
+    border-radius: var(--radius-pill);
+    font-size: .75rem;
+    font-weight: 600;
+    pointer-events: auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.gal-tile__tag i { color: var(--brand-strong); }
+.gal-tile__doctor i { color: var(--brand-strong); }
+
+.gal-tile__actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: .5rem;
+    pointer-events: none;
+}
+.gal-tile__count {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .3rem .65rem;
+    background: rgba(0, 0, 0, 0.55);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    border-radius: var(--radius-pill);
+    font-size: .78rem;
+    font-weight: 600;
+    pointer-events: auto;
+}
+/*
+ * Edit / delete on an album the viewer owns.
+ *
+ * These used to fade in on `:hover`, which on a phone or tablet means they
+ * never appeared at all — the album's owner had no way to reach the edit form
+ * from the gallery page. They are always visible now, the way the blog cards'
+ * controls are, and only render for a user `can_manage` lets through.
+ */
+.gal-tile__admin {
+    display: flex;
+    gap: .4rem;
+    pointer-events: auto;
+}
+.gal-tile__admin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    background: rgba(255,255,255,0.95);
+    color: #0f172a;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: background .2s ease, transform .2s ease;
+}
+.gal-tile__admin-btn:hover { transform: translateY(-2px); }
+.gal-tile__admin-btn--del:hover { background: var(--danger); color: #fff; }
+/* The delete button is wrapped in its own POST form; keep the wrapper from
+   introducing layout of its own so both buttons stay flush in the flex row. */
+.gal-tile__admin-form { margin: 0; padding: 0; display: contents; }
+
+/* Touch targets. 34px is comfortable with a mouse and marginal with a thumb,
+   and these are now the only way in to editing an album on a phone. */
+@media (max-width: 767.98px) {
+    .gal-tile__admin-btn { width: 40px; height: 40px; }
+}
+
+/* ============================================================ LOAD MORE ==== */
+.gal-loadmore {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
+    margin-top: 2.5rem;
+}
+.gal-loadmore__end {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: var(--brand-strong);
+    font-weight: 600;
+    background: var(--brand-soft);
+    padding: .55rem 1.25rem;
+    border-radius: var(--radius-pill);
+    margin: 0;
+}
+:root[data-theme="dark"] .gal-loadmore__end { color: var(--brand); }
+
+/* ============================================================ EMPTY ==== */
+.gal-empty {
+    text-align: center;
+    padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+    background:
+        radial-gradient(circle at 50% 0%, var(--brand-glow), transparent 55%),
+        linear-gradient(180deg, var(--bg-elevated), var(--bg-muted));
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-xl);
+    max-width: 640px;
+    margin-inline: auto;
+    position: relative;
+    overflow: hidden;
+}
+.gal-empty__glow {
+    position: absolute;
+    inset-inline: 30%;
+    top: -50px;
+    height: 200px;
+    background: radial-gradient(circle, var(--brand-glow), transparent 70%);
+    pointer-events: none;
+    filter: blur(20px);
+}
+.gal-empty i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px; height: 84px;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    font-size: 2.2rem;
+    border-radius: 50%;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow);
+    position: relative;
+    z-index: 1;
+}
+:root[data-theme="dark"] .gal-empty i { color: var(--brand); }
+.gal-empty h3 { margin: 0 0 .5rem 0; color: var(--fg); font-size: 1.4rem; position: relative; z-index: 1; }
+.gal-empty p  { color: var(--fg-muted); margin: 0 0 1.5rem 0; position: relative; z-index: 1; }
+
+/* ============================================================ CTA ==== */
+.gal-cta { padding-block: clamp(2.5rem, 5vw, 4rem); }
+
+/* ============================================================ RESPONSIVE ==== */
+@media (max-width: 1023.98px) {
+    .gal-tile[style*="--gal-span: wide"] { grid-column: span 1; }
+}
+
+@media (max-width: 639.98px) {
+    .gal-masonry {
+        grid-template-columns: 1fr;
+        grid-auto-rows: 260px;
+    }
+    .gal-tile[style*="--gal-span: tall"] { grid-row: span 1; }
+    .gal-hero__stats {
+        grid-template-columns: 1fr;
+        gap: .75rem;
+        padding: 1rem;
+    }
+    .gal-hero__stats > div {
+        border-inline-end: 0;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: .75rem;
+    }
+    .gal-hero__stats > div:last-child { border-bottom: 0; padding-bottom: 0; }
+
+}

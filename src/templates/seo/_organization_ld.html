@@ -1,0 +1,68 @@
+{% load static %}{% comment %}
+    Site-wide structured data: one `Dentist` node per practice.
+
+    Included from `base.html`, so it is on every page. That is intentional —
+    a visitor can land on a blog post from a search, and that page should
+    still say which business it belongs to.
+
+    Fields are emitted only when they are filled. An empty `telephone`, or a
+    `geo` sitting at 0,0, is worse than an absent one: Google validates these,
+    and a property that is present but wrong is a reason to distrust the whole
+    block.
+{% endcomment %}{% if branches %}
+<script type="application/ld+json">
+[
+{% for b in branches %}
+  {
+    "@context": "https://schema.org",
+    "@type": "Dentist",
+    "@id": "{{ SITE_URL }}/#branch-{{ b.pk }}",
+    "name": "{{ b.display_title|escapejs }}",
+    {% if about.description %}"description": "{{ about.description|striptags|truncatewords:40|escapejs }}",{% endif %}
+    "url": "{{ SITE_URL }}/",
+    "image": "{{ SITE_URL }}{% static 'img/site-logo.png' %}",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "{{ b.address|escapejs }}",
+      "addressLocality": "{{ b.city|escapejs }}",
+      {% if b.postal_code %}"postalCode": "{{ b.postal_code|escapejs }}",{% endif %}
+      "addressCountry": "IR"
+    },
+    {% if b.latitude and b.longitude %}"geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "{{ b.latitude }}",
+      "longitude": "{{ b.longitude }}"
+    },{% endif %}
+    {% if b.phone_list %}"telephone": [{% for n in b.phone_list %}"{{ n }}"{% if not forloop.last %},{% endif %}{% endfor %}],{% endif %}
+    {% if about.email %}"email": "{{ about.email|escapejs }}",{% endif %}
+    "medicalSpecialty": "Dentistry",
+    {% if ld_services %}"availableService": [{% for s in ld_services %}
+      {
+        "@type": "MedicalProcedure",
+        "name": "{{ s.title|escapejs }}",
+        "url": "{{ SITE_URL }}{{ s.get_absolute_url }}"
+      }{% if not forloop.last %},{% endif %}{% endfor %}
+    ],{% endif %}
+    {% comment %}
+        The competitive part of this block. Appointments are booked on this
+        site directly, which is exactly what the directory listings rank on —
+        and until now nothing on the page said so in a form a crawler reads.
+    {% endcomment %}
+    "potentialAction": {
+      "@type": "ReserveAction",
+      "name": "رزرو نوبت آنلاین",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "{{ SITE_URL }}{% url 'appointments:board' %}",
+        "actionPlatform": [
+          "https://schema.org/DesktopWebPlatform",
+          "https://schema.org/MobileWebPlatform"
+        ]
+      },
+      "result": { "@type": "Reservation", "name": "نوبت دندانپزشکی" }
+    }
+  }{% if not forloop.last %},{% endif %}
+{% endfor %}
+]
+</script>
+{% endif %}

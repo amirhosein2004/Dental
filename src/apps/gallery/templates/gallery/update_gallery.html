@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ویرایش گالری | مدیریت گالری{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'gallery/css/gallery_form.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section gal-form-page">
+    <div class="ds-container">
+        <header class="gal-form-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">مدیریت گالری</span>
+                <h1 class="gal-form-page__title">
+                    <i class="fas fa-images"></i>
+                    <span>ویرایش گالری {% if gallery.category %}«{{ gallery.category.name }}»{% endif %}</span>
+                </h1>
+                <p class="gal-form-page__lead">
+                    {{ gallery.images.all|length }} تصویر • آخرین به‌روزرسانی
+                    {{ gallery.updated_at|date:'Y-m-d' }}
+                </p>
+            </div>
+            <a href="{% url 'gallery:gallery_list' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                <i class="fas fa-arrow-right"></i>
+                <span>لیست گالری‌ها</span>
+            </a>
+        </header>
+
+        <div class="gal-edit-grid">
+            <!-- ============================================================ SIDEBAR (settings + upload) -->
+            <aside class="gal-edit-side">
+                <!-- Category form -->
+                <article class="gal-form__panel">
+                    <h3 class="gal-form__panel-title">
+                        <i class="fas fa-tag"></i>
+                        <span>دسته‌بندی</span>
+                    </h3>
+                    <form method="POST" action="{% url 'gallery:update_gallery_category' gallery.pk %}" class="gal-form" novalidate>
+                        {% csrf_token %}
+                        <div class="gal-form__field {% if gallery_form.category.errors %}has-error{% endif %}">
+                            {% comment %}
+                                Wrapper plus our own caret — see add_gallery.
+                            {% endcomment %}
+                            <div class="gal-form__select">
+                                {{ gallery_form.category }}
+                                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                            </div>
+                            {% if gallery_form.category.errors %}
+                                <p class="gal-form__error">
+                                    <i class="fas fa-circle-exclamation"></i>
+                                    {{ gallery_form.category.errors|first }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="ds-btn ds-btn--primary ds-btn--sm">
+                            <i class="fas fa-save"></i>
+                            <span>ذخیره دسته</span>
+                        </button>
+                    </form>
+                </article>
+
+                <!-- Upload more images -->
+                <article class="gal-form__panel">
+                    <h3 class="gal-form__panel-title">
+                        <i class="fas fa-cloud-arrow-up"></i>
+                        <span>افزودن تصاویر جدید</span>
+                    </h3>
+                    <form method="POST" enctype="multipart/form-data"
+                          action="{% url 'gallery:add_gallery_images' gallery.pk %}"
+                          class="gal-form" novalidate id="galleryAddForm">
+                        {% csrf_token %}
+
+                        <div class="gal-form__uploader gal-form__uploader--compact {% if image_form.image.errors %}has-error{% endif %}"
+                             data-gal-dropzone>
+                            <label class="gal-drop gal-drop--compact" for="gal-add-input">
+                                <div class="gal-drop__icon"><i class="fas fa-cloud-arrow-up"></i></div>
+                                <h4 class="gal-drop__title">افزودن تصویر</h4>
+                                <p class="gal-drop__lead">Drag یا کلیک</p>
+                            </label>
+                            <input type="file" name="image" id="gal-add-input"
+                                   accept="image/jpeg,image/png" multiple required data-gal-file>
+
+                            {% if image_form.image.errors %}
+                                <p class="gal-form__error">
+                                    <i class="fas fa-circle-exclamation"></i>
+                                    {{ image_form.image.errors|first }}
+                                </p>
+                            {% endif %}
+
+                            <div class="gal-previews gal-previews--compact" data-gal-previews></div>
+
+                            <p class="gal-form__meta" data-gal-summary hidden>
+                                <i class="fas fa-images"></i>
+                                <strong data-gal-count>0</strong>
+                                <span>انتخاب شد</span>
+                            </p>
+                        </div>
+
+                        <button type="submit" class="ds-btn ds-btn--primary ds-btn--sm">
+                            <i class="fas fa-upload"></i>
+                            <span>آپلود</span>
+                        </button>
+                    </form>
+                </article>
+
+                <!-- Danger zone: clear all images OR delete the whole gallery -->
+                <article class="gal-form__panel gal-form__panel--danger">
+                    <h3 class="gal-form__panel-title">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        <span>محدوده حذف</span>
+                    </h3>
+
+                    {% if gallery.images.all %}
+                        <p class="gal-form__hint">
+                            <i class="fas fa-info-circle"></i>
+                            تمام تصاویر گالری یکجا حذف می‌شوند. خود گالری باقی می‌ماند.
+                        </p>
+                        <form method="POST" action="{% url 'gallery:clear_gallery_images' gallery.pk %}" novalidate
+                              data-confirm
+                              data-confirm-title="حذف همه تصاویر"
+                              data-confirm-text="هر {{ gallery.images.all|length }} تصویر این گالری حذف شود؟ خود گالری باقی می‌ماند."
+                              data-confirm-ok="حذف تصاویر">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="ds-btn ds-btn--ghost ds-btn--sm gal-form__danger-btn">
+                                <i class="fas fa-trash"></i>
+                                <span>حذف همه تصاویر</span>
+                            </button>
+                        </form>
+                        <hr class="gal-form__divider">
+                    {% endif %}
+
+                    <p class="gal-form__hint">
+                        <i class="fas fa-info-circle"></i>
+                        خود گالری به همراه تمام تصاویرش برای همیشه حذف می‌شود.
+                    </p>
+                    <form method="POST" action="{% url 'gallery:delete_gallery' gallery.pk %}" novalidate
+                          data-confirm
+                          data-confirm-title="حذف کامل گالری"
+                          data-confirm-text="این گالری به همراه تمام تصاویرش برای همیشه حذف می‌شود. این عمل قابل بازگشت نیست."
+                          data-confirm-ok="حذف گالری">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="ds-btn ds-btn--sm gal-form__danger-btn gal-form__danger-btn--strong">
+                            <i class="fas fa-trash-can"></i>
+                            <span>حذف کامل گالری</span>
+                        </button>
+                    </form>
+                </article>
+            </aside>
+
+            <!-- ============================================================ MAIN (existing images) -->
+            <div class="gal-edit-main">
+                <div class="gal-edit-main__head">
+                    <h3>
+                        <i class="fas fa-photo-film"></i>
+                        <span>تصاویر موجود</span>
+                        <em>({{ gallery.images.all|length }})</em>
+                    </h3>
+                    {% if gallery.images.all %}
+                        <p class="gal-edit-main__hint">
+                            <i class="fas fa-info-circle"></i>
+                            برای حذف هر تصویر روی آیکون بالای گوشه‌ی آن کلیک کنید.
+                        </p>
+                    {% endif %}
+                </div>
+
+                {% if gallery.images.all %}
+                    <div class="gal-edit-grid__images">
+                        {% for image in gallery.images.all %}
+                            <figure class="gal-edit-tile">
+                                <img src="{{ image.image.url }}" alt="تصویر گالری" loading="lazy">
+                                <form method="POST"
+                                      action="{% url 'gallery:delete_gallery_image' gallery.pk image.pk %}"
+                                      class="gal-edit-tile__delete">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="gal-edit-tile__delete-btn"
+                                            title="حذف تصویر"
+                                            aria-label="حذف تصویر">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </figure>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="gal-edit-empty">
+                        <i class="fas fa-image"></i>
+                        <h4>هنوز تصویری در این گالری نیست</h4>
+                        <p>از پنل کنار، اولین تصویر خود را آپلود کنید.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'gallery/js/create_gallery.js' %}" defer></script>
+{% endblock %}

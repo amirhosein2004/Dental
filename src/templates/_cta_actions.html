@@ -1,0 +1,38 @@
+{% comment %}
+    The site's two ways to reach the clinic, in one place.
+
+    Every page previously ended with its own call-to-action block, all of them
+    pointing at the contact form with different wording — so "رزرو نوبت" led to
+    a message form, and the phone number was nowhere near the button. A visitor
+    had to work out which page did what.
+
+    Now every page includes this partial and offers the same two actions in the
+    same order: book online, then get in touch.
+
+    "تماس با ما" is a link to the contact page, not a number and not a menu of
+    numbers. There is no clinic-wide line: the practice has one number per
+    city, so a button printing a single one of them said nothing about where it
+    rang — a visitor in Quchan pressed it and reached Mashhad — and a dropdown
+    asked the visitor to choose a city from nothing but two phone numbers. The
+    contact page already answers that: each practice with its own address,
+    hours, map, numbers and the message form, all on one screen.
+
+    Optional context:
+      cta_size — 'lg' for hero/closing blocks, omit for inline ones
+{% endcomment %}
+{% with size=cta_size|default:'' %}
+<div class="cta-actions" role="group" aria-label="راه‌های ارتباط با مطب">
+
+    <a href="{% url 'appointments:board' %}"
+       class="ds-btn ds-btn--primary{% if size %} ds-btn--{{ size }}{% endif %}">
+        <i class="fas fa-calendar-check"></i>
+        <span>رزرو نوبت آنلاین</span>
+    </a>
+
+    <a href="{% url 'contact:contact' %}"
+       class="ds-btn ds-btn--ghost{% if size %} ds-btn--{{ size }}{% endif %}">
+        <i class="fas fa-headset"></i>
+        <span>تماس با ما</span>
+    </a>
+</div>
+{% endwith %}

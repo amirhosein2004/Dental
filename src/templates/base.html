@@ -1,0 +1,149 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="theme-color" content="#0d9488">
+    <title>{% block title %}{% endblock %}</title>
+
+    {% comment %}
+        Canonical URL. Every page gets one, defaulting to its own path with
+        the query string dropped.
+
+        The query string is dropped on purpose. `?page=2`, `?utm_source=…` and
+        the bare URL are three different addresses to a crawler, so without
+        this the ranking a page earned is split three ways, and the version
+        that surfaces is whichever one happened to be linked. A page that
+        genuinely is a distinct address — a paginated list, a filtered view —
+        overrides the block.
+    {% endcomment %}
+    <link rel="canonical" href="{% block canonical %}{{ canonical_url }}{% endblock %}">
+
+    {% comment %}
+        Indexing rules per page. The default is to allow, and every staff-only
+        template overrides this block with `noindex, nofollow`.
+
+        This is not the same control as robots.txt, and having one is not a
+        substitute for the other. `Disallow` stops the crawl; a URL blocked
+        that way can still be listed in results — titled from an inbound link,
+        with no description — because the crawler was never allowed to fetch
+        the page and read this tag. `noindex` is what actually keeps a page
+        out. The two are used together here.
+    {% endcomment %}
+    <meta name="robots" content="{% block robots %}index, follow, max-image-preview:large{% endblock %}">
+
+    {% comment %}
+        Open Graph / Twitter defaults, so a page that sets nothing still
+        shares with a title and an image rather than a bare link. Pages
+        override `meta_tags` to say something specific.
+    {% endcomment %}
+    <meta property="og:site_name" content="{{ SITE_NAME }}">
+    <meta property="og:locale" content="fa_IR">
+    <meta name="twitter:card" content="summary_large_image">
+    {% block meta_tags %}{% endblock %}
+
+    {% comment %}
+        The practice as an entity: name, both addresses, both phone numbers,
+        and the fact that an appointment can be booked here directly.
+
+        That last part is `potentialAction`, and it is the one piece of this
+        block that changes anything competitively. The directory sites rank
+        for these searches partly because they visibly offer booking; this
+        site has offered booking all along without ever saying so in a form a
+        search engine reads.
+
+        Two `Dentist` nodes rather than one with two addresses: they are two
+        practices with separate phone numbers, and `address` is single-valued.
+        A separate node per location is also what each Business Profile
+        listing will eventually be matched against.
+    {% endcomment %}
+    {% block ld_json %}
+        {% include 'seo/_organization_ld.html' %}
+    {% endblock %}
+
+    <link rel="icon" type="image/png" href="{% static 'img/site-logo.png' %}">
+
+    {% comment %}
+        Installable web app. This is not decoration on iOS: Safari exposes the
+        Push API only to a site that was added to the Home Screen and launches
+        standalone, so without the manifest and the Apple meta tags below, a
+        doctor on an iPhone can never turn staff notifications on at all.
+        Android and desktop get push from a normal tab and treat this as a
+        nice-to-have.
+    {% endcomment %}
+    <link rel="manifest" href="{% url 'web_app_manifest' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/pwa/apple-touch-icon.png' %}">
+    {% comment %}
+        `apple-mobile-web-app-capable` predates the manifest and is still what
+        older iOS reads; current versions honour `display: standalone` from the
+        manifest. Both are cheap, and having only one of them is the usual
+        reason an installed icon opens in a plain browser view.
+    {% endcomment %}
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="مطب دندان">
+
+    <!-- Anti-FOUC theme init: run BEFORE any stylesheet paints. -->
+    <script>
+        (function () {
+            try {
+                var stored = localStorage.getItem('dental-theme');
+                if (stored === 'dark' || stored === 'light') {
+                    document.documentElement.setAttribute('data-theme', stored);
+                }
+            } catch (_) { /* private mode / disabled storage */ }
+        })();
+    </script>
+
+    <!-- Fonts (Vazirmatn — self-hosted, SIL OFL 1.1). Preload the two weights that
+         paint above-the-fold text so first render doesn't wait for the CSS parser
+         to discover the @font-face rules. -->
+    <link rel="preload" as="font" type="font/woff2"
+          href="{% static 'fonts/vazirmatn/Vazirmatn-Regular.woff2' %}" crossorigin>
+    <link rel="preload" as="font" type="font/woff2"
+          href="{% static 'fonts/vazirmatn/Vazirmatn-Bold.woff2' %}" crossorigin>
+    <link rel="stylesheet" href="{% static 'fonts/vazirmatn.css' %}">
+
+    {% comment %}
+        Bootstrap was dropped: its last use was a handful of modals, now native
+        <dialog> elements driven by static/js/dialogs.js. That removes ~110KB
+        of CDN payload from every page — and jsDelivr is not reliably reachable
+        from Iran, so its stylesheet often failed to load anyway. Everything
+        the site paints now comes from our own domain.
+    {% endcomment %}
+
+    <!-- Font Awesome — self-hosted (CC BY 4.0 icons + SIL OFL 1.1 fonts). -->
+    <link rel="stylesheet" href="{% static 'fonts/fontawesome/css/all.min.css' %}">
+
+    <!-- Design system (must load before component stylesheets) -->
+    <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    {# `?v=` forces browsers to reload after the Bootstrap-`.toast` conflict fix. #}
+    <link rel="stylesheet" href="{% static 'css/message.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+
+    {% block extra_static %}{% endblock %}
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    {% include 'messages.html' %}
+
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'footer.html' %}
+
+    <script src="{% static 'js/theme.js' %}"></script>
+    <script src="{% static 'js/navbar.js' %}"></script>
+    <script src="{% static 'js/base.js' %}"></script>
+    <script src="{% static 'js/message.js' %}"></script>
+    <script src="{% static 'js/dialogs.js' %}" defer></script>
+    <script src="{% static 'js/pwa.js' %}" defer></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

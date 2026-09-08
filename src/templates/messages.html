@@ -1,0 +1,26 @@
+{% if messages %}
+<div class="toasts" role="region" aria-label="پیام‌های سیستم" data-messages>
+    {% for message in messages %}
+        <div class="toast toast--{{ message.tags|default:'info' }}"
+             role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}"
+             data-toast>
+            <span class="toast__icon" aria-hidden="true">
+                {% if message.tags == 'success' %}
+                    <i class="fas fa-check"></i>
+                {% elif message.tags == 'error' %}
+                    <i class="fas fa-triangle-exclamation"></i>
+                {% elif message.tags == 'warning' %}
+                    <i class="fas fa-exclamation"></i>
+                {% else %}
+                    <i class="fas fa-circle-info"></i>
+                {% endif %}
+            </span>
+            <p class="toast__text">{{ message }}</p>
+            <button type="button" class="toast__close" aria-label="بستن پیام" data-toast-close>
+                <i class="fas fa-xmark"></i>
+            </button>
+            <span class="toast__progress" aria-hidden="true"></span>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}

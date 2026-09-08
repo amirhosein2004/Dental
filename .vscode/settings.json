@@ -1,3 +1,43 @@
 {
-    "zencoder.enableRepoIndexing": true
+    "liveServer.settings.port": 5501,
+        "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+        "**/.idea": true,
+        "**/.pytest_cache": true,
+        "**/.coverage": true,
+        "**/.hypothesis": true,
+        "**/*.egg-info": true,
+        "**/.ruff_cache": true,
+        "**/.mypy_cache": true,
+        "**/.cache": true,
+        "**/node_modules": true,
+        "**/.venv": true,
+        "**/venv": true,
+        "**/.tox": true,
+        "**/build": true,
+        "**/dist": true,
+        "**/.next": true,
+        "**/.nuxt": true,
+        "**/.parcel-cache": true,
+        "**/.turbo": true,
+        "**/.vite": true,
+        "**/.eslintcache": true,
+        "**/.stylelintcache": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true
+    },
+    "search.exclude": {
+        "**/.git": true,
+        "**/node_modules": true,
+        "**/venv": true,
+        "**/.venv": true,
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/.hypothesis": true,
+        "**/build": true,
+        "**/dist": true,
+        "**/.ruff_cache": true,
+        "**/.mypy_cache": true
+    }
 }

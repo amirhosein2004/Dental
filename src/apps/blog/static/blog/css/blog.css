@@ -1,0 +1,634 @@
+/* ============================================================================
+   Blog page — magazine/editorial feel.
+   Distinct: bold hero with accent title, sticky filter bar with cat chips,
+   grid where first article is a feature-hero (spans 2 cols), rest normal.
+   ============================================================================ */
+
+/* ============================================================ HERO ==== */
+.blg-hero {
+    position: relative;
+    padding-block: clamp(3rem, 7vw, 5rem);
+    text-align: center;
+    overflow: hidden;
+    isolation: isolate;
+}
+.blg-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(500px 250px at 100% 0%, var(--brand-glow), transparent 55%),
+        radial-gradient(400px 300px at 0% 100%, var(--accent-soft), transparent 60%),
+        var(--bg);
+}
+.blg-hero__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            135deg,
+            transparent 0 12px,
+            var(--border) 12px 13px
+        );
+    opacity: .1;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+.blg-hero__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+}
+.blg-hero__title {
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: .75rem 0 .5rem 0;
+    color: var(--fg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .1em;
+}
+.blg-hero__title-accent {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    font-weight: 800;
+}
+.blg-hero__lead {
+    font-size: 1.05rem;
+    color: var(--fg-muted);
+    max-width: 60ch;
+    line-height: 1.85;
+    margin: 0;
+}
+.blg-hero__manage {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .45rem 1rem;
+    background: transparent;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-pill);
+    color: var(--fg-muted);
+    font-size: .82rem;
+    text-decoration: none;
+    margin-top: 1rem;
+    transition: color .2s ease, border-color .2s ease, background .2s ease;
+}
+.blg-hero__manage:hover {
+    color: var(--brand-strong);
+    border-color: var(--brand);
+    background: var(--brand-soft);
+}
+:root[data-theme="dark"] .blg-hero__manage:hover { color: var(--brand); }
+
+/* ============================================================ FILTER ==== */
+.blg-filter {
+    position: sticky;
+    top: 68px;
+    z-index: 20;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-block: 1px solid var(--border);
+    padding-block: 1rem;
+}
+.blg-filter__form { display: flex; flex-direction: column; gap: .75rem; }
+
+/* One unified pill hosting: title search | divider | author | submit | reset */
+.blg-filter__searchbar {
+    display: flex;
+    align-items: stretch;
+    gap: .25rem;
+    padding: .3rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-sm);
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+.blg-filter__searchbar:focus-within {
+    border-color: var(--brand);
+    box-shadow: var(--shadow-sm), 0 0 0 4px var(--brand-glow);
+}
+
+.blg-filter__field {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    padding-inline: .85rem;
+    min-width: 0;
+}
+.blg-filter__field { flex: 1 1 60%; }
+.blg-filter__field--author { flex: 1 1 30%; max-width: 260px; }
+.blg-filter__field i {
+    color: var(--fg-subtle);
+    font-size: .9rem;
+    flex-shrink: 0;
+}
+.blg-filter__field input {
+    flex-grow: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    font-size: .95rem;
+    padding: .55rem 0;
+    color: var(--fg);
+}
+.blg-filter__field input::placeholder { color: var(--fg-subtle); }
+
+/* Author picker.
+   Not a <select>: the browser paints that one in its own chrome, so a white
+   OS control with its own caret sat inside the dark pill next to ours. This
+   is <details> plus radios — same list, markup we control, so it can carry a
+   photo and a specialty and follow both themes. */
+.blg-filter__field--author { padding-inline: 0; align-items: stretch; }
+
+.blg-author { position: relative; flex: 1 1 auto; min-width: 0; }
+.blg-author__trigger {
+    /* `<summary>` is list-item by default and paints a marker triangle over
+       the avatar. */
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .25rem .85rem;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    user-select: none;
+    transition: background .18s ease;
+}
+.blg-author__trigger::-webkit-details-marker { display: none; }
+.blg-author__trigger:hover { background: var(--bg-muted); }
+.blg-author__trigger:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: -2px;
+}
+
+.blg-author__caret {
+    margin-inline-start: auto;
+    flex-shrink: 0;
+    font-size: .7rem !important;
+    color: var(--fg-subtle);
+    transition: transform .2s ease;
+}
+.blg-author[open] .blg-author__caret { transform: rotate(180deg); }
+
+.blg-author__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+}
+:root[data-theme="dark"] .blg-author__avatar { color: var(--brand); }
+.blg-author__avatar img { width: 100%; height: 100%; object-fit: cover; }
+/* Beats `.blg-filter__field i`, which greys every icon in the bar. */
+.blg-author__avatar i { color: inherit !important; font-size: .82rem !important; }
+.blg-author__avatar--all { background: var(--bg-muted); color: var(--fg-muted); }
+
+.blg-author__current {
+    display: grid;
+    min-width: 0;
+    line-height: 1.25;
+    text-align: start;
+}
+.blg-author__current small { font-size: .68rem; color: var(--fg-subtle); }
+.blg-author__current strong {
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.blg-author__menu {
+    position: absolute;
+    z-index: 40;
+    inset-inline-start: 0;
+    top: calc(100% + .6rem);
+    /* Wider than the trigger: a name plus a specialty line does not fit in
+       the pill, and truncating both would defeat the point of the list. */
+    min-width: max(100%, 19rem);
+    display: grid;
+    gap: .15rem;
+    padding: .4rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-height: min(60vh, 24rem);
+    overflow-y: auto;
+}
+
+.blg-author__item {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .5rem .6rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background .16s ease;
+}
+.blg-author__item:hover { background: var(--bg-muted); }
+/* The radio carries the value and the keyboard behaviour; the row is the
+   control the eye sees. Kept in the accessibility tree, not `display: none`. */
+.blg-author__item input {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: 0;
+    opacity: 0;
+}
+.blg-author__name { display: grid; min-width: 0; line-height: 1.35; }
+.blg-author__name strong { font-size: .88rem; font-weight: 700; color: var(--fg); }
+.blg-author__name small {
+    font-size: .72rem;
+    color: var(--fg-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.blg-author__tick {
+    margin-inline-start: auto;
+    flex-shrink: 0;
+    font-size: .8rem !important;
+    color: var(--brand) !important;
+    opacity: 0;
+    transition: opacity .16s ease;
+}
+/* Without `:has()` the list still works; it just loses the highlight. */
+.blg-author__item:has(input:checked) { background: var(--brand-soft); }
+.blg-author__item:has(input:checked) .blg-author__tick { opacity: 1; }
+.blg-author__item:has(input:focus-visible) {
+    outline: 2px solid var(--brand);
+    outline-offset: -2px;
+}
+
+.blg-filter__divider {
+    align-self: center;
+    width: 1px;
+    height: 22px;
+    background: var(--border-strong);
+    opacity: .7;
+}
+
+.blg-filter__submit {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .55rem 1.2rem;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+    color: #fff;
+    border: 0;
+    border-radius: var(--radius-pill);
+    font: inherit;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: transform .18s ease, box-shadow .2s ease;
+}
+.blg-filter__submit:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow), var(--shadow-glow);
+}
+.blg-filter__submit i { font-size: .85em; }
+
+.blg-filter__reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    background: transparent;
+    color: var(--fg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: color .2s ease, border-color .2s ease, background .2s ease;
+    flex-shrink: 0;
+}
+.blg-filter__reset:hover {
+    color: var(--brand);
+    border-color: var(--brand);
+    background: var(--brand-soft);
+}
+
+/* Categories row */
+.blg-filter__cats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem;
+    padding-inline: .25rem;
+}
+.blg-filter__cats-label {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    color: var(--fg-muted);
+    font-size: .82rem;
+    margin-inline-end: .25rem;
+}
+.blg-filter__cats-label i { color: var(--brand); font-size: .85em; }
+.blg-filter__empty { color: var(--fg-subtle); font-size: .82rem; }
+
+.blg-catchip { position: relative; display: inline-flex; }
+.blg-catchip input { position: absolute; opacity: 0; pointer-events: none; }
+.blg-catchip span {
+    display: inline-flex;
+    align-items: center;
+    padding: .3rem .8rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--fg-muted);
+    font-size: .82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.blg-catchip:hover span { color: var(--brand-strong); border-color: var(--brand); }
+:root[data-theme="dark"] .blg-catchip:hover span { color: var(--brand); }
+.blg-catchip input:checked ~ span {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+}
+:root[data-theme="dark"] .blg-catchip input:checked ~ span { color: #071013; }
+
+/* ============================================================ GRID ==== */
+.blg-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.blg-post {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+.blg-post:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: color-mix(in srgb, var(--brand) 30%, var(--border));
+}
+
+/* First post = editorial feature */
+.blg-post--feature {
+    grid-column: 1 / span 2;
+    grid-row: span 2;
+    flex-direction: column;
+}
+.blg-post--feature .blg-post__media { aspect-ratio: 16 / 9; min-height: 340px; }
+.blg-post--feature .blg-post__title { font-size: clamp(1.35rem, 2.5vw, 1.85rem); line-height: 1.35; }
+.blg-post--feature .blg-post__body { padding: 1.75rem; gap: .85rem; }
+
+.blg-post__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 10;
+    background: var(--bg-muted);
+    overflow: hidden;
+}
+.blg-post__media img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .6s ease;
+}
+.blg-post:hover .blg-post__media img { transform: scale(1.05); }
+
+.blg-post__categories {
+    position: absolute;
+    top: .85rem;
+    inset-inline-start: .85rem;
+    display: flex;
+    gap: .3rem;
+    flex-wrap: wrap;
+}
+.blg-post__cat {
+    padding: .25rem .7rem;
+    background: rgba(255, 255, 255, 0.94);
+    color: #0f172a;
+    font-size: .7rem;
+    font-weight: 700;
+    border-radius: var(--radius-pill);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Per-item admin overlay: floats over the top-inline-end corner of the cover
+   image. Sibling of the <a>, so its clicks don't propagate to the detail link. */
+.blg-post { position: relative; }
+.blg-post__admin {
+    position: absolute;
+    top: .75rem;
+    inset-inline-end: .75rem;
+    display: flex;
+    gap: .35rem;
+    z-index: 2;
+}
+.blg-post__admin-form { margin: 0; padding: 0; }
+.blg-post__admin-btn {
+    width: 34px; height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, .78);
+    color: #fff;
+    border: 0;
+    border-radius: 50%;
+    font-size: .82rem;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.28);
+    transition: transform .2s ease, background .2s ease;
+}
+.blg-post__admin-btn:hover {
+    transform: translateY(-2px);
+    background: var(--brand);
+    color: #fff;
+}
+.blg-post__admin-btn--del:hover { background: var(--danger, #dc2626); }
+
+.blg-post__body {
+    padding: 1.25rem 1.35rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    flex-grow: 1;
+}
+.blg-post__title {
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.45;
+    color: var(--fg);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+.blg-post__title a { color: inherit; text-decoration: none; }
+.blg-post__title a:hover { color: var(--brand-strong); }
+:root[data-theme="dark"] .blg-post__title a:hover { color: var(--brand); }
+
+.blg-post__meta {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    color: var(--fg-muted);
+    font-size: .8rem;
+    flex-wrap: wrap;
+}
+.blg-post__meta i { color: var(--brand); font-size: .78em; }
+.blg-post__dot { color: var(--fg-subtle); }
+.blg-post__author,
+.blg-post__date { display: inline-flex; align-items: center; gap: .3rem; }
+
+.blg-post__cta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin-top: .5rem;
+    color: var(--brand-strong);
+    font-weight: 600;
+    font-size: .88rem;
+    text-decoration: none;
+    transition: gap .2s ease;
+}
+:root[data-theme="dark"] .blg-post__cta { color: var(--brand); }
+.blg-post__cta:hover { gap: .6rem; }
+
+/* ============================================================ LOAD MORE + EMPTY ==== */
+.blg-loadmore {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
+    margin-top: 2.5rem;
+}
+.blg-loadmore__end {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: var(--brand-strong);
+    font-weight: 600;
+    background: var(--brand-soft);
+    padding: .55rem 1.25rem;
+    border-radius: var(--radius-pill);
+    margin: 0;
+}
+:root[data-theme="dark"] .blg-loadmore__end { color: var(--brand); }
+
+.blg-empty {
+    text-align: center;
+    padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+    background:
+        radial-gradient(circle at 50% 0%, var(--brand-glow), transparent 55%),
+        linear-gradient(180deg, var(--bg-elevated), var(--bg-muted));
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-xl);
+    max-width: 640px;
+    margin-inline: auto;
+    position: relative;
+    overflow: hidden;
+}
+.blg-empty__glow {
+    position: absolute;
+    inset-inline: 30%;
+    top: -50px;
+    height: 200px;
+    background: radial-gradient(circle, var(--brand-glow), transparent 70%);
+    pointer-events: none;
+    filter: blur(20px);
+}
+.blg-empty > i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px; height: 84px;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    font-size: 2.2rem;
+    border-radius: 50%;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow);
+    position: relative;
+    z-index: 1;
+}
+:root[data-theme="dark"] .blg-empty > i { color: var(--brand); }
+.blg-empty h3 { margin: 0 0 .5rem 0; color: var(--fg); font-size: 1.35rem; position: relative; z-index: 1; }
+.blg-empty p  { color: var(--fg-muted); margin: 0 0 1.5rem 0; position: relative; z-index: 1; }
+
+/* ============================================================ CTA ==== */
+.blg-cta { padding-block: clamp(3rem, 6vw, 4.5rem); }
+
+/* ============================================================ RESPONSIVE ==== */
+@media (max-width: 1023.98px) {
+    .blg-grid { grid-template-columns: repeat(2, 1fr); }
+    .blg-post--feature { grid-column: 1 / -1; grid-row: auto; }
+    .blg-post--feature .blg-post__media { min-height: 260px; }
+
+}
+
+/* The chip row stops wrapping before it can take over the screen ---------- *
+ * Six categories wrap to three rows on a phone. Stacked under a search bar
+ * that is itself three rows there, the filter block filled the viewport and
+ * the articles it filters were all below the fold. One scrolling row instead.
+ * ------------------------------------------------------------------------- */
+@media (max-width: 767.98px) {
+    .blg-filter__cats {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        /* Room for the chip's own outline at the scroll extremes. */
+        padding-block: .15rem;
+    }
+    .blg-filter__cats::-webkit-scrollbar { display: none; }
+    .blg-filter__cats-label,
+    .blg-catchip { flex: 0 0 auto; }
+}
+
+@media (max-width: 639.98px) {
+    .blg-grid { grid-template-columns: 1fr; }
+
+    /* Not sticky on a phone. The bar is three rows tall here, and pinned
+       under the navigation it held a third of the screen for a control the
+       reader used once — leaving a third of a viewport for the articles. */
+    .blg-filter { position: static; }
+
+    .blg-filter__searchbar {
+        flex-wrap: wrap;
+        border-radius: var(--radius-lg);
+        padding: .5rem;
+    }
+    .blg-filter__field {
+        flex: 1 1 100%;
+        padding-inline: .75rem;
+    }
+    /* The generic rule above re-adds the inline padding the picker owns. */
+    .blg-filter__field--author { max-width: none; padding-inline: 0; }
+    .blg-filter__divider { display: none; }
+    .blg-filter__submit { flex: 1 1 auto; justify-content: center; }
+    .blg-filter__reset  { width: 44px; height: 44px; }
+}

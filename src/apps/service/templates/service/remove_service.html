@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% comment %}
+    Confirmation page for deleting a treatment.
+
+    `RemoveServiceView` named this template from the day it was written but
+    the file never existed, so a staff member who reached /service/remove/<pk>/
+    with a GET — which is what following the link does — got
+    TemplateDoesNotExist instead of a confirmation. The POST path worked, so
+    the bug only showed for anyone who did not go through the list page's
+    JS-driven confirm dialog.
+{% endcomment %}
+
+{% block title %}حذف {{ service.title }} | مدیریت خدمات{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'core/css/core.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container ds-container--narrow">
+        <header class="core-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">مدیریت خدمات</span>
+                <h1 class="core-page__title">
+                    <i class="fas fa-trash"></i>
+                    <span>حذف خدمت</span>
+                </h1>
+            </div>
+        </header>
+
+        <article class="core-form__panel">
+            <div class="core-form__alert" role="alert">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span>
+                    خدمت «{{ service.title }}» و {{ service.faqs.count }} سؤال متداول آن
+                    برای همیشه حذف می‌شود. صفحه‌ی <code dir="ltr">/service/{{ service.slug }}/</code>
+                    از این پس ۴۰۴ می‌دهد و از sitemap حذف می‌شود. این عمل قابل بازگشت نیست.
+                </span>
+            </div>
+
+            {% if service.doctors.exists %}
+                <p class="core-form__note">
+                    این خدمت در رزومه‌ی {{ service.doctors.count }} پزشک به‌عنوان تخصص ثبت شده
+                    و از آن‌جا هم حذف خواهد شد.
+                </p>
+            {% endif %}
+
+            <form method="post" class="core-form">
+                {% csrf_token %}
+                <div class="core-form__actions">
+                    <a href="{% url 'service:service_list' %}" class="ds-btn ds-btn--ghost">
+                        <i class="fas fa-xmark"></i>
+                        <span>انصراف</span>
+                    </a>
+                    <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg ds-btn--danger">
+                        <i class="fas fa-trash"></i>
+                        <span>بله، حذف کن</span>
+                    </button>
+                </div>
+            </form>
+        </article>
+    </div>
+</section>
+{% endblock %}

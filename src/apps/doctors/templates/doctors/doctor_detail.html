@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ doctor.display_name }}{% if doctor.specialty %} — {{ doctor.specialty }}{% endif %} | {{ SITE_NAME }}{% endblock %}
+
+{% block meta_tags %}
+    {% comment %}
+        The full name, spelled out, in the title above and the description
+        here. This is the whole reason the page exists: patients search the
+        doctors by name, and until these pages there was no text anywhere on
+        the site carrying a full name for that search to match.
+    {% endcomment %}
+    <meta name="description" content="{{ doctor.seo_description }}">
+    <meta property="og:title" content="{{ doctor.display_name }}{% if doctor.headline %} — {{ doctor.headline }}{% endif %}">
+    <meta property="og:description" content="{{ doctor.seo_description }}">
+    <meta property="og:type" content="profile">
+    <meta property="og:url" content="{{ canonical_url }}">
+    {% if doctor.user.image %}<meta property="og:image" content="{{ SITE_URL }}{{ doctor.user.image.url }}">{% endif %}
+{% endblock %}
+
+{% block ld_json %}
+    {{ block.super }}
+    {% comment %}
+        `Physician`, not `Person`. The difference is what Google can do with
+        it: a physician node carries a specialty, a registration number and an
+        affiliation, which is the evidence a YMYL page is judged on. A bare
+        Person node carries none of that.
+    {% endcomment %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Physician",
+      "@id": "{{ canonical_url }}#physician",
+      "name": "{{ doctor.display_name|escapejs }}",
+      "url": "{{ canonical_url }}",
+      {% if doctor.user.image %}"image": "{{ SITE_URL }}{{ doctor.user.image.url }}",{% endif %}
+      {% if doctor.specialty %}"medicalSpecialty": "{{ doctor.specialty|escapejs }}",{% endif %}
+      {% if doctor.degree %}"hasCredential": {
+        "@type": "EducationalOccupationalCredential",
+        "credentialCategory": "degree",
+        "name": "{{ doctor.degree|escapejs }}"
+      },{% endif %}
+      {% if doctor.license_number %}"identifier": {
+        "@type": "PropertyValue",
+        "name": "شماره نظام پزشکی",
+        "value": "{{ doctor.license_number|escapejs }}"
+      },{% endif %}
+      {% if branches %}"worksFor": [{% for b in branches %}
+        { "@id": "{{ SITE_URL }}/#branch-{{ b.pk }}" }{% if not forloop.last %},{% endif %}{% endfor %}
+      ],{% endif %}
+      {% if services %}"knowsAbout": [{% for s in services %}"{{ s.title|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}],{% endif %}
+      {% if doctor.social_links %}"sameAs": [{% for url, icon, label in doctor.social_links %}"{{ url|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}],{% endif %}
+      {# Last, and with no trailing comma — every property above it is optional. #}
+      "description": "{{ doctor.description|striptags|truncatewords:60|escapejs }}"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "خانه", "item": "{{ SITE_URL }}/" },
+        { "@type": "ListItem", "position": 2, "name": "پزشکان", "item": "{{ SITE_URL }}{% url 'doctors:doctor_list' %}" },
+        { "@type": "ListItem", "position": 3, "name": "{{ doctor.display_name|escapejs }}", "item": "{{ canonical_url }}" }
+      ]
+    }
+    </script>
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'doctors/css/doctors.css' %}">
+{% endblock %}
+
+{% block content %}
+<article class="doc-cv">
+
+    <!-- ================================================== HERO / NAME CARD -->
+    <header class="doc-cv__hero">
+        <div class="doc-cv__hero-bg" aria-hidden="true">
+            <span class="doc-cv__blob doc-cv__blob--1"></span>
+            <span class="doc-cv__blob doc-cv__blob--2"></span>
+        </div>
+
+        <div class="ds-container doc-cv__hero-inner">
+            <nav class="doc-cv__crumbs" aria-label="مسیر صفحه">
+                <a href="{% url 'home:home' %}">خانه</a>
+                <i class="fas fa-angle-left" aria-hidden="true"></i>
+                <a href="{% url 'doctors:doctor_list' %}">پزشکان</a>
+                <i class="fas fa-angle-left" aria-hidden="true"></i>
+                <span aria-current="page">{{ doctor.display_name }}</span>
+            </nav>
+
+            <div class="doc-cv__id">
+                <div class="doc-cv__portrait">
+                    {% if doctor.user.image %}
+                        <img src="{{ doctor.user.image.url }}"
+                             alt="{{ doctor.display_name }}{% if doctor.specialty %}، {{ doctor.specialty }}{% endif %}"
+                             width="220" height="220" loading="eager">
+                    {% else %}
+                        <span class="doc-cv__portrait-fallback" aria-hidden="true">
+                            <i class="fas fa-user-md"></i>
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="doc-cv__id-body">
+                    {# The one h1 on the page, and the exact string a patient types. #}
+                    <h1 class="doc-cv__name">{{ doctor.display_name }}</h1>
+
+                    {% if doctor.headline %}
+                        <p class="doc-cv__headline">{{ doctor.headline }}</p>
+                    {% elif doctor.specialty %}
+                        <p class="doc-cv__headline">{{ doctor.specialty }}</p>
+                    {% endif %}
+
+                    <ul class="doc-cv__badges" role="list">
+                        {% if doctor.degree %}
+                            <li class="doc-cv__badge">
+                                <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                                <span>{{ doctor.degree }}</span>
+                            </li>
+                        {% endif %}
+                        {% if doctor.license_number %}
+                            <li class="doc-cv__badge doc-cv__badge--trust">
+                                <i class="fas fa-id-card" aria-hidden="true"></i>
+                                <span>نظام پزشکی <bdi>{{ doctor.license_number }}</bdi></span>
+                            </li>
+                        {% endif %}
+                        {% if doctor.experience_years %}
+                            <li class="doc-cv__badge">
+                                <i class="fas fa-clock" aria-hidden="true"></i>
+                                <span>{{ doctor.experience_years }} سال تجربه</span>
+                            </li>
+                        {% endif %}
+                        {% for b in branches %}
+                            <li class="doc-cv__badge">
+                                <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                <span>{{ b.city }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <div class="doc-cv__actions">
+                        <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--primary">
+                            <i class="fas fa-calendar-check" aria-hidden="true"></i>
+                            <span>رزرو نوبت</span>
+                        </a>
+                        {% if branches.0.phone %}
+                            <a href="tel:{{ branches.0.phone }}" class="ds-btn ds-btn--ghost">
+                                <i class="fas fa-phone" aria-hidden="true"></i>
+                                <span>تماس با مطب</span>
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    {% if doctor.social_links %}
+                        <div class="doc-cv__social">
+                            {% for url, icon, label in doctor.social_links %}
+                                <a href="{{ url }}" target="_blank" rel="noopener"
+                                   aria-label="{{ label }} {{ doctor.display_name }}">
+                                    <i class="{{ icon }}" aria-hidden="true"></i>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================== BODY -->
+    <div class="ds-container doc-cv__layout">
+
+        <div class="doc-cv__main">
+
+            <section class="doc-cv__block" aria-labelledby="cv-intro">
+                <h2 id="cv-intro" class="doc-cv__block-title">
+                    <i class="fas fa-user-md" aria-hidden="true"></i>
+                    <span>معرفی</span>
+                </h2>
+                <div class="doc-cv__prose">{{ doctor.description|linebreaks }}</div>
+            </section>
+
+            {% if doctor.education_list %}
+                <section class="doc-cv__block" aria-labelledby="cv-education">
+                    <h2 id="cv-education" class="doc-cv__block-title">
+                        <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                        <span>تحصیلات</span>
+                    </h2>
+                    <ol class="doc-cv__timeline" role="list">
+                        {% for item in doctor.education_list %}
+                            <li class="doc-cv__timeline-item">{{ item }}</li>
+                        {% endfor %}
+                    </ol>
+                </section>
+            {% endif %}
+
+            {% if doctor.experience_list %}
+                <section class="doc-cv__block" aria-labelledby="cv-experience">
+                    <h2 id="cv-experience" class="doc-cv__block-title">
+                        <i class="fas fa-briefcase-medical" aria-hidden="true"></i>
+                        <span>سوابق کاری</span>
+                    </h2>
+                    <ol class="doc-cv__timeline" role="list">
+                        {% for item in doctor.experience_list %}
+                            <li class="doc-cv__timeline-item">{{ item }}</li>
+                        {% endfor %}
+                    </ol>
+                </section>
+            {% endif %}
+
+            {% if doctor.certification_list %}
+                <section class="doc-cv__block" aria-labelledby="cv-certs">
+                    <h2 id="cv-certs" class="doc-cv__block-title">
+                        <i class="fas fa-certificate" aria-hidden="true"></i>
+                        <span>دوره‌ها و گواهی‌نامه‌ها</span>
+                    </h2>
+                    <ul class="doc-cv__chips" role="list">
+                        {% for item in doctor.certification_list %}
+                            <li class="doc-cv__chip">{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endif %}
+
+            {% if doctor.membership_list %}
+                <section class="doc-cv__block" aria-labelledby="cv-memberships">
+                    <h2 id="cv-memberships" class="doc-cv__block-title">
+                        <i class="fas fa-users" aria-hidden="true"></i>
+                        <span>عضویت‌ها</span>
+                    </h2>
+                    <ul class="doc-cv__chips" role="list">
+                        {% for item in doctor.membership_list %}
+                            <li class="doc-cv__chip">{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endif %}
+
+            {% if services %}
+                {% comment %}
+                    Internal links, and the reason this section is not just a
+                    list of words: each treatment links to its own page, so a
+                    visitor who arrived by searching the doctor's name has a
+                    route to the page about what they actually need.
+                {% endcomment %}
+                <section class="doc-cv__block" aria-labelledby="cv-services">
+                    <h2 id="cv-services" class="doc-cv__block-title">
+                        <i class="fas fa-tooth" aria-hidden="true"></i>
+                        <span>خدمات تخصصی</span>
+                    </h2>
+                    <div class="doc-cv__services">
+                        {% for s in services %}
+                            <a href="{{ s.get_absolute_url }}" class="doc-cv__service">
+                                <span class="doc-cv__service-name">{{ s.title }}</span>
+                                <i class="fas fa-angle-left" aria-hidden="true"></i>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+            {% if posts %}
+                <section class="doc-cv__block" aria-labelledby="cv-posts">
+                    <h2 id="cv-posts" class="doc-cv__block-title">
+                        <i class="fas fa-pen-nib" aria-hidden="true"></i>
+                        <span>نوشته‌های این پزشک</span>
+                    </h2>
+                    <ul class="doc-cv__posts" role="list">
+                        {% for post in posts %}
+                            <li>
+                                <a href="{% url 'blog:blog_detail' post.slug %}">
+                                    {% if post.image %}
+                                        <img src="{{ post.image.url }}" alt="" width="72" height="72" loading="lazy">
+                                    {% endif %}
+                                    <span>{{ post.title }}</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endif %}
+        </div>
+
+        <!-- ========================================================= ASIDE -->
+        <aside class="doc-cv__aside" aria-label="محل کار و تماس">
+            {% for b in branches %}
+                <div class="doc-cv__branch ds-card">
+                    <h2 class="doc-cv__branch-title">{{ b.display_title }}</h2>
+                    <p class="doc-cv__branch-address">
+                        <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                        <span>{{ b.address }}</span>
+                    </p>
+                    {% for n in b.phone_list %}
+                        <p class="doc-cv__branch-phone">
+                            <i class="fas fa-phone" aria-hidden="true"></i>
+                            <a href="tel:{{ n }}" dir="ltr">{{ n }}</a>
+                        </p>
+                    {% endfor %}
+                    {% if b.hours_list %}
+                        <p class="doc-cv__branch-hours">
+                            <i class="fas fa-clock" aria-hidden="true"></i>
+                            <span>{{ b.hours_list|join:' — ' }}</span>
+                        </p>
+                    {% endif %}
+                    {% if b.map_link %}
+                        <a href="{{ b.map_link }}" target="_blank" rel="noopener"
+                           class="ds-btn ds-btn--ghost ds-btn--sm doc-cv__branch-map">
+                            <i class="fas fa-diamond-turn-right" aria-hidden="true"></i>
+                            <span>مسیریابی</span>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="doc-cv__book ds-card">
+                <i class="fas fa-calendar-check" aria-hidden="true"></i>
+                <p>نوبت خود را مستقیم از همین سایت رزرو کنید.</p>
+                <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--primary ds-btn--sm">
+                    رزرو نوبت آنلاین
+                </a>
+            </div>
+        </aside>
+    </div>
+</article>
+{% endblock %}

@@ -1,0 +1,552 @@
+/* ============================================================================
+   Gallery create/update — drop-zone uploader + live preview grid + edit split.
+   Consumes design-system.css tokens.
+   ============================================================================ */
+
+.gal-form-page__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--border);
+}
+.gal-form-page__title {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    margin: .35rem 0 .35rem 0;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--fg);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+.gal-form-page__title i {
+    color: var(--brand);
+    font-size: .85em;
+    padding: .5rem;
+    background: var(--brand-soft);
+    border-radius: 12px;
+}
+:root[data-theme="dark"] .gal-form-page__title i { color: var(--brand); }
+.gal-form-page__lead { margin: 0; color: var(--fg-muted); font-size: .95rem; }
+
+/* ============================================================ FORM ==== */
+.gal-form { display: flex; flex-direction: column; gap: 1rem; }
+
+.gal-form__grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.gal-form__panel {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.gal-form__panel--danger {
+    border-color: color-mix(in srgb, var(--danger) 35%, var(--border));
+    background: color-mix(in srgb, var(--danger) 5%, var(--bg-elevated));
+}
+.gal-form__panel-title {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 0;
+    color: var(--fg);
+    font-size: 1rem;
+    font-weight: 700;
+    padding-bottom: .75rem;
+    border-bottom: 1px dashed var(--border);
+}
+.gal-form__panel-title i { color: var(--brand); font-size: .9em; }
+.gal-form__panel--danger .gal-form__panel-title i { color: var(--danger); }
+.gal-form__panel-title .req { color: var(--danger); }
+
+.gal-form__field { display: flex; flex-direction: column; gap: .5rem; }
+
+/* The category picker. `appearance: none` so the control is ours: the native
+   one painted an OS-grey box inside a dark panel, and its popup was sized to
+   the browser's own metrics, which on a tablet opened wider than the card. */
+.gal-form__select { position: relative; display: flex; }
+/* Specific enough to beat the `padding` shorthand on `.gal-form__field select`
+   further down the file. */
+.gal-form__field .gal-form__select select {
+    appearance: none;
+    -webkit-appearance: none;
+    /* Room for the caret at the end of the line, whichever end that is. */
+    padding-inline-end: 2.4rem;
+    cursor: pointer;
+    text-overflow: ellipsis;
+}
+.gal-form__select > i {
+    position: absolute;
+    inset-inline-end: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: .75rem;
+    color: var(--fg-subtle);
+    transition: color .2s ease;
+}
+.gal-form__select:focus-within > i { color: var(--brand); }
+
+.gal-form__field select,
+.gal-form__field input[type="text"] {
+    width: 100%;
+    padding: .8rem 1rem;
+    font: inherit;
+    font-size: .95rem;
+    background: var(--bg-muted);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.gal-form__field select:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px var(--brand-glow);
+    background: var(--bg-elevated);
+}
+/* Dropdown options — browsers render <option> in the OS-native list; without
+   explicit colors they inherit the OS dark theme and become unreadable in
+   both light and dark app themes. Force high-contrast for both. */
+.gal-form__field select option {
+    background: var(--bg-elevated);
+    color: var(--fg);
+}
+.gal-form__field.has-error select,
+.gal-form__field.has-error input { border-color: var(--danger); }
+
+.gal-form__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    color: var(--fg-subtle);
+    font-size: .82rem;
+    margin: 0;
+}
+.gal-form__hint i { color: var(--brand); }
+.gal-form__error {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--danger);
+    font-size: .82rem;
+    margin: 0;
+}
+
+.gal-form__tips {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding-top: .5rem;
+    border-top: 1px dashed var(--border);
+}
+.gal-form__tips li {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .85rem;
+    color: var(--fg-muted);
+}
+.gal-form__tips i {
+    width: 18px; height: 18px;
+    background: var(--brand);
+    color: #fff;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .55rem;
+    flex-shrink: 0;
+}
+
+/* ============================================================ DROPZONE ==== */
+.gal-form__uploader {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    isolation: isolate;
+}
+.gal-form__uploader--compact { padding: 1rem; }
+.gal-form__uploader.has-error { border-color: var(--danger); }
+
+/* Hidden native file input */
+.gal-form__uploader input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gal-drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
+    padding: clamp(2rem, 4vw, 3rem) 1.5rem;
+    text-align: center;
+    background:
+        radial-gradient(circle at 50% 0%, var(--brand-glow), transparent 55%),
+        var(--bg-muted);
+    border: 2px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: border-color .25s ease, background .25s ease, transform .2s ease;
+}
+.gal-drop:hover,
+.gal-form__uploader.is-dragging .gal-drop {
+    border-color: var(--brand);
+    background:
+        radial-gradient(circle at 50% 0%, var(--brand-glow), transparent 55%),
+        color-mix(in srgb, var(--brand-soft) 45%, var(--bg-muted));
+    transform: translateY(-2px);
+}
+.gal-drop--compact { padding: 1.5rem 1rem; gap: .35rem; }
+
+.gal-drop__icon {
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: var(--shadow);
+}
+:root[data-theme="dark"] .gal-drop__icon { color: var(--brand); }
+.gal-drop--compact .gal-drop__icon { width: 48px; height: 48px; font-size: 1.2rem; }
+
+.gal-drop__title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--fg);
+    font-weight: 700;
+}
+.gal-drop--compact .gal-drop__title { font-size: .95rem; }
+.gal-drop__lead {
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: .9rem;
+}
+.gal-drop--compact .gal-drop__lead { font-size: .8rem; }
+
+.gal-drop__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .55rem 1.2rem;
+    background: var(--brand);
+    color: #fff;
+    border-radius: var(--radius-pill);
+    font-size: .88rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+    margin-top: .5rem;
+    transition: background .2s ease;
+}
+.gal-drop:hover .gal-drop__btn { background: var(--brand-strong); }
+
+/* ============================================================ PREVIEWS ==== */
+.gal-previews {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: .5rem;
+    margin-top: .25rem;
+}
+.gal-previews--compact { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+.gal-previews:empty { display: none; }
+
+.gal-previews__empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 1.25rem;
+    background: var(--bg-muted);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--fg-subtle);
+    font-size: .85rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+}
+.gal-previews__empty i {
+    font-size: 1.5rem;
+    color: var(--fg-subtle);
+}
+
+.gal-preview {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-muted);
+    box-shadow: var(--shadow-sm);
+    animation: gal-preview-in .25s ease;
+}
+@keyframes gal-preview-in {
+    from { opacity: 0; transform: scale(.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+.gal-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gal-preview__remove {
+    position: absolute;
+    top: 4px;
+    inset-inline-end: 4px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.65);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    border: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .78rem;
+    transition: background .2s ease, transform .2s ease;
+}
+.gal-preview__remove:hover { background: var(--danger); transform: scale(1.1); }
+.gal-preview__caption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: .35rem .5rem;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.7));
+    color: #fff;
+    font-size: .68rem;
+    text-align: start;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+}
+
+.gal-form__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .55rem .85rem;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-radius: var(--radius-pill);
+    font-size: .82rem;
+    align-self: start;
+    margin: 0;
+}
+:root[data-theme="dark"] .gal-form__meta { color: var(--brand); }
+.gal-form__meta strong { font-weight: 800; }
+.gal-form__meta i { font-size: .8em; }
+
+/* ============================================================ ACTIONS ==== */
+.gal-form__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-top: .5rem;
+}
+
+/* ============================================================ EDIT PAGE ==== */
+.gal-edit-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.gal-edit-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: sticky;
+    top: 96px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-inline-end: .25rem;
+}
+/* Custom slim scrollbar for the sticky column */
+.gal-edit-side::-webkit-scrollbar { width: 6px; }
+.gal-edit-side::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 3px;
+}
+
+.gal-edit-main {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+.gal-edit-main__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--border);
+    margin-bottom: 1.25rem;
+}
+.gal-edit-main__head h3 {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: var(--fg);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.gal-edit-main__head h3 i { color: var(--brand); font-size: .9em; }
+.gal-edit-main__head h3 em {
+    font-style: normal;
+    color: var(--brand-strong);
+    background: var(--brand-soft);
+    padding: .15rem .55rem;
+    border-radius: var(--radius-pill);
+    font-size: .78rem;
+    font-weight: 700;
+}
+:root[data-theme="dark"] .gal-edit-main__head h3 em { color: var(--brand); }
+.gal-edit-main__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--fg-subtle);
+    font-size: .82rem;
+    margin: 0;
+}
+.gal-edit-main__hint i { color: var(--brand); }
+
+.gal-edit-grid__images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: .75rem;
+}
+.gal-edit-tile {
+    position: relative;
+    aspect-ratio: 1;
+    margin: 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-muted);
+    box-shadow: var(--shadow-sm);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+.gal-edit-tile:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.gal-edit-tile img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .5s ease;
+}
+.gal-edit-tile:hover img { transform: scale(1.05); }
+.gal-edit-tile__delete {
+    position: absolute;
+    top: .5rem;
+    inset-inline-end: .5rem;
+    margin: 0;
+}
+.gal-edit-tile__delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    border: 0;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity .2s ease, transform .2s ease, background .2s ease;
+}
+.gal-edit-tile:hover .gal-edit-tile__delete-btn,
+.gal-edit-tile:focus-within .gal-edit-tile__delete-btn { opacity: 1; transform: translateY(0); }
+.gal-edit-tile__delete-btn:hover { background: var(--danger); }
+
+.gal-edit-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--fg-muted);
+}
+.gal-edit-empty i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px; height: 72px;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-radius: 50%;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+:root[data-theme="dark"] .gal-edit-empty i { color: var(--brand); }
+.gal-edit-empty h4 { margin: 0 0 .35rem 0; color: var(--fg); font-size: 1.05rem; }
+.gal-edit-empty p { margin: 0; font-size: .9rem; }
+
+.gal-form__danger-btn:hover {
+    background: var(--danger);
+    color: #fff;
+    border-color: transparent;
+}
+.gal-form__danger-btn--strong {
+    background: var(--danger);
+    color: #fff;
+    border: 0;
+}
+.gal-form__danger-btn--strong:hover {
+    background: color-mix(in srgb, var(--danger) 80%, black);
+    color: #fff;
+}
+.gal-form__divider {
+    border: 0;
+    border-top: 1px dashed color-mix(in srgb, var(--danger) 40%, transparent);
+    margin: .75rem 0;
+}
+
+/* ============================================================ RESPONSIVE ==== */
+@media (max-width: 1023.98px) {
+    .gal-form__grid { grid-template-columns: 1fr; }
+    .gal-edit-grid { grid-template-columns: 1fr; }
+    .gal-edit-side {
+        position: static;
+        max-height: none;
+        overflow-y: visible;
+    }
+}
+
+@media (max-width: 639.98px) {
+    .gal-form__actions { flex-direction: column-reverse; }
+    .gal-form__actions .ds-btn { width: 100%; justify-content: center; }
+    .gal-edit-grid__images { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .gal-edit-tile__delete-btn { opacity: 1; transform: none; }
+}

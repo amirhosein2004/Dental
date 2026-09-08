@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تأیید کد ورود | مطب دندانپزشکی{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="auth-page__inner">
+        <nav class="auth-steps" aria-label="مراحل ورود">
+            <span class="auth-steps__dot is-done"><i class="fas fa-check"></i></span>
+            <span class="auth-steps__line is-done"></span>
+            <span class="auth-steps__dot is-active" aria-current="step">۲</span>
+            <span class="auth-steps__line"></span>
+            <span class="auth-steps__dot">۳</span>
+        </nav>
+
+        <article class="auth-card">
+            <span class="auth-card__icon"><i class="fas fa-envelope-open-text"></i></span>
+            <span class="auth-card__eyebrow">تأیید هویت</span>
+            <h1 class="auth-card__title">کد تأیید را وارد کنید</h1>
+            <p class="auth-card__lead">
+                یک کد ۶ رقمی به ایمیل شما ارسال شد. کد فقط برای ۲ دقیقه معتبر است.
+            </p>
+
+            {% if form.non_field_errors %}
+                <div class="auth-form__nonfield" role="alert">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <span>{{ form.non_field_errors|first }}</span>
+                </div>
+            {% endif %}
+
+            <form method="post" id="otpForm" action="{% url 'accounts:verify_otp' %}" class="auth-form">
+                {% csrf_token %}
+
+                <div class="auth-form__field {% if form.otp.errors %}has-error{% endif %}">
+                    <label for="{{ form.otp.id_for_label }}">
+                        <i class="fas fa-key"></i>
+                        <span>کد ۶ رقمی</span>
+                        <span class="req">*</span>
+                    </label>
+                    {{ form.otp }}
+                    {% if form.otp.errors %}
+                        <p class="auth-form__error">
+                            <i class="fas fa-circle-exclamation"></i>
+                            {{ form.otp.errors|first }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                {{ form.captcha_token }}
+                <div class="auth-form__field {% if form.captcha.errors %}has-error{% endif %}">
+                    <label for="{{ form.captcha.id_for_label }}">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>{{ form.captcha.label }}</span>
+                        <span class="req">*</span>
+                    </label>
+                    <div class="auth-form__captcha">{{ form.captcha }}</div>
+                    {% if form.captcha.errors %}
+                        <p class="auth-form__error">
+                            <i class="fas fa-circle-exclamation"></i>
+                            {{ form.captcha.errors|first }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                {{ form.MyLoveDoctor }}
+
+                <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg auth-form__submit" id="submitBtn">
+                    <i class="fas fa-check"></i>
+                    <span>تأیید و ورود</span>
+                </button>
+            </form>
+
+            <div class="auth-resend">
+                <form action="{% url 'accounts:resend_otp' %}" method="post" id="resendForm">
+                    {% csrf_token %}
+                    <button type="submit" id="resendBtn" data-remaining-seconds="{{ remaining_seconds|default:0 }}">
+                        <i class="fas fa-rotate"></i>
+                        <span id="resendText">
+                            {% if remaining_seconds > 0 %}
+                                ارسال مجدد ({{ remaining_seconds }} ثانیه)
+                            {% else %}
+                                ارسال مجدد کد
+                            {% endif %}
+                        </span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="auth-links">
+                <a href="{% url 'accounts:doctor_login' %}">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>بازگشت به ورود</span>
+                </a>
+                <span class="auth-links__muted">کد ۶ رقمی — فقط اعداد</span>
+            </div>
+        </article>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'accounts/js/login.js' %}" defer></script>
+    <script src="{% static 'js/math_captcha.js' %}" defer></script>
+    <script src="{% static 'accounts/js/verify_otp.js' %}" defer></script>
+{% endblock %}

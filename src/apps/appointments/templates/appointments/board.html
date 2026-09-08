@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}رزرو نوبت آنلاین | مطب دندانپزشکی دکتر بابایی و بهمدی{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="رزرو آنلاین نوبت دندانپزشکی در مطب دکتر بابایی و بهمدی؛ زمان‌های خالی هر پزشک را ببینید و نوبت خود را ثبت کنید.">
+    <meta property="og:title" content="رزرو نوبت آنلاین | مطب دکتر بابایی و بهمدی">
+    <meta property="og:type" content="website">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'appointments/css/appointments.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- ============================================================ HERO -->
+    <section class="apt-hero">
+        <div class="apt-hero__bg" aria-hidden="true">
+            <span class="apt-hero__blob apt-hero__blob--1"></span>
+            <span class="apt-hero__blob apt-hero__blob--2"></span>
+        </div>
+        <div class="ds-container apt-hero__inner">
+            <span class="ds-heading__eyebrow">نوبت‌دهی آنلاین</span>
+            <h1 class="apt-hero__title">زمان خالی را انتخاب کنید</h1>
+            <p class="apt-hero__lead">
+                برنامه‌ی این هفته را می‌بینید. روی هر زمان خالی بزنید تا نوبتتان ثبت شود.
+                برنامه هر شنبه از نو باز می‌شود.
+            </p>
+
+            {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
+                <div class="apt-hero__staff">
+                    <a href="{% url 'appointments:manage' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                        <i class="fas fa-sliders"></i>
+                        <span>مدیریت زمان‌ها</span>
+                    </a>
+                    <a href="{% url 'appointments:list' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                        <i class="fas fa-list-check"></i>
+                        <span>نوبت‌های این هفته</span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============================================================ BOARD -->
+    <section class="ds-section apt-board">
+        <div class="ds-container">
+            {% if branch_boards %}
+                <p class="apt-board__legend" role="note">
+                    <span class="apt-legend apt-legend--open"><i class="fas fa-circle"></i> خالی</span>
+                    <span class="apt-legend apt-legend--taken"><i class="fas fa-circle"></i> رزرو شده</span>
+                    <span class="apt-legend apt-legend--past"><i class="fas fa-circle"></i> گذشته</span>
+                </p>
+
+                {% comment %}
+                    One section per practice. The clinic has two locations in
+                    different cities, so a flat week ("شنبه ۲۰:۰۰ — دکتر X")
+                    never said which city the visitor was booking. Each section
+                    carries the address and phone of its own branch so the
+                    answer is on screen before the "رزرو" button is pressed.
+                {% endcomment %}
+                {% for group in branch_boards %}
+                    <section class="apt-branch" aria-labelledby="apt-branch-{{ forloop.counter }}">
+                        <header class="apt-branch__head">
+                            <div class="apt-branch__id">
+                                <h2 class="apt-branch__name" id="apt-branch-{{ forloop.counter }}">
+                                    <i class="fas fa-hospital"></i>
+                                    <span>{% if group.branch %}{{ group.branch.display_title }}{% else %}مطب مشخص نشده{% endif %}</span>
+                                </h2>
+                                {% if group.branch %}
+                                    <p class="apt-branch__address">
+                                        <i class="fas fa-location-dot"></i>
+                                        <span>{{ group.branch.address }}</span>
+                                    </p>
+                                {% endif %}
+                            </div>
+
+                            <div class="apt-branch__side">
+                                <span class="apt-branch__count {% if not group.open_count %}is-zero{% endif %}">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <span>{{ group.open_count }} زمان خالی</span>
+                                </span>
+                                {% if group.branch %}
+                                    {% if group.branch.phone %}
+                                        <a href="tel:{{ group.branch.phone }}"
+                                           class="ds-btn ds-btn--ghost ds-btn--sm">
+                                            <i class="fas fa-phone"></i>
+                                            <span dir="ltr">{{ group.branch.phone }}</span>
+                                        </a>
+                                    {% endif %}
+                                    {% if group.branch.map_link %}
+                                        <a href="{{ group.branch.map_link }}" target="_blank" rel="noopener"
+                                           class="ds-btn ds-btn--ghost ds-btn--sm">
+                                            <i class="fas fa-diamond-turn-right"></i>
+                                            <span>مسیریابی</span>
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </header>
+
+                        {% if group.branch.hours %}
+                            <p class="apt-branch__hours">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ group.branch.hours|linebreaksbr }}</span>
+                            </p>
+                        {% endif %}
+
+                        <div class="apt-days">
+                            {% for day in group.board %}
+                                <article class="apt-day">
+                                    <header class="apt-day__head">
+                                        <h3 class="apt-day__name">{{ day.label }}</h3>
+                                    </header>
+                                    <ul class="apt-day__slots" role="list">
+                                        {% for entry in day.entries %}
+                                            <li class="apt-slot
+                                                       {% if entry.is_open %}is-open
+                                                       {% elif entry.is_taken %}is-taken
+                                                       {% else %}is-past{% endif %}">
+                                                <div class="apt-slot__info">
+                                                    <span class="apt-slot__time" dir="ltr">{{ entry.slot.time|time:'H:i' }}</span>
+                                                    <span class="apt-slot__doctor">
+                                                        <i class="fas fa-user-md"></i>
+                                                        <span>دکتر {{ entry.slot.doctor.user.get_full_name }}</span>
+                                                    </span>
+                                                </div>
+
+                                                {% if entry.is_open %}
+                                                    <a href="{% url 'appointments:book' entry.slot.pk %}"
+                                                       class="ds-btn ds-btn--primary ds-btn--sm apt-slot__cta">
+                                                        <i class="fas fa-calendar-check"></i>
+                                                        <span>رزرو</span>
+                                                    </a>
+                                                {% elif entry.is_taken %}
+                                                    <span class="apt-slot__state">
+                                                        <i class="fas fa-lock"></i>
+                                                        <span>رزرو شده</span>
+                                                    </span>
+                                                {% else %}
+                                                    <span class="apt-slot__state">
+                                                        <i class="fas fa-clock-rotate-left"></i>
+                                                        <span>گذشته</span>
+                                                    </span>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    </section>
+                {% endfor %}
+            {% else %}
+                <div class="apt-empty">
+                    <i class="fas fa-calendar-xmark"></i>
+                    <h3>هنوز زمانی برای نوبت‌دهی ثبت نشده</h3>
+                    <p>برای هماهنگی نوبت، لطفاً تماس بگیرید یا پیام بگذارید.</p>
+                    <div class="apt-empty__actions">
+                        {% comment %}
+                            One link to the contact page rather than a button
+                            per practice. A single number here belonged to
+                            whichever practice sorted first and nothing on the
+                            button said which; a row of bare numbers asked the
+                            reader to pick a city from digits alone. The
+                            contact page names each practice with its address,
+                            hours, map and numbers.
+                        {% endcomment %}
+                        <a href="{% url 'contact:contact' %}" class="ds-btn ds-btn--primary">
+                            <i class="fas fa-headset"></i>
+                            <span>تماس با ما</span>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+{% endblock %}

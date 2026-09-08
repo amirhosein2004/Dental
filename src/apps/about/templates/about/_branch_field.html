@@ -1,0 +1,28 @@
+{% comment %}
+    One labelled form row. Factored out because the branch form has thirteen
+    fields and the alternative — a `{% for field in form %}` loop — cannot
+    group them into sections, which is the only thing that makes a form this
+    long usable.
+
+    Context: `field`, plus `icon` (a Font Awesome class, without the `fas`).
+{% endcomment %}
+<div class="core-form__field {% if field.errors %}has-error{% endif %}">
+    <label for="{{ field.id_for_label }}">
+        <i class="fas {{ icon|default:'fa-circle-info' }}"></i>
+        <span>{{ field.label }}</span>
+        {% if field.field.required %}<span class="req">*</span>{% endif %}
+    </label>
+    {{ field }}
+    {% if field.help_text %}
+        <small class="core-form__hint">
+            <i class="fas fa-info-circle"></i>
+            {{ field.help_text }}
+        </small>
+    {% endif %}
+    {% if field.errors %}
+        <p class="core-form__error">
+            <i class="fas fa-circle-exclamation"></i>
+            {{ field.errors|first }}
+        </p>
+    {% endif %}
+</div>
