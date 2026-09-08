@@ -100,15 +100,25 @@ make ENV=production backup
 make ENV=production manage ARGS="generate_vapid_keys"
 ```
 
-Deploying a change:
+Deploying a change, from the laptop:
 
 ```bash
-git pull
-make ENV=production up-build   # entrypoint migrates and re-collects static
+make ship        # git archive | ssh | tar, then build on the server
 ```
 
-`up-build` rather than `up`: the code is baked into the image, so editing a
-file on the server changes nothing until it is rebuilt.
+The server is in Iran and reaches neither GitHub, GitLab nor Docker Hub, so it
+can neither pull the code nor pull a prebuilt image — `scripts/ship.sh` pushes
+the commit to it over SSH and builds it there, against the mirrors set in
+`env/.env.production`.
+
+Already on the server, for an env-only change:
+
+```bash
+make ENV=production up         # no rebuild needed
+make ENV=production up-build   # after a code change: the code is baked into
+                               # the image, so editing a file changes nothing
+                               # until it is rebuilt
+```
 
 ---
 
