@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}نوبت‌های این هفته | پنل مدیریت{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'appointments/css/appointments.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container">
+
+        <header class="apt-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">پنل مدیریت</span>
+                <h1 class="apt-page__title">
+                    <i class="fas fa-list-check"></i>
+                    <span>نوبت‌های این هفته</span>
+                    <span class="apt-badge">{{ bookings|length }}</span>
+                </h1>
+                <p class="apt-page__lead">
+                    نوبت‌های ثبت‌شده برای هفته‌ی جاری. با شروع شنبه‌ی بعد، این فهرست خالی می‌شود.
+                </p>
+            </div>
+            <div class="apt-page__actions">
+                <a href="{% url 'appointments:manage' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-sliders"></i>
+                    <span>مدیریت زمان‌ها</span>
+                </a>
+            </div>
+        </header>
+
+        {% if bookings %}
+            <ul class="apt-booking-list" role="list">
+                {% for booking in bookings %}
+                    <li class="apt-booking">
+                        <div class="apt-booking__when">
+                            <span class="apt-booking__day">{{ booking.slot.weekday_label }}</span>
+                            <span class="apt-booking__time" dir="ltr">{{ booking.slot.time|time:'H:i' }}</span>
+                            <span class="apt-booking__date">{{ booking.jalali_date }}</span>
+                        </div>
+
+                        <div class="apt-booking__who">
+                            <strong class="apt-booking__name">{{ booking.full_name }}</strong>
+                            <span class="apt-booking__meta">
+                                <a href="tel:{{ booking.phone }}" dir="ltr">
+                                    <i class="fas fa-phone"></i> {{ booking.phone }}
+                                </a>
+                                <span class="apt-booking__code" dir="ltr">
+                                    <i class="fas fa-id-card"></i> {{ booking.national_code }}
+                                </span>
+                            </span>
+                            {% if booking.note %}
+                                <p class="apt-booking__note">{{ booking.note }}</p>
+                            {% endif %}
+                            <span class="apt-booking__doctor">
+                                <i class="fas fa-user-md"></i>
+                                دکتر {{ booking.slot.doctor.user.get_full_name }}
+                            </span>
+                            <span class="apt-booking__branch">
+                                <i class="fas fa-hospital"></i>
+                                {{ booking.slot.branch_label }}
+                            </span>
+                        </div>
+
+                        <div class="apt-booking__side">
+                            <form method="post" action="{% url 'appointments:cancel' booking.pk %}"
+                                  data-confirm
+                                  data-confirm-title="لغو نوبت"
+                                  data-confirm-text="نوبت «{{ booking.full_name }}» در {{ booking.slot.branch_label }}، {{ booking.slot.weekday_label }} ساعت {{ booking.slot.time|time:'H:i' }} لغو شود؟ این زمان بلافاصله برای دیگران آزاد می‌شود."
+                                  data-confirm-ok="لغو نوبت">
+                                {% csrf_token %}
+                                <button type="submit" class="ds-btn ds-btn--ghost ds-btn--sm apt-cancel-btn">
+                                    <i class="fas fa-xmark"></i>
+                                    <span>لغو نوبت</span>
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="apt-empty">
+                <i class="fas fa-calendar-check"></i>
+                <h3>هنوز نوبتی برای این هفته ثبت نشده</h3>
+                <p>به‌محض اینکه کسی نوبت بگیرد، اینجا نمایش داده می‌شود.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

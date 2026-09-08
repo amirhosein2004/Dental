@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}صفحه یافت نشد | مطب دندانپزشکی دکتر بابایی و بهمدی{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="خطای ۴۰۴ — صفحه‌ی مورد نظر پیدا نشد. برای مشاهده خدمات و مقالات، به صفحه اصلی بروید.">
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'css/error_pages.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="err-page">
+    <div class="err-page__bg" aria-hidden="true">
+        <span class="err-page__blob err-page__blob--1"></span>
+        <span class="err-page__blob err-page__blob--2"></span>
+    </div>
+
+    <div class="ds-container err-page__inner">
+        <div class="err-page__code" aria-hidden="true">
+            <span class="err-page__digit">4</span>
+            <span class="err-page__tooth">
+                <!-- Sad tooth mascot standing in for the "0" -->
+                <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="tooth404Body" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#ffffff"/>
+                            <stop offset="100%" stop-color="#d7f5ef"/>
+                        </linearGradient>
+                        <linearGradient id="tooth404Shade" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="rgba(15,118,110,0)"/>
+                            <stop offset="100%" stop-color="rgba(15,118,110,0.35)"/>
+                        </linearGradient>
+                        <filter id="tooth404Shadow" x="-30%" y="-30%" width="160%" height="160%">
+                            <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f766e" flood-opacity="0.35"/>
+                        </filter>
+                    </defs>
+                    <path d="M60 12 C34 12 22 30 22 48 C22 60 28 68 32 78 L38 100 C40 108 46 112 52 108 L54 92 C55 88 57 88 58 92 L60 100 L62 92 C63 88 65 88 66 92 L68 108 C74 112 80 108 82 100 L88 78 C92 68 98 60 98 48 C98 30 86 12 60 12 Z"
+                          fill="#0d9488" opacity="0.22" transform="translate(3 4)"/>
+                    <g filter="url(#tooth404Shadow)">
+                        <path d="M60 12 C34 12 22 30 22 48 C22 60 28 68 32 78 L38 100 C40 108 46 112 52 108 L54 92 C55 88 57 88 58 92 L60 100 L62 92 C63 88 65 88 66 92 L68 108 C74 112 80 108 82 100 L88 78 C92 68 98 60 98 48 C98 30 86 12 60 12 Z"
+                              fill="url(#tooth404Body)"/>
+                        <path d="M60 12 C34 12 22 30 22 48 C22 60 28 68 32 78 L38 100 C40 108 46 112 52 108 L54 92 C55 88 57 88 58 92 L60 100 L62 92 C63 88 65 88 66 92 L68 108 C74 112 80 108 82 100 L88 78 C92 68 98 60 98 48 C98 30 86 12 60 12 Z"
+                              fill="url(#tooth404Shade)"/>
+                    </g>
+                    <!-- sad face: two eyes + turned-down mouth + tear -->
+                    <g fill="#0f766e">
+                        <circle cx="48" cy="52" r="3.5"/>
+                        <circle cx="72" cy="52" r="3.5"/>
+                    </g>
+                    <path d="M46 74 Q60 62 74 74" stroke="#0f766e" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+                    <path d="M50 60 Q49 68 52 72 Q55 68 54 60 Z" fill="#3b82f6" opacity="0.75"/>
+                </svg>
+            </span>
+            <span class="err-page__digit">4</span>
+        </div>
+
+        <span class="ds-heading__eyebrow err-page__eyebrow">خطای ۴۰۴</span>
+        <h1 class="err-page__title">صفحه پیدا نشد</h1>
+        <p class="err-page__lead">
+            متأسفانه صفحه‌ای که به‌دنبالش هستید حذف شده، منتقل شده یا آدرس آن اشتباه است.
+            می‌توانید از میان لینک‌های زیر ادامه دهید.
+        </p>
+
+        <div class="err-page__actions">
+            <a href="{% url 'home:home' %}" class="ds-btn ds-btn--primary ds-btn--lg">
+                <i class="fas fa-house"></i>
+                <span>صفحه اصلی</span>
+            </a>
+            <a href="{% url 'contact:contact' %}" class="ds-btn ds-btn--ghost ds-btn--lg">
+                <i class="fas fa-comments"></i>
+                <span>تماس با ما</span>
+            </a>
+        </div>
+
+        <ul class="err-page__links" role="list">
+            <li><a href="{% url 'service:service_list' %}"><i class="fas fa-tooth"></i><span>خدمات</span></a></li>
+            <li><a href="{% url 'pricing:pricing_list' %}"><i class="fas fa-receipt"></i><span>تعرفه‌ها</span></a></li>
+            <li><a href="{% url 'gallery:gallery_list' %}"><i class="fas fa-images"></i><span>گالری</span></a></li>
+            <li><a href="{% url 'blog:blog_list' %}"><i class="fas fa-newspaper"></i><span>وبلاگ</span></a></li>
+            <li><a href="{% url 'about:about' %}"><i class="fas fa-circle-info"></i><span>درباره ما</span></a></li>
+        </ul>
+    </div>
+</section>
+{% endblock %}

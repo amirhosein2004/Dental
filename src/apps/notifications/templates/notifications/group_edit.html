@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ویرایش گروه {{ group.name }} | پنل مدیریت{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'appointments/css/appointments.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container ds-container--narrow">
+
+        <header class="apt-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">پنل مدیریت</span>
+                <h1 class="apt-page__title">
+                    <i class="fas fa-users-gear"></i>
+                    <span>ویرایش «{{ group.name }}»</span>
+                </h1>
+                <p class="apt-page__lead">
+                    در حال حاضر {{ group.member_count }} شماره در این گروه است.
+                </p>
+            </div>
+            <div class="apt-page__actions">
+                <a href="{% url 'notifications:groups' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>بازگشت</span>
+                </a>
+            </div>
+        </header>
+
+        <article class="apt-panel">
+            <form method="post" class="apt-form" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="apt-form__alert" role="alert">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        <span>{{ form.non_field_errors|first }}</span>
+                    </div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="apt-form__field {% if field.errors %}has-error{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="apt-form__hint">
+                                <i class="fas fa-info-circle"></i> {{ field.help_text }}
+                            </small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <p class="apt-form__error">
+                                <i class="fas fa-circle-exclamation"></i>
+                                {{ field.errors|first }}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="apt-form__actions">
+                    <a href="{% url 'notifications:groups' %}" class="ds-btn ds-btn--ghost">
+                        <i class="fas fa-xmark"></i>
+                        <span>انصراف</span>
+                    </a>
+                    <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg">
+                        <i class="fas fa-save"></i>
+                        <span>ذخیره تغییرات</span>
+                    </button>
+                </div>
+            </form>
+        </article>
+    </div>
+</section>
+{% endblock %}

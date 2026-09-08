@@ -1,0 +1,662 @@
+/* ============================================================================
+   Core management — shared primitives for manage dashboard + category +
+   clinic + working hours pages. Uses design-system tokens.
+   ============================================================================ */
+
+/* ============================================================ PAGE HEAD ==== */
+.core-page__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--border);
+}
+.core-page__title {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    margin: .35rem 0;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--fg);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+.core-page__title i {
+    color: var(--brand);
+    font-size: .85em;
+    padding: .5rem;
+    background: var(--brand-soft);
+    border-radius: 12px;
+}
+:root[data-theme="dark"] .core-page__title i { color: var(--brand); }
+.core-page__lead { margin: 0; color: var(--fg-muted); font-size: .95rem; }
+
+/* ============================================================ MANAGE DASHBOARD ==== */
+.mgmt-hero {
+    text-align: center;
+    padding-block: clamp(2rem, 5vw, 3.5rem) clamp(1rem, 2vw, 2rem);
+}
+.mgmt-hero h1 {
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    color: var(--fg);
+    margin: .5rem 0;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+.mgmt-hero p { color: var(--fg-muted); margin: 0; }
+
+.mgmt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+}
+.mgmt-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .85rem;
+    padding: 1.75rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    color: var(--fg);
+    position: relative;
+    overflow: hidden;
+    transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+    isolation: isolate;
+}
+.mgmt-tile::before {
+    content: "";
+    position: absolute;
+    inset-inline-end: -50px;
+    top: -50px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, var(--brand-glow), transparent 70%);
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
+    z-index: -1;
+}
+.mgmt-tile:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: color-mix(in srgb, var(--brand) 40%, var(--border));
+    color: var(--fg);
+}
+.mgmt-tile:hover::before { opacity: 1; }
+.mgmt-tile__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--brand-soft), transparent);
+    color: var(--brand-strong);
+    font-size: 1.5rem;
+}
+:root[data-theme="dark"] .mgmt-tile__icon { color: var(--brand); }
+.mgmt-tile__title { margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--fg); }
+.mgmt-tile__desc  { margin: 0; color: var(--fg-muted); font-size: .88rem; line-height: 1.7; }
+.mgmt-tile__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--brand-strong);
+    font-weight: 600;
+    font-size: .88rem;
+    margin-top: auto;
+    padding-top: .5rem;
+    transition: gap .2s ease;
+}
+:root[data-theme="dark"] .mgmt-tile__cta { color: var(--brand); }
+.mgmt-tile:hover .mgmt-tile__cta { gap: .6rem; }
+
+/* ============================================================ TWO-COL LAYOUT ==== */
+.core-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.core-panel {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.core-panel__title {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 0;
+    color: var(--fg);
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding-bottom: .75rem;
+    border-bottom: 1px dashed var(--border);
+}
+.core-panel__title i { color: var(--brand); font-size: .9em; }
+.core-panel__title .req { color: var(--danger); }
+.core-panel__badge {
+    margin-inline-start: auto;
+    padding: .15rem .65rem;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-radius: var(--radius-pill);
+    font-size: .78rem;
+    font-weight: 700;
+}
+:root[data-theme="dark"] .core-panel__badge { color: var(--brand); }
+
+/* A sentence of guidance under a panel heading — not a field hint, so it sits
+   outside the form and reads at body size. */
+.core-panel__note {
+    margin: -.35rem 0 0;
+    color: var(--fg-muted);
+    font-size: .86rem;
+    line-height: 1.8;
+}
+
+/* ============================================================ FORMS ==== */
+.core-form { display: flex; flex-direction: column; gap: 1rem; }
+.core-form__nonfield {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .85rem 1.1rem;
+    background: color-mix(in srgb, var(--danger) 12%, transparent);
+    color: var(--danger);
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: .9rem;
+}
+.core-form__field { display: flex; flex-direction: column; gap: .4rem; }
+.core-form__field label {
+    color: var(--fg);
+    font-weight: 600;
+    font-size: .92rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+.core-form__field label .req { color: var(--danger); margin-inline-start: .1rem; }
+.core-form__field input[type="text"],
+.core-form__field input[type="email"],
+.core-form__field input[type="url"],
+.core-form__field input[type="tel"],
+.core-form__field input[type="number"],
+.core-form__field textarea,
+.core-form__field select {
+    width: 100%;
+    padding: .75rem 1rem;
+    font: inherit;
+    font-size: .95rem;
+    background: var(--bg-muted);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.core-form__field textarea { min-height: 100px; resize: vertical; line-height: 1.7; }
+.core-form__field input:focus,
+.core-form__field textarea:focus,
+.core-form__field select:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px var(--brand-glow);
+    background: var(--bg-elevated);
+}
+.core-form__field.has-error input,
+.core-form__field.has-error textarea,
+.core-form__field.has-error select { border-color: var(--danger); }
+
+.core-form__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    color: var(--fg-subtle);
+    font-size: .8rem;
+}
+.core-form__hint i { color: var(--brand); }
+.core-form__error {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--danger);
+    font-size: .82rem;
+    margin: 0;
+}
+
+.core-form__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.core-form__check {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .75rem 1rem;
+    background: var(--bg-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color .2s ease, background .2s ease;
+}
+.core-form__check:hover { border-color: var(--brand); }
+.core-form__check input {
+    width: 18px; height: 18px;
+    accent-color: var(--brand);
+}
+
+.core-form__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    padding-top: .5rem;
+    flex-wrap: wrap;
+}
+.core-form__actions .ds-btn { flex: 0 1 auto; }
+
+/* ============================================================ COVER PICKER ==== */
+.core-form__cover { display: flex; flex-direction: column; gap: .75rem; }
+.core-form__cover input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 1px; height: 1px;
+    pointer-events: none;
+}
+.core-form__cover-preview {
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius);
+    background: var(--bg-muted);
+    border: 1px dashed var(--border-strong);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-subtle);
+}
+.core-form__cover-preview img { width: 100%; height: 100%; object-fit: cover; }
+.core-form__cover-empty {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    padding: 1rem;
+}
+.core-form__cover-empty i { font-size: 1.75rem; color: var(--brand); }
+.core-form__cover-picker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .65rem 1.2rem;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: .88rem;
+    transition: background .2s ease, color .2s ease;
+}
+:root[data-theme="dark"] .core-form__cover-picker { color: var(--brand); }
+.core-form__cover-picker:hover { background: var(--brand); color: #fff; }
+
+/* ============================================================ LIST ROWS (categories) ==== */
+.core-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+.core-list__item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    background: var(--bg-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color .2s ease;
+}
+.core-list__item:hover { border-color: color-mix(in srgb, var(--brand) 30%, var(--border)); }
+.core-list__item strong { color: var(--fg); font-size: .95rem; }
+.core-list__item span   { color: var(--fg-muted); font-size: .78rem; display: block; }
+.core-list__actions { display: flex; gap: .3rem; }
+.core-list__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    background: var(--bg-elevated);
+    color: var(--fg-muted);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.core-list__btn:hover { transform: translateY(-1px); background: var(--brand-soft); color: var(--brand-strong); border-color: var(--brand); }
+:root[data-theme="dark"] .core-list__btn:hover { color: var(--brand); }
+.core-list__btn--del:hover { background: var(--danger); color: #fff; border-color: transparent; }
+
+.core-list__empty {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: 1rem;
+    color: var(--fg-muted);
+    background: var(--bg-muted);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    font-size: .9rem;
+}
+.core-list__empty i { color: var(--brand); }
+
+/* ============================================================ CLINIC CARDS ==== */
+.clinic-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+.clinic-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.clinic-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: color-mix(in srgb, var(--brand) 30%, var(--border)); }
+.clinic-card__media {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--bg-muted);
+    position: relative;
+}
+.clinic-card__media img { width: 100%; height: 100%; object-fit: cover; }
+.clinic-card__badge {
+    position: absolute;
+    top: .75rem;
+    inset-inline-start: .75rem;
+    padding: .3rem .75rem;
+    background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+    color: #fff;
+    border-radius: var(--radius-pill);
+    font-size: .72rem;
+    font-weight: 700;
+    box-shadow: var(--shadow);
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+.clinic-card__body {
+    padding: 1.25rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    flex-grow: 1;
+}
+.clinic-card__title { margin: 0; color: var(--fg); font-size: 1.15rem; font-weight: 700; }
+.clinic-card__meta {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    margin: .35rem 0;
+}
+.clinic-card__meta li {
+    display: inline-flex;
+    align-items: baseline;
+    gap: .5rem;
+    color: var(--fg-muted);
+    font-size: .88rem;
+    line-height: 1.5;
+}
+.clinic-card__meta li i { color: var(--brand); font-size: .8em; width: 14px; text-align: center; }
+.clinic-card__meta li a { color: var(--fg-muted); text-decoration: none; }
+.clinic-card__meta li a:hover { color: var(--brand); }
+.clinic-card__desc {
+    color: var(--fg-muted);
+    font-size: .88rem;
+    line-height: 1.75;
+    margin: .35rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.clinic-card__actions {
+    display: flex;
+    gap: .4rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border);
+}
+.clinic-card__actions .ds-btn { flex: 1 1 auto; justify-content: center; }
+
+/* ============================================================ WORKING HOURS ==== */
+.wh-table-wrap {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.wh-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .93rem;
+}
+.wh-table thead {
+    background: var(--bg-muted);
+}
+.wh-table th {
+    color: var(--fg);
+    font-weight: 700;
+    text-align: center;
+    padding: .85rem;
+    font-size: .82rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 1px solid var(--border);
+}
+.wh-table td {
+    padding: .75rem;
+    text-align: center;
+    color: var(--fg);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.wh-table tr:last-child td { border-bottom: 0; }
+.wh-table tr:hover td { background: color-mix(in srgb, var(--brand-soft) 30%, transparent); }
+
+.wh-day {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-weight: 700;
+    color: var(--fg);
+}
+.wh-day i {
+    color: var(--brand);
+    background: var(--brand-soft);
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .78rem;
+}
+:root[data-theme="dark"] .wh-day i { color: var(--brand); }
+
+.wh-time {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .25rem .65rem;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-radius: var(--radius-pill);
+    font-size: .8rem;
+    font-weight: 600;
+    direction: ltr;
+    font-feature-settings: 'tnum';
+}
+:root[data-theme="dark"] .wh-time { color: var(--brand); }
+.wh-time--off {
+    background: color-mix(in srgb, var(--danger) 15%, transparent);
+    color: var(--danger);
+}
+
+.wh-actions { display: inline-flex; gap: .3rem; }
+.wh-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    background: var(--bg-muted);
+    color: var(--fg-muted);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.wh-btn:hover { transform: translateY(-1px); background: var(--brand-soft); color: var(--brand-strong); border-color: var(--brand); }
+:root[data-theme="dark"] .wh-btn:hover { color: var(--brand); }
+.wh-btn--del:hover { background: var(--danger); color: #fff; border-color: transparent; }
+
+/* ============================================================ FORM PANEL ==== */
+/*
+ * `core-form__panel` and `core-form__alert` were referenced by about_edit.html
+ * and hours_edit.html but never defined, so both pages rendered a bare form on
+ * the page background with no card around it and an error banner that looked
+ * like body text.
+ */
+.core-form__panel {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.core-form__alert {
+    display: flex;
+    align-items: flex-start;
+    gap: .6rem;
+    padding: .85rem 1rem;
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--danger) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+    color: var(--danger);
+    font-size: .9rem;
+    line-height: 1.7;
+}
+.core-form__alert i { margin-top: .2rem; }
+
+/* Section heading inside a long form. Without these the branch form's
+ * thirteen fields read as one undifferentiated column. */
+.core-form__legend {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 1.25rem 0 0;
+    padding-bottom: .6rem;
+    border-bottom: 1px dashed var(--border);
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--fg);
+}
+.core-form__legend:first-of-type { margin-top: 0; }
+.core-form__legend i { color: var(--brand); font-size: .9em; }
+
+.core-form__note {
+    margin: 0;
+    padding: .75rem 1rem;
+    background: var(--bg-muted);
+    border-inline-start: 3px solid var(--brand);
+    border-radius: var(--radius-sm);
+    color: var(--fg-muted);
+    font-size: .85rem;
+    line-height: 1.8;
+}
+
+/* The check row in the branch form carries a label + help text, unlike the
+ * single-line checkboxes elsewhere. */
+.core-form__check span { display: flex; flex-direction: column; gap: .15rem; }
+.core-form__check strong { font-size: .9rem; color: var(--fg); font-weight: 600; }
+.core-form__check small  { font-size: .75rem; color: var(--fg-muted); line-height: 1.6; }
+
+.core-page__head-actions {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+/* ============================================================ DANGER BUTTON ==== */
+.ds-btn--danger {
+    color: var(--danger);
+    border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+}
+.ds-btn--danger:hover { background: var(--danger); color: #fff; border-color: transparent; }
+
+/* ============================================================ CLINIC CARD EXTRAS ==== */
+.clinic-card__desc--muted { color: var(--fg-subtle); font-style: italic; }
+.clinic-card__warn {
+    display: flex;
+    align-items: flex-start;
+    gap: .45rem;
+    margin: 0;
+    color: var(--warning);
+    font-size: .8rem;
+    line-height: 1.7;
+}
+.clinic-card__warn i { margin-top: .2rem; }
+.clinic-card__form { display: contents; }
+
+/* A list row that is calling for attention (a treatment with no questions on
+ * it yet) rather than merely reporting a count. */
+.core-list__warn { color: var(--warning) !important; font-weight: 600; }
+
+/* ============================================================ RESPONSIVE ==== */
+@media (max-width: 1023.98px) {
+    .core-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 767.98px) {
+    .wh-table { font-size: .82rem; }
+    .wh-table th,
+    .wh-table td { padding: .5rem .4rem; }
+    .wh-day span { display: none; }
+    .wh-time { font-size: .72rem; padding: .2rem .5rem; }
+}
+
+@media (max-width: 639.98px) {
+    .core-form__actions { flex-direction: column-reverse; }
+    .core-form__actions .ds-btn { width: 100%; justify-content: center; }
+    .clinic-list { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 767.98px) {
+    .core-page__head-actions { width: 100%; }
+    .core-page__head-actions .ds-btn { flex: 1 1 auto; justify-content: center; }
+}

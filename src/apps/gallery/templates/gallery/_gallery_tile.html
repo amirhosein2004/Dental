@@ -1,0 +1,76 @@
+{% load perms %}
+{% comment %}
+    One masonry gallery tile. Shared by the initial list and the "load more"
+    endpoint so appended tiles match the first page exactly.
+
+    Context: `gallery`, plus `span` ('tall' | 'wide' | 'normal') for the
+    masonry row-span.
+
+    Delete uses the shared `data-confirm` dialog rather than a Bootstrap modal:
+    a modal lives outside the tile, so AJAX-appended tiles would reference a
+    #galDelete-<id> element that was never rendered and the button would do
+    nothing. The shared dialog is delegated, so appended tiles just work.
+{% endcomment %}
+<article class="gal-tile" style="--gal-span: {{ span|default:'normal' }};">
+    <div class="gal-tile__slider swiper gallery-swiper">
+        <div class="swiper-wrapper">
+            {% for image in gallery.images.all %}
+                <div class="swiper-slide">
+                    <img src="{{ image.image.url }}"
+                         alt="نمونه کار — {% if gallery.category %}{{ gallery.category.name }}{% else %}گالری{% endif %}"
+                         loading="lazy">
+                </div>
+            {% endfor %}
+        </div>
+        <div class="swiper-button-next" aria-label="بعدی"></div>
+        <div class="swiper-button-prev" aria-label="قبلی"></div>
+        <div class="swiper-pagination"></div>
+    </div>
+
+    <div class="gal-tile__overlay">
+        <div class="gal-tile__meta">
+            {% if gallery.category %}
+                <span class="gal-tile__tag">
+                    <i class="fas fa-tag"></i>
+                    <span>{{ gallery.category.name }}</span>
+                </span>
+            {% endif %}
+            {% if gallery.doctor %}
+                <span class="gal-tile__doctor">
+                    <i class="fas fa-user-md"></i>
+                    <span>دکتر {{ gallery.doctor.user.get_full_name }}</span>
+                </span>
+            {% endif %}
+        </div>
+        <div class="gal-tile__actions">
+            <span class="gal-tile__count">
+                <i class="fas fa-images"></i>
+                <span>{{ gallery.images.all|length }}</span>
+            </span>
+            {% if user|can_manage:gallery.doctor %}
+                <div class="gal-tile__admin">
+                    <a href="{% url 'gallery:update_gallery' gallery.id %}"
+                       class="gal-tile__admin-btn"
+                       title="ویرایش گالری"
+                       aria-label="ویرایش">
+                        <i class="fas fa-pen"></i>
+                    </a>
+                    <form method="post" action="{% url 'gallery:delete_gallery' gallery.id %}"
+                          class="gal-tile__admin-form"
+                          data-confirm
+                          data-confirm-title="حذف گالری"
+                          data-confirm-text="این گالری و همه‌ی {{ gallery.images.all|length }} تصویر آن حذف شود؟ این عمل قابل بازگشت نیست."
+                          data-confirm-ok="حذف گالری">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="gal-tile__admin-btn gal-tile__admin-btn--del"
+                                title="حذف گالری"
+                                aria-label="حذف">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</article>

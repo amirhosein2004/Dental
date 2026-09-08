@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}سابقه اعلان‌ها | پنل مدیریت{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'appointments/css/appointments.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container">
+
+        <header class="apt-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">پنل مدیریت</span>
+                <h1 class="apt-page__title">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    <span>سابقه اعلان‌ها</span>
+                </h1>
+                <p class="apt-page__lead">
+                    هر پیامکی که سیستم فرستاده، با وضعیت تحویل. اگر کسی گفت «پیامک نیامد»،
+                    جواب اینجاست.
+                </p>
+            </div>
+            <div class="apt-page__actions">
+                <a href="{% url 'notifications:bulk_sms' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-comment-sms"></i>
+                    <span>ارسال گروهی</span>
+                </a>
+            </div>
+        </header>
+
+        {% if logs %}
+            <ul class="apt-log-list apt-log-list--full" role="list">
+                {% for log in logs %}
+                    <li class="apt-log apt-log--{{ log.status }}">
+                        <div class="apt-log__head">
+                            <span class="apt-log__kind">{{ log.get_kind_display }}</span>
+                            <span class="apt-log__status">{{ log.get_status_display }}</span>
+                            <span class="apt-log__time">{{ log.created_at|date:'Y/m/d H:i' }}</span>
+                        </div>
+                        <p class="apt-log__message">{{ log.message|truncatechars:160 }}</p>
+                        <span class="apt-log__meta">
+                            <i class="fas fa-users"></i>
+                            {{ log.sent_count }} از {{ log.recipient_count }} ارسال شد
+                            {% if log.failed_count %}
+                                • <strong>{{ log.failed_count }} ناموفق</strong>
+                            {% endif %}
+                        </span>
+                        {% if log.error %}
+                            <p class="apt-log__error">
+                                <i class="fas fa-circle-exclamation"></i>
+                                {{ log.error|truncatechars:200 }}
+                            </p>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="apt-empty">
+                <i class="fas fa-inbox"></i>
+                <h3>هنوز اعلانی ثبت نشده</h3>
+                <p>پس از اولین پیام یا نوبت، گزارش‌ها اینجا می‌آیند.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

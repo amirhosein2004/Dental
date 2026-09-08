@@ -1,0 +1,154 @@
+/* ============================================================================
+   dashboard_list.css — لیست پزشکان (superuser view)
+   BEM prefix "dshlst-".
+   ============================================================================ */
+
+.dshlst-page { padding-block: clamp(2rem, 5vw, 3.5rem); }
+
+.dshlst-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.dshlst-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.dshlst-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: color-mix(in srgb, var(--brand) 40%, var(--border));
+}
+
+.dshlst-card__link {
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+    gap: 1rem;
+}
+
+.dshlst-card__avatar {
+    position: relative;
+    width: 88px;
+    height: 88px;
+    margin-inline: auto;
+}
+.dshlst-card__avatar img,
+.dshlst-card__avatar-fallback {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 3px var(--brand-soft), var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--brand-soft), var(--bg-muted));
+    color: var(--brand-strong);
+    font-size: 2rem;
+}
+:root[data-theme="dark"] .dshlst-card__avatar img,
+:root[data-theme="dark"] .dshlst-card__avatar-fallback { border-color: var(--bg-elevated); color: var(--brand); }
+
+.dshlst-card__badge {
+    position: absolute;
+    inset-block-start: -4px;
+    inset-inline-end: -4px;
+    width: 28px; height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: .75rem;
+    box-shadow: var(--shadow);
+    border: 2px solid var(--bg-elevated);
+}
+.dshlst-card__badge--admin {
+    background: linear-gradient(135deg, var(--accent), #d97706);
+    color: #fff;
+}
+
+.dshlst-card__body {
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+}
+.dshlst-card__name {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--fg);
+    font-weight: 700;
+}
+.dshlst-card__email {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: .82rem;
+    word-break: break-all;
+}
+.dshlst-card__email i { color: var(--brand); }
+.dshlst-card__desc {
+    margin: .35rem 0 0;
+    color: var(--fg-subtle);
+    font-size: .85rem;
+    line-height: 1.7;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.dshlst-card__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .7rem 1rem;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    font-size: .9rem;
+    transition: background .2s ease, color .2s ease;
+}
+:root[data-theme="dark"] .dshlst-card__cta { color: var(--brand); }
+.dshlst-card:hover .dshlst-card__cta {
+    background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+    color: #fff;
+}
+
+/* ============================================================ EMPTY ==== */
+.dshlst-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: var(--bg-elevated);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--fg-muted);
+    max-width: 480px;
+    margin-inline: auto;
+}
+.dshlst-empty i {
+    display: block;
+    font-size: 3rem;
+    color: var(--fg-subtle);
+    margin-bottom: 1rem;
+}
+.dshlst-empty h3 { margin: 0 0 .5rem; color: var(--fg); }
+.dshlst-empty p { margin: 0; }

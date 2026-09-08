@@ -1,0 +1,554 @@
+/* ============================================================================
+   Services page — catalog / utility feel.
+   Distinct feel: dense card grid, filter chips, rich feature list per card,
+   FAQ accordion, sticky-feeling hero with side stats.
+   Consumes design-system.css tokens.
+   ============================================================================ */
+
+/* ============================================================ HERO ==== */
+.svc-hero {
+    position: relative;
+    padding-block: clamp(3rem, 7vw, 5rem);
+    overflow: hidden;
+    isolation: isolate;
+}
+.svc-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(600px 300px at 100% 0%, var(--brand-glow), transparent 55%),
+        radial-gradient(500px 250px at 0% 100%, var(--accent-soft), transparent 55%),
+        var(--bg);
+}
+.svc-hero__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: .14;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+}
+.svc-hero__grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+}
+.svc-hero__title {
+    font-size: clamp(2rem, 4.5vw, 3.1rem);
+    line-height: 1.2;
+    font-weight: 800;
+    margin: 1rem 0;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+}
+.svc-hero__lead {
+    font-size: 1.05rem;
+    color: var(--fg-muted);
+    line-height: 1.85;
+    margin: 0 0 1.5rem 0;
+    max-width: 55ch;
+}
+.svc-hero__actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem; }
+.svc-hero__manage {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .45rem 1rem;
+    background: transparent;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-pill);
+    color: var(--fg-muted);
+    font-size: .82rem;
+    text-decoration: none;
+    margin-top: .5rem;
+    transition: color .2s ease, border-color .2s ease, background .2s ease;
+}
+.svc-hero__manage:hover {
+    color: var(--brand-strong);
+    border-color: var(--brand);
+    background: var(--brand-soft);
+}
+:root[data-theme="dark"] .svc-hero__manage:hover { color: var(--brand); }
+
+/* Hero visual — orbital tooth mascot + badge pills */
+.svc-hero__visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+.svc-hero__orbit {
+    position: relative;
+    width: min(360px, 100%);
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.svc-hero__orbit-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px dashed var(--brand);
+    opacity: .35;
+    animation: svc-orbit-spin 24s linear infinite;
+}
+.svc-hero__orbit-ring--2 {
+    inset: 14%;
+    border-style: dotted;
+    border-color: var(--accent);
+    opacity: .35;
+    animation-direction: reverse;
+    animation-duration: 18s;
+}
+@keyframes svc-orbit-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+    .svc-hero__orbit-ring { animation: none; }
+    .svc-hero__orbit-dot   { animation: none !important; }
+    .svc-hero__core        { animation: none !important; }
+}
+
+.svc-hero__orbit-dot {
+    position: absolute;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--brand-strong);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    box-shadow: var(--shadow);
+    animation: svc-float 4s ease-in-out infinite;
+}
+:root[data-theme="dark"] .svc-hero__orbit-dot { color: var(--brand); }
+.svc-hero__orbit-dot--1 { top: 4%;  inset-inline-start: 20%; animation-delay: 0s;  color: var(--brand); }
+.svc-hero__orbit-dot--2 { top: 30%; inset-inline-end: -4%;   animation-delay: .8s; color: var(--accent); }
+.svc-hero__orbit-dot--3 { bottom: 8%; inset-inline-start: 4%; animation-delay: 1.4s; color: #f43f5e; }
+@keyframes svc-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+}
+
+.svc-hero__core {
+    position: relative;
+    width: 58%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.5), transparent 55%),
+        linear-gradient(135deg, var(--brand-soft) 0%, var(--bg-elevated) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        var(--shadow-xl),
+        inset 0 -20px 40px rgba(15, 118, 110, 0.12);
+    animation: svc-core-pulse 4s ease-in-out infinite;
+}
+.svc-hero__core svg {
+    width: 70%; height: 70%;
+    filter: drop-shadow(0 8px 12px rgba(15, 118, 110, 0.35));
+}
+@keyframes svc-core-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.04); }
+}
+
+.svc-hero__badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .45rem;
+}
+.svc-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .4rem .85rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--fg);
+    font-size: .82rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+    transition: transform .2s ease, border-color .2s ease;
+}
+.svc-hero__badge:hover { transform: translateY(-2px); border-color: var(--brand); }
+.svc-hero__badge i { color: var(--brand); }
+
+/* ==================================================== CHIPS ==== */
+.svc-chips {
+    position: sticky;
+    top: 68px;
+    z-index: 20;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-block: 1px solid var(--border);
+}
+.svc-chips__scroller {
+    display: flex;
+    gap: .5rem;
+    overflow-x: auto;
+    padding-block: .85rem;
+    scrollbar-width: none;
+}
+.svc-chips__scroller::-webkit-scrollbar { display: none; }
+.svc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .55rem 1.1rem;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--fg-muted);
+    border-radius: var(--radius-pill);
+    font-size: .9rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.svc-chip:hover { border-color: var(--brand); color: var(--brand-strong); }
+.svc-chip.is-active {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+}
+:root[data-theme="dark"] .svc-chip:hover { color: var(--brand); }
+
+/* ==================================================== LIST ==== */
+.svc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.svc-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    position: relative;
+}
+.svc-card::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--brand), var(--accent));
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+.svc-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: color-mix(in srgb, var(--brand) 30%, var(--border));
+}
+.svc-card:hover::before { opacity: 1; }
+
+.svc-card__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--bg-muted);
+}
+.svc-card__media img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .5s ease;
+}
+.svc-card:hover .svc-card__media img { transform: scale(1.06); }
+.svc-card__badge {
+    position: absolute;
+    top: .85rem;
+    inset-inline-end: .85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .8rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    color: var(--fg);
+    font-size: .72rem;
+    font-weight: 600;
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-sm);
+}
+.svc-card__badge i { color: var(--brand); }
+
+.svc-card__body {
+    padding: 1.4rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    flex-grow: 1;
+}
+.svc-card__title {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--fg);
+    line-height: 1.35;
+}
+.svc-card__desc {
+    color: var(--fg-muted);
+    line-height: 1.75;
+    font-size: .92rem;
+    margin: 0;
+    /* Descriptions run to a few sentences; avoid ragged last lines and let
+       long Persian compounds break rather than overflow the card. */
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+}
+.svc-card__meta {
+    list-style: none;
+    padding: 0;
+    margin: .75rem 0 0 0;
+    display: grid;
+    gap: .35rem;
+    padding: .85rem 1rem;
+    background: var(--bg-muted);
+    border-radius: var(--radius);
+    border: 1px dashed var(--border);
+}
+.svc-card__meta li {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .82rem;
+    color: var(--fg-muted);
+}
+.svc-card__meta i {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .55rem;
+    flex-shrink: 0;
+}
+
+.svc-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+.svc-card__admin { display: flex; gap: .4rem; }
+.svc-card__admin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    background: var(--bg-muted);
+    color: var(--fg-muted);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.svc-card__admin-btn:hover { transform: translateY(-1px); }
+.svc-card__admin-btn--edit:hover { background: var(--info); color: #fff; border-color: transparent; }
+.svc-card__admin-btn--del:hover  { background: var(--danger); color: #fff; border-color: transparent; }
+
+/* Empty state — inviting card, not a hole */
+.svc-empty {
+    text-align: center;
+    padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+    background:
+        radial-gradient(circle at 50% 0%, var(--brand-glow), transparent 55%),
+        linear-gradient(180deg, var(--bg-elevated), var(--bg-muted));
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    max-width: 640px;
+    margin-inline: auto;
+}
+.svc-empty i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px; height: 84px;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    font-size: 2.2rem;
+    border-radius: 50%;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow);
+}
+:root[data-theme="dark"] .svc-empty i { color: var(--brand); }
+.svc-empty h3 { margin: 0 0 .5rem 0; color: var(--fg); font-size: 1.4rem; }
+.svc-empty p  { color: var(--fg-muted); margin: 0 0 1.5rem 0; }
+
+/* ==================================================== FAQ ==== */
+.svc-faq__list {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+.svc-faq__item {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: relative;
+    transition: border-color .25s ease, box-shadow .25s ease, background .25s ease;
+}
+/* A brand rail on the reading edge, drawn only while the item is open — the
+   closed list stays quiet, the open one is unmistakable. */
+.svc-faq__item::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--brand), var(--accent));
+    opacity: 0;
+    transition: opacity .25s ease;
+}
+.svc-faq__item:hover { border-color: color-mix(in srgb, var(--brand) 25%, var(--border)); }
+.svc-faq__item[open] {
+    border-color: color-mix(in srgb, var(--brand) 40%, var(--border));
+    box-shadow: var(--shadow-sm);
+}
+.svc-faq__item[open]::before { opacity: 1; }
+
+/* --- Question row -------------------------------------------------------- */
+.svc-faq__q {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    padding: 1.1rem 1.35rem;
+    cursor: pointer;
+    /* Both are needed: `list-style` for Firefox, the pseudo-element rule below
+       for WebKit. Without them the native triangle sits beside our chevron. */
+    list-style: none;
+    transition: background .2s ease;
+}
+.svc-faq__q::-webkit-details-marker { display: none; }
+.svc-faq__q:hover { background: var(--bg-muted); }
+
+.svc-faq__icon {
+    width: 38px; height: 38px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .9rem;
+    transition: background .25s ease, color .25s ease;
+}
+:root[data-theme="dark"] .svc-faq__icon { color: var(--brand); }
+.svc-faq__item[open] .svc-faq__icon {
+    background: var(--brand);
+    color: #fff;
+}
+
+.svc-faq__text {
+    flex: 1;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--fg);
+    line-height: 1.6;
+}
+
+.svc-faq__toggle {
+    width: 28px; height: 28px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--bg-muted);
+    color: var(--fg-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .75rem;
+    transition: transform .25s ease, background .2s ease, color .2s ease;
+}
+.svc-faq__item[open] .svc-faq__toggle {
+    transform: rotate(180deg);
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+}
+:root[data-theme="dark"] .svc-faq__item[open] .svc-faq__toggle { color: var(--brand); }
+
+/* --- Answer -------------------------------------------------------------- */
+.svc-faq__a {
+    /* Indented past the icon (38px + its .9rem gap) so the answer lines up
+       under the question text, not under the icon. */
+    padding-block: 0 1.25rem;
+    padding-inline-start: calc(1.35rem + 38px + .9rem);
+    padding-inline-end: 1.35rem;
+}
+.svc-faq__a p {
+    margin: 0;
+    color: var(--fg-muted);
+    line-height: 1.9;
+    font-size: .93rem;
+    text-wrap: pretty;
+}
+.svc-faq__link {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    margin-top: .75rem;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--brand);
+}
+.svc-faq__link i { font-size: .75rem; transition: transform .2s ease; }
+.svc-faq__link:hover i { transform: translateX(-3px); }
+
+@media (max-width: 479.98px) {
+    .svc-faq__q { gap: .7rem; padding: 1rem 1.1rem; }
+    .svc-faq__icon { width: 32px; height: 32px; font-size: .8rem; }
+    .svc-faq__text { font-size: .93rem; }
+    /* No room to indent past the icon on a phone. */
+    .svc-faq__a { padding-inline: 1.1rem; }
+}
+
+/* ==================================================== FINAL CTA ==== */
+.svc-final { padding-block: clamp(3rem, 6vw, 4.5rem); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1023.98px) {
+    .svc-hero__grid { grid-template-columns: 1fr; }
+    .svc-hero__visual { order: -1; }
+    .svc-hero__orbit { width: min(280px, 100%); }
+}
+
+@media (max-width: 639.98px) {
+    .svc-hero__actions { flex-direction: column; align-items: stretch; }
+    .svc-hero__actions .ds-btn { width: 100%; }
+    .svc-hero__orbit { width: 240px; }
+    .svc-grid { grid-template-columns: 1fr; }
+    .svc-card__footer { flex-direction: column; align-items: stretch; }
+    .svc-card__footer .ds-btn { width: 100%; justify-content: center; }
+    .svc-card__admin { justify-content: center; }
+}
+

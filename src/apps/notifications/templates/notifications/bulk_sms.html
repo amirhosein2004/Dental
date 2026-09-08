@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ارسال پیامک گروهی | پنل مدیریت{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'appointments/css/appointments.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container">
+
+        <header class="apt-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">پنل مدیریت</span>
+                <h1 class="apt-page__title">
+                    <i class="fas fa-comment-sms"></i>
+                    <span>ارسال پیامک گروهی</span>
+                </h1>
+                <p class="apt-page__lead">
+                    شماره‌ها را بچسبانید — با فاصله، کاما یا خط جدید. تکراری‌ها و شماره‌های
+                    نامعتبر خودکار جدا می‌شوند.
+                </p>
+            </div>
+            <div class="apt-page__actions">
+                <a href="{% url 'notifications:groups' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-users"></i>
+                    <span>گروه‌ها</span>
+                </a>
+                <a href="{% url 'notifications:logs' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    <span>سابقه ارسال</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="apt-manage-grid apt-manage-grid--wide">
+            <article class="apt-panel">
+                <h2 class="apt-panel__title">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>پیام جدید</span>
+                </h2>
+
+                <form method="post" class="apt-form" novalidate id="bulkSmsForm">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="apt-form__alert" role="alert">
+                            <i class="fas fa-triangle-exclamation"></i>
+                            <span>{{ form.non_field_errors|first }}</span>
+                        </div>
+                    {% endif %}
+
+                    {# Groups first: picking a saved list is the common path. #}
+                    <div class="apt-form__field {% if form.groups.errors %}has-error{% endif %}">
+                        <label>{{ form.groups.label }}</label>
+                        {% if groups %}
+                            <div class="sms-groups">
+                                {% for checkbox in form.groups %}
+                                    <label class="sms-group">
+                                        {{ checkbox.tag }}
+                                        <span class="sms-group__body">
+                                            <span class="sms-group__name">{{ checkbox.choice_label }}</span>
+                                        </span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="apt-form__hint">
+                                <i class="fas fa-info-circle"></i>
+                                هنوز گروهی نساخته‌اید —
+                                <a href="{% url 'notifications:groups' %}">یک گروه بسازید</a>
+                                تا دفعهٔ بعد شماره‌ها را دوباره وارد نکنید.
+                            </p>
+                        {% endif %}
+                        {% if form.groups.errors %}
+                            <p class="apt-form__error">
+                                <i class="fas fa-circle-exclamation"></i>
+                                {{ form.groups.errors|first }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    {% for field in form %}
+                        {% if field.name != 'groups' %}
+                            <div class="apt-form__field {% if field.errors %}has-error{% endif %}">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="apt-form__hint">
+                                        <i class="fas fa-info-circle"></i> {{ field.help_text }}
+                                    </small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <p class="apt-form__error">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ field.errors|first }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% comment %}
+                        Live counters: the operator should know the size and
+                        cost of a batch before committing to it, not after.
+                    {% endcomment %}
+                    <p class="apt-form__hint" id="smsStats" hidden>
+                        <i class="fas fa-calculator"></i>
+                        <span id="smsRecipients">۰</span> گیرنده •
+                        <span id="smsParts">۰</span> بخش پیامک برای هر نفر
+                    </p>
+
+                    <p class="apt-form__note">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        پیام تبلیغاتی باید راه لغو داشته باشد و ساعت مجاز ارسال ۸ صبح تا ۱۰ شب است.
+                    </p>
+
+                    <div class="apt-form__actions">
+                        <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>ارسال</span>
+                        </button>
+                    </div>
+                </form>
+            </article>
+
+            <aside class="apt-panel">
+                <h2 class="apt-panel__title">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    <span>ارسال‌های اخیر</span>
+                </h2>
+
+                {% if recent %}
+                    <ul class="apt-log-list" role="list">
+                        {% for log in recent %}
+                            <li class="apt-log apt-log--{{ log.status }}">
+                                <div class="apt-log__head">
+                                    <span class="apt-log__kind">{{ log.get_kind_display }}</span>
+                                    <span class="apt-log__status">{{ log.get_status_display }}</span>
+                                </div>
+                                <p class="apt-log__message">{{ log.message|truncatechars:70 }}</p>
+                                <span class="apt-log__meta">
+                                    {{ log.sent_count }} از {{ log.recipient_count }}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="apt-empty apt-empty--inline">
+                        <i class="fas fa-inbox"></i>
+                        <p>هنوز پیامکی ارسال نشده.</p>
+                    </div>
+                {% endif %}
+            </aside>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    /* Live batch size + SMS part count.
+       Persian text is UCS-2, so a part is 70 chars (67 when the message spans
+       several parts). Showing this before send stops a three-part message from
+       tripling the bill by surprise. */
+    (function () {
+        'use strict';
+        var numbers = document.getElementById('id_numbers');
+        var message = document.getElementById('id_message');
+        var stats = document.getElementById('smsStats');
+        if (!numbers || !message || !stats) return;
+
+        var recipientsOut = document.getElementById('smsRecipients');
+        var partsOut = document.getElementById('smsParts');
+        var groupBoxes = document.querySelectorAll('.sms-groups input[type="checkbox"]');
+
+        /* Approximate the server-side merge: ticked groups plus whatever is
+           typed, de-duplicated across both. Exact agreement is not required —
+           this is a pre-flight estimate, and the server is authoritative. */
+        function collect() {
+            var seen = Object.create(null);
+
+            groupBoxes.forEach(function (box) {
+                if (!box.checked) return;
+                (box.dataset.numbers || '').split(',').forEach(function (n) {
+                    if (n) seen[n] = true;
+                });
+            });
+
+            numbers.value.split(/[^\d+]+/).forEach(function (token) {
+                if (!token) return;
+                var digits = token.replace(/\D/g, '');
+                if (digits.length >= 10) seen[digits.slice(-10)] = true;
+            });
+
+            return Object.keys(seen).length;
+        }
+
+        function parts(text) {
+            var len = text.length;
+            if (len === 0) return 0;
+            if (len <= 70) return 1;
+            return Math.ceil(len / 67);   // concatenated parts lose 3 chars to the header
+        }
+
+        function update() {
+            var count = collect();
+            stats.hidden = count === 0 && message.value.length === 0;
+            recipientsOut.textContent = count.toLocaleString('fa-IR');
+            partsOut.textContent = parts(message.value).toLocaleString('fa-IR');
+        }
+
+        numbers.addEventListener('input', update);
+        message.addEventListener('input', update);
+        groupBoxes.forEach(function (box) { box.addEventListener('change', update); });
+        update();
+    })();
+</script>
+{% endblock %}

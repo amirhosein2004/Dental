@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}نوشتن مقاله جدید | مدیریت وبلاگ{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'blog/css/blog_form.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section blg-form-page">
+    <div class="ds-container">
+        <header class="blg-form-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">مدیریت وبلاگ</span>
+                <h1 class="blg-form-page__title">
+                    <i class="fas fa-pen-nib"></i>
+                    <span>نوشتن مقاله جدید</span>
+                </h1>
+                <p class="blg-form-page__lead">
+                    عنوان، دسته‌بندی، تصویر و محتوای مقاله را وارد کنید.
+                    محتوا با ویرایشگر پیشرفته پشتیبانی می‌شود.
+                </p>
+            </div>
+            <a href="{% url 'blog:blog_list' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                <i class="fas fa-arrow-right"></i>
+                <span>لیست مقالات</span>
+            </a>
+        </header>
+
+        {% include 'blog/_blog_form.html' with submit_label='انتشار مقاله' %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    {{ form.media }}
+    <script src="{% static 'blog/js/create_update_blog.js' %}" defer></script>
+{% endblock %}

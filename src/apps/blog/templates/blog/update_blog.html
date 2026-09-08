@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ویرایش مقاله | {{ form.instance.title }}{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'blog/css/blog_form.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section blg-form-page">
+    <div class="ds-container">
+        <header class="blg-form-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">ویرایش مقاله</span>
+                <h1 class="blg-form-page__title">
+                    <i class="fas fa-pen"></i>
+                    <span>{{ form.instance.title|truncatechars:60 }}</span>
+                </h1>
+                <p class="blg-form-page__lead">
+                    آخرین به‌روزرسانی: {{ form.instance.get_updated_at_jalali }}
+                </p>
+            </div>
+            <div class="blg-form-page__head-actions">
+                <a href="{% url 'blog:blog_detail' form.instance.slug %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-eye"></i>
+                    <span>مشاهده مقاله</span>
+                </a>
+                <a href="{% url 'blog:blog_list' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>لیست مقالات</span>
+                </a>
+            </div>
+        </header>
+
+        {% include 'blog/_blog_form.html' with submit_label='ذخیره تغییرات' %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    {{ form.media }}
+    <script src="{% static 'blog/js/create_update_blog.js' %}" defer></script>
+{% endblock %}

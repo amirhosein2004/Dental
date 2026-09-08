@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ویرایش خدمت | {{ service.title }}{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'service/css/service_form.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section svc-form-page">
+    <div class="ds-container">
+        <header class="svc-form-page__head">
+            <div>
+                <span class="ds-heading__eyebrow">ویرایش خدمت</span>
+                <h1 class="svc-form-page__title">
+                    <i class="fas fa-pen"></i>
+                    <span>{{ service.title|truncatechars:60 }}</span>
+                </h1>
+                <p class="svc-form-page__lead">
+                    آخرین به‌روزرسانی: {{ service.updated_at|date:'Y-m-d' }}
+                </p>
+            </div>
+            <a href="{% url 'service:service_list' %}" class="ds-btn ds-btn--ghost ds-btn--sm">
+                <i class="fas fa-arrow-right"></i>
+                <span>لیست خدمات</span>
+            </a>
+        </header>
+
+        {% include 'service/_service_form.html' with submit_label='ذخیره تغییرات' %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    {% comment %}
+        CKEditor's own assets. Without this tag both rich-text fields render as
+        bare textareas with no toolbar — which is what was happening to
+        `content`, whose editor had never actually loaded on this page.
+    {% endcomment %}
+    {{ form.media }}
+    <script src="{% static 'service/js/service_form.js' %}" defer></script>
+{% endblock %}

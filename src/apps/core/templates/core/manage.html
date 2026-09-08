@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}پنل مدیریت | مطب دندانپزشکی{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'core/css/core.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container">
+        <header class="mgmt-hero">
+            <span class="ds-heading__eyebrow">پنل مدیریت</span>
+            <h1>خوش آمدید {% if user.first_name %}دکتر {{ user.first_name }}{% endif %}</h1>
+            <p>بخش موردنظر برای مدیریت را انتخاب کنید.</p>
+        </header>
+
+        {% comment %}
+            Every tile is one link to one destination.
+
+            The content tiles (services, gallery, blog) used to carry a second
+            "همه" link pinned to their corner, pointing at the public list.
+            Two targets inside one card meant the card had no answer to "where
+            does this go", and the small corner link sat on top of the tile's
+            own hover state. Each of those sections already has a "بازگشت به
+            لیست" control on the form it opens, which is where someone who
+            wanted the list is actually heading from here.
+        {% endcomment %}
+        <div class="mgmt-grid">
+            <a href="{% url 'about:about_edit' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-circle-info"></i></span>
+                <h3 class="mgmt-tile__title">درباره ما</h3>
+                <p class="mgmt-tile__desc">معرفی مطب و تیم درمانی — متن، تصویر و ایمیل صفحه‌ی «درباره ما».</p>
+                <span class="mgmt-tile__cta">
+                    <span>مدیریت</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            {% comment %}
+                The practices themselves. Everything that differs between the
+                two locations — address, phone, opening hours, map — lives on
+                `Branch`, and there is no site-wide hours row behind it any
+                more: whichever city a shared block did not describe was being
+                told the wrong thing.
+            {% endcomment %}
+            <a href="{% url 'about:branch_list' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-hospital"></i></span>
+                <h3 class="mgmt-tile__title">مطب‌ها و ساعات کاری</h3>
+                <p class="mgmt-tile__desc">آدرس، تلفن، ساعات کاری و نقشه‌ی هر مطب — جدا برای هر شهر.</p>
+                <span class="mgmt-tile__cta">
+                    <span>مدیریت</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            {% comment %}
+                The doctor's own CV. The public profile page ranks on these
+                fields — degree, council number, education — and until this
+                tile existed the only way in was the Django admin.
+            {% endcomment %}
+            {% if user.doctor %}
+                <a href="{% url 'dashboard:dashboard_doctor' user.doctor.id %}#dshResume" class="mgmt-tile">
+                    <span class="mgmt-tile__icon"><i class="fas fa-id-card"></i></span>
+                    <h3 class="mgmt-tile__title">رزومه‌ی من</h3>
+                    <p class="mgmt-tile__desc">تخصص، مدرک، شماره نظام پزشکی، تحصیلات و سوابق — همان چیزی که در صفحه‌ی رزومه دیده می‌شود.</p>
+                    <span class="mgmt-tile__cta">
+                        <span>ویرایش رزومه</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </span>
+                </a>
+            {% endif %}
+
+            <a href="{% url 'appointments:manage' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-calendar-days"></i></span>
+                <h3 class="mgmt-tile__title">زمان‌های نوبت‌دهی</h3>
+                <p class="mgmt-tile__desc">تعیین روز و ساعت‌های خالی — هر هفته تکرار می‌شود.</p>
+                <span class="mgmt-tile__cta">
+                    <span>مدیریت</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="{% url 'appointments:list' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-list-check"></i></span>
+                <h3 class="mgmt-tile__title">نوبت‌های این هفته</h3>
+                <p class="mgmt-tile__desc">فهرست بیمارانی که نوبت گرفته‌اند + امکان لغو.</p>
+                <span class="mgmt-tile__cta">
+                    <span>مشاهده</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="{% url 'notifications:bulk_sms' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-comment-sms"></i></span>
+                <h3 class="mgmt-tile__title">پیامک گروهی</h3>
+                <p class="mgmt-tile__desc">ارسال پیام به گروه‌ها یا شماره‌های دلخواه + سابقه ارسال.</p>
+                <span class="mgmt-tile__cta">
+                    <span>ارسال</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="{% url 'notifications:groups' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-users"></i></span>
+                <h3 class="mgmt-tile__title">گروه‌های مخاطبان</h3>
+                <p class="mgmt-tile__desc">لیست‌های شماره که یک‌بار ذخیره و بارها استفاده می‌شوند.</p>
+                <span class="mgmt-tile__cta">
+                    <span>مدیریت</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="{% url 'core:category' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-tags"></i></span>
+                <h3 class="mgmt-tile__title">دسته‌بندی‌ها</h3>
+                <p class="mgmt-tile__desc">دسته‌بندی مشترک برای بلاگ و گالری.</p>
+                <span class="mgmt-tile__cta">
+                    <span>مدیریت</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="{% url 'contact:messages' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-envelope-open-text"></i></span>
+                <h3 class="mgmt-tile__title">پیام‌های تماس</h3>
+                <p class="mgmt-tile__desc">پیام‌های دریافتی از فرم تماس + پاک‌سازی قدیمی‌ها.</p>
+                <span class="mgmt-tile__cta">
+                    <span>مدیریت</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="{% url 'service:add_service' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-tooth"></i></span>
+                <h3 class="mgmt-tile__title">خدمات</h3>
+                <p class="mgmt-tile__desc">افزودن خدمت جدید با متن کامل، تصویر و سؤالات متداول.</p>
+                <span class="mgmt-tile__cta">
+                    <span>خدمت جدید</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="{% url 'service:faq_hub' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-circle-question"></i></span>
+                <h3 class="mgmt-tile__title">سؤالات متداول</h3>
+                <p class="mgmt-tile__desc">افزودن سؤال تازه به هر خدمت و دیدن اینکه کدام خدمت هنوز سؤالی ندارد.</p>
+                <span class="mgmt-tile__cta">
+                    <span>سؤال جدید</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="{% url 'gallery:add_gallery' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-images"></i></span>
+                <h3 class="mgmt-tile__title">گالری</h3>
+                <p class="mgmt-tile__desc">آلبوم تازه از نمونه کارها. ویرایش و حذف آلبوم‌های خودتان از صفحه‌ی گالری.</p>
+                <span class="mgmt-tile__cta">
+                    <span>گالری جدید</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="{% url 'pricing:pricing_list' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-receipt"></i></span>
+                <h3 class="mgmt-tile__title">تعرفه‌ها</h3>
+                <p class="mgmt-tile__desc">مدیریت آیتم‌های تعرفه و دسته‌بندی قیمت‌ها.</p>
+                <span class="mgmt-tile__cta">
+                    <span>مدیریت</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+
+            <a href="{% url 'blog:create_blog' %}" class="mgmt-tile">
+                <span class="mgmt-tile__icon"><i class="fas fa-newspaper"></i></span>
+                <h3 class="mgmt-tile__title">وبلاگ</h3>
+                <p class="mgmt-tile__desc">نوشتن مقاله‌ی تازه. ویرایش و حذف مقالات خودتان از صفحه‌ی وبلاگ.</p>
+                <span class="mgmt-tile__cta">
+                    <span>مقاله جدید</span>
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

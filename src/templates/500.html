@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}خطای سرور | مطب دندانپزشکی{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="خطای ۵۰۰ — خطای موقت در سرور. لطفاً چند لحظه دیگر تلاش کنید.">
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'css/error_pages.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="err-page err-page--server">
+    <div class="err-page__bg" aria-hidden="true">
+        <span class="err-page__blob err-page__blob--1"></span>
+        <span class="err-page__blob err-page__blob--2"></span>
+    </div>
+
+    <div class="ds-container err-page__inner">
+        <div class="err-page__code err-page__code--server" aria-hidden="true">
+            <span class="err-page__digit">5</span>
+            <span class="err-page__server">
+                <i class="fas fa-server"></i>
+                <span class="err-page__spark err-page__spark--a"></span>
+                <span class="err-page__spark err-page__spark--b"></span>
+                <span class="err-page__spark err-page__spark--c"></span>
+            </span>
+            <span class="err-page__digit">0</span>
+        </div>
+
+        <span class="ds-heading__eyebrow err-page__eyebrow err-page__eyebrow--warning">خطای ۵۰۰</span>
+        <h1 class="err-page__title">خطای موقت در سرور</h1>
+        <p class="err-page__lead">
+            مشکلی از سمت ما پیش آمد که در حال بررسی است.
+            لطفاً چند لحظه صبر کنید و دوباره تلاش کنید.
+        </p>
+
+        <div class="err-page__actions">
+            <button type="button" class="ds-btn ds-btn--primary ds-btn--lg" onclick="window.location.reload()">
+                <i class="fas fa-rotate"></i>
+                <span>تلاش مجدد</span>
+            </button>
+            <a href="{% url 'home:home' %}" class="ds-btn ds-btn--ghost ds-btn--lg">
+                <i class="fas fa-house"></i>
+                <span>صفحه اصلی</span>
+            </a>
+        </div>
+
+        <p class="err-page__hint">
+            <i class="fas fa-info-circle"></i>
+            اگر مشکل ادامه دارد، با ما تماس بگیرید.
+        </p>
+    </div>
+</section>
+{% endblock %}

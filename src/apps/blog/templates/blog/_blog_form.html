@@ -1,0 +1,140 @@
+{% load static %}
+
+<form method="post" enctype="multipart/form-data" class="blg-form" novalidate id="blogForm">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="blg-form__nonfield" role="alert">
+            <i class="fas fa-triangle-exclamation"></i>
+            <span>{{ form.non_field_errors|first }}</span>
+        </div>
+    {% endif %}
+
+    <div class="blg-form__grid">
+
+        <!-- ================= MAIN COLUMN ================= -->
+        <div class="blg-form__main">
+
+            <div class="blg-form__field {% if form.title.errors %}has-error{% endif %}">
+                <label for="{{ form.title.id_for_label }}">
+                    <i class="fas fa-heading"></i>
+                    <span>{{ form.title.label }}</span>
+                    {% if form.title.field.required %}<span class="req">*</span>{% endif %}
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <p class="blg-form__error">
+                        <i class="fas fa-circle-exclamation"></i>
+                        {{ form.title.errors|first }}
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="blg-form__field {% if form.content.errors %}has-error{% endif %}">
+                <label for="{{ form.content.id_for_label }}">
+                    <i class="fas fa-align-right"></i>
+                    <span>{{ form.content.label }}</span>
+                    {% if form.content.field.required %}<span class="req">*</span>{% endif %}
+                </label>
+                <div class="blg-form__editor">
+                    {{ form.content }}
+                </div>
+                <small class="blg-form__hint">
+                    <i class="fas fa-info-circle"></i>
+                    از ابزارهای ویرایشگر برای قالب‌بندی، تصاویر داخل متن، لیست و لینک استفاده کنید.
+                </small>
+                {% if form.content.errors %}
+                    <p class="blg-form__error">
+                        <i class="fas fa-circle-exclamation"></i>
+                        {{ form.content.errors|first }}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ================= SIDEBAR ================= -->
+        <aside class="blg-form__side">
+
+            <!-- Cover image -->
+            <div class="blg-form__panel">
+                <h3 class="blg-form__panel-title">
+                    <i class="fas fa-image"></i>
+                    <span>تصویر شاخص</span>
+                    {% if form.image.field.required %}<span class="req">*</span>{% endif %}
+                </h3>
+
+                <div class="blg-form__cover {% if form.image.errors %}has-error{% endif %}">
+                    <div class="blg-form__cover-preview" id="blogCoverPreview"
+                         {% if form.instance.image %}
+                             data-has-image="1"
+                         {% endif %}>
+                        {% if form.instance.image %}
+                            <img src="{{ form.instance.image.url }}" alt="تصویر فعلی" id="blogCoverImg">
+                        {% else %}
+                            <div class="blg-form__cover-empty">
+                                <i class="fas fa-cloud-arrow-up"></i>
+                                <span>هنوز تصویری انتخاب نشده</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <label class="blg-form__cover-picker" for="{{ form.image.id_for_label }}">
+                        <i class="fas fa-image"></i>
+                        <span>{% if form.instance.image %}تعویض تصویر{% else %}انتخاب تصویر{% endif %}</span>
+                    </label>
+                    {{ form.image }}
+
+                    <small class="blg-form__hint">
+                        فرمت JPG یا PNG — حداکثر ۵ مگابایت
+                    </small>
+                    {% if form.image.errors %}
+                        <p class="blg-form__error">
+                            <i class="fas fa-circle-exclamation"></i>
+                            {{ form.image.errors|first }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="blg-form__panel">
+                <h3 class="blg-form__panel-title">
+                    <i class="fas fa-tags"></i>
+                    <span>{{ form.categories.label }}</span>
+                    {% if form.categories.field.required %}<span class="req">*</span>{% endif %}
+                </h3>
+
+                <div class="blg-form__cats {% if form.categories.errors %}has-error{% endif %}">
+                    {% for category in form.categories %}
+                        <label class="blg-cat-chip">
+                            {{ category.tag }}
+                            <span>{{ category.choice_label }}</span>
+                        </label>
+                    {% empty %}
+                        <p class="blg-form__hint">
+                            <i class="fas fa-info-circle"></i>
+                            هنوز دسته‌ای ثبت نشده — از پنل مدیریت اضافه کنید.
+                        </p>
+                    {% endfor %}
+                </div>
+                {% if form.categories.errors %}
+                    <p class="blg-form__error">
+                        <i class="fas fa-circle-exclamation"></i>
+                        {{ form.categories.errors|first }}
+                    </p>
+                {% endif %}
+            </div>
+        </aside>
+    </div>
+
+    <div class="blg-form__actions">
+        <a href="{% url 'blog:blog_list' %}" class="ds-btn ds-btn--ghost">
+            <i class="fas fa-arrow-right"></i>
+            <span>انصراف</span>
+        </a>
+        <button type="submit" class="ds-btn ds-btn--primary ds-btn--lg">
+            <i class="fas fa-save"></i>
+            <span>{{ submit_label|default:'ذخیره' }}</span>
+        </button>
+    </div>
+</form>

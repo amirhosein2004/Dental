@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static perms %}
+
+{% block title %}گالری تصاویر مطب دندانپزشکی | نمونه کارها و خدمات تخصصی{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="گالری تصاویر مطب دندانپزشکی دکتر بابایی و بهمدی؛ مشاهده نمونه کارها، خدمات تخصصی و محیط مطب.">
+    <meta property="og:title" content="گالری تصاویر مطب دندانپزشکی">
+    <meta property="og:description" content="مشاهده نمونه کارها و خدمات تخصصی مطب دندانپزشکی دکتر بابایی و بهمدی.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="https://sbdental.ir/static/img/site-logo.png">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'gallery/css/gallery.css' %}">
+    {% comment %}
+        Swiper served from our own domain — unpkg is not reliably reachable
+        from Iran, and without it every gallery tile collapses to a static
+        stack of images with no navigation.
+    {% endcomment %}
+    <link rel="stylesheet" href="{% static 'vendor/swiper/swiper-bundle.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- ============================================================ HERO -->
+    <section class="gal-hero" aria-labelledby="gal-hero-title">
+        <div class="gal-hero__bg" aria-hidden="true"></div>
+        <div class="ds-container ds-container--wide gal-hero__inner">
+            <span class="ds-heading__eyebrow">پرتفوی درمانی</span>
+            <h1 class="gal-hero__title" id="gal-hero-title">
+                نتیجه‌ی درمان، بهترین معرفی ماست
+            </h1>
+            <p class="gal-hero__lead">
+                هر لبخند در این گالری، حاصل ساعت‌ها دقت، تخصص و صبر است.
+                از میان نمونه‌های واقعی درمان‌های اخیر ما بازدید کنید.
+            </p>
+
+            <div class="gal-hero__stats" role="list">
+                <div role="listitem">
+                    <strong>{{ total_galleries }}+</strong>
+                    <span>مجموعه‌ی درمانی</span>
+                </div>
+                <div role="listitem">
+                    <strong>۵۰۰۰+</strong>
+                    <span>بیمار راضی</span>
+                </div>
+                <div role="listitem">
+                    <strong>+۱۰</strong>
+                    <span>سال تجربه</span>
+                </div>
+            </div>
+
+            {% if user.is_authenticated and user.is_superuser or user.is_doctor %}
+                <a href="{% url 'gallery:add_gallery' %}" class="gal-hero__manage">
+                    <i class="fas fa-plus"></i>
+                    <span>افزودن گالری جدید</span>
+                </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============================================================ FILTER -->
+    <section class="gal-filter" aria-label="فیلتر دسته‌بندی">
+        <div class="ds-container ds-container--wide">
+            <div class="gal-filter__scroller">
+                <a href="{% url 'gallery:gallery_list' %}"
+                   class="gal-chip {% if 'category' not in request.GET %}is-active{% endif %}">
+                    <i class="fas fa-th-large"></i>
+                    <span>همه</span>
+                </a>
+                {% for category in categories %}
+                    <a href="{% url 'gallery:gallery_list' %}?category={{ category.id }}"
+                       class="gal-chip {% if request.GET.category == category.id|stringformat:'s' %}is-active{% endif %}">
+                        <i class="fas fa-tags"></i>
+                        <span>{{ category.name }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ MASONRY GRID -->
+    <section class="ds-section gal-list" id="gal-list">
+        <div class="ds-container ds-container--wide">
+            {% if galleries %}
+                <div class="gal-masonry" id="gal-masonry">
+                    {% for gallery in galleries %}
+                        {% include 'gallery/_gallery_tile.html' with span=gallery.masonry_span %}
+                    {% endfor %}
+                </div>
+
+                <!-- Load more -->
+                <div class="gal-loadmore">
+                    <button id="load-more" type="button" class="ds-btn ds-btn--primary ds-btn--lg"
+                            data-offset="{{ next_offset }}"
+                            data-url="{% url 'gallery:load_more_galleries' %}"
+                            {% if not has_more %}hidden{% endif %}>
+                        <i class="fas fa-plus"></i>
+                        <span>نمایش موارد بیشتر</span>
+                    </button>
+                    <p id="no-more-galleries" class="gal-loadmore__end" {% if has_more %}hidden{% endif %}>
+                        <i class="fas fa-check-circle"></i>
+                        <span>همه‌ی گالری‌ها را دیدید</span>
+                    </p>
+                </div>
+            {% else %}
+                <div class="gal-empty">
+                    <div class="gal-empty__glow"></div>
+                    <i class="fas fa-images"></i>
+                    <h3>هنوز گالری‌ای در این دسته ثبت نشده</h3>
+                    <p>به‌زودی نمونه‌های واقعی درمان‌های اخیر را اینجا خواهید دید.</p>
+                    <a href="{% url 'appointments:board' %}" class="ds-btn ds-btn--primary">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>رزرو نوبت</span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============================================================ CTA -->
+    <section class="gal-cta">
+        <div class="ds-container">
+            <div class="ds-cta-card ds-cta-card--brand">
+                <span class="ds-cta-card__icon"><i class="fas fa-images"></i></span>
+                <div class="ds-cta-card__body">
+                    <span class="ds-heading__eyebrow">لبخند بعدی شما</span>
+                    <h2>می‌خواهید نتیجه‌ی خودتان را ببینید؟</h2>
+                    <p>یک مشاوره رایگان با تیم ما رزرو کنید تا از راه‌حل‌های پیشنهادی برای شما مطلع شوید.</p>
+                </div>
+                {% include '_cta_actions.html' with cta_size='lg' %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
+    <script src="{% static 'gallery/js/gallery.js' %}" defer></script>
+    <script src="{% static 'gallery/js/load_more.js' %}" defer></script>
+{% endblock %}

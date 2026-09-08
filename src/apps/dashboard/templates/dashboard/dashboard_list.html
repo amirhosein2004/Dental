@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}پنل پزشکان | مطب دندانپزشکی{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'dashboard/css/dashboard_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section dshlst-page">
+    <div class="ds-container">
+
+        <header class="ds-heading">
+            <span class="ds-heading__eyebrow">پنل مدیریت</span>
+            <h1 class="ds-heading__title">لیست پزشکان</h1>
+            <p class="ds-heading__lead">برای مدیریت پروفایل، مقاله‌ها و گالری هر پزشک، کارت مربوطه را انتخاب کنید.</p>
+        </header>
+
+        {% if doctors %}
+            <ul class="dshlst-grid">
+                {% for doctor in doctors %}
+                    <li class="dshlst-card">
+                        <a href="{% url 'dashboard:dashboard_doctor' doctor.id %}" class="dshlst-card__link">
+                            <div class="dshlst-card__avatar">
+                                {% if doctor.user.image %}
+                                    <img src="{{ doctor.user.image.url }}" alt="{{ doctor.user.get_full_name|default:doctor.user.username }}" loading="lazy">
+                                {% else %}
+                                    <span class="dshlst-card__avatar-fallback" aria-label="عکس پیش‌فرض">
+                                        <i class="fas fa-user-doctor"></i>
+                                    </span>
+                                {% endif %}
+                                {% if doctor.user.is_superuser %}
+                                    <span class="dshlst-card__badge dshlst-card__badge--admin" title="مدیر">
+                                        <i class="fas fa-crown"></i>
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <div class="dshlst-card__body">
+                                <h3 class="dshlst-card__name">
+                                    {% if doctor.user.get_full_name %}
+                                        دکتر {{ doctor.user.get_full_name }}
+                                    {% else %}
+                                        {{ doctor.user.username }}
+                                    {% endif %}
+                                </h3>
+                                <p class="dshlst-card__email">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>{{ doctor.user.email }}</span>
+                                </p>
+                                <p class="dshlst-card__desc">
+                                    {{ doctor.description|truncatechars:80 }}
+                                </p>
+                            </div>
+
+                            <span class="dshlst-card__cta">
+                                <span>ورود به پنل</span>
+                                <i class="fas fa-arrow-left"></i>
+                            </span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="dshlst-empty">
+                <i class="fas fa-user-doctor"></i>
+                <h3>هیچ پزشکی ثبت نشده است</h3>
+                <p>برای افزودن پزشک جدید از پنل ادمین اقدام کنید.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

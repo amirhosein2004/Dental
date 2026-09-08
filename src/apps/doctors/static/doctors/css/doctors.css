@@ -1,0 +1,544 @@
+/* =============================================================================
+   Doctor pages — the CV and the roster.
+
+   Reads only design-system tokens, so both themes and any future palette
+   change come for free. Nothing here hardcodes a colour that is not a
+   deliberate one-off overlay.
+   ============================================================================= */
+
+/* ------------------------------------------------------------------ HERO -- */
+
+.doc-cv__hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(1.5rem, 4vw, 2.5rem) clamp(2.5rem, 6vw, 4rem);
+    background: linear-gradient(160deg, var(--bg-muted), var(--bg));
+    border-bottom: 1px solid var(--border);
+}
+
+.doc-cv__hero-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.doc-cv__blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: .5;
+}
+
+.doc-cv__blob--1 {
+    inset-inline-start: -10%;
+    top: -30%;
+    width: 26rem;
+    height: 26rem;
+    background: var(--brand-glow);
+}
+
+.doc-cv__blob--2 {
+    inset-inline-end: -8%;
+    bottom: -40%;
+    width: 22rem;
+    height: 22rem;
+    background: var(--accent-soft);
+}
+
+.doc-cv__hero-inner {
+    position: relative;
+}
+
+/* Breadcrumbs. Present as markup as well as JSON-LD: the visible trail is
+   what a visitor uses, the structured version is what replaces the raw URL in
+   a search result. */
+.doc-cv__crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: clamp(1.25rem, 3vw, 2rem);
+    font-size: .85rem;
+    color: var(--fg-muted);
+}
+
+.doc-cv__crumbs a {
+    color: var(--fg-muted);
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+.doc-cv__crumbs a:hover { color: var(--brand); }
+.doc-cv__crumbs i { font-size: .7rem; color: var(--fg-subtle); }
+.doc-cv__crumbs [aria-current] { color: var(--fg); font-weight: 600; }
+
+.doc-cv__id {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: center;
+}
+
+.doc-cv__portrait {
+    position: relative;
+    width: clamp(8rem, 20vw, 13.75rem);
+    aspect-ratio: 1;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--bg-elevated);
+    border: 4px solid var(--bg-elevated);
+    box-shadow: var(--shadow-xl);
+}
+
+.doc-cv__portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.doc-cv__portrait-fallback {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-size: clamp(2.5rem, 7vw, 4rem);
+}
+
+.doc-cv__name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 4.5vw, 2.75rem);
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--fg);
+}
+
+.doc-cv__headline {
+    margin: .5rem 0 0;
+    font-size: clamp(.95rem, 2vw, 1.15rem);
+    color: var(--brand-strong);
+    font-weight: 600;
+}
+
+/* Credential row. These read as page furniture and are anything but: on a
+   medical page the degree and the council number are the evidence the page is
+   judged on, so they sit above the fold rather than in a footnote. */
+.doc-cv__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.doc-cv__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .45rem .85rem;
+    border-radius: var(--radius-pill);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    font-size: .85rem;
+    color: var(--fg-muted);
+    box-shadow: var(--shadow-sm);
+}
+
+.doc-cv__badge i { color: var(--brand); font-size: .85rem; }
+
+.doc-cv__badge--trust {
+    background: var(--brand-soft);
+    border-color: transparent;
+    color: var(--brand-strong);
+    font-weight: 600;
+}
+
+.doc-cv__badge--trust i { color: var(--brand-strong); }
+
+.doc-cv__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1.5rem;
+}
+
+.doc-cv__social {
+    display: flex;
+    gap: .5rem;
+    margin-top: 1.25rem;
+}
+
+.doc-cv__social a {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    text-decoration: none;
+    transition: color .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.doc-cv__social a:hover {
+    color: var(--brand);
+    border-color: var(--brand);
+    transform: translateY(-2px);
+}
+
+/* ------------------------------------------------------------------ BODY -- */
+
+.doc-cv__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    padding-block: var(--section-y);
+    align-items: start;
+}
+
+.doc-cv__main > * + * { margin-top: clamp(1.75rem, 4vw, 2.75rem); }
+
+.doc-cv__block-title {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    margin: 0 0 1rem;
+    font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+    font-weight: 700;
+    color: var(--fg);
+}
+
+.doc-cv__block-title i {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-sm);
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    font-size: .95rem;
+}
+
+.doc-cv__prose {
+    color: var(--fg-muted);
+    line-height: 2.1;
+    font-size: 1rem;
+}
+
+.doc-cv__prose p { margin: 0 0 1rem; }
+.doc-cv__prose p:last-child { margin-bottom: 0; }
+
+/* Timeline. The rail is drawn on the list and the markers on the items, so a
+   single entry still renders correctly instead of leaving a stub of line.
+   
+   Both sit on the inline-START edge — the right-hand side in RTL, where the
+   eye begins each row. They were on `inline-end`, which in RTL is the left:
+   the dots ended up across the card from the text they belonged to, reading
+   as a stray line of bullets rather than a timeline.
+   
+   The indent lives on the items, not the list, so the dots and the rail share
+   one reference edge and stay aligned whatever the indent is. */
+.doc-cv__timeline {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-inline-start: none;
+}
+
+.doc-cv__timeline::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: .3rem;
+    inset-inline-end: auto;
+    top: .6rem;
+    bottom: .6rem;
+    width: 2px;
+    background: linear-gradient(var(--brand), var(--border));
+    border-radius: 2px;
+}
+
+.doc-cv__timeline-item {
+    position: relative;
+    padding-block: .35rem;
+    padding-inline: 1.5rem 0;
+    margin-bottom: 1rem;
+    color: var(--fg-muted);
+    line-height: 1.9;
+}
+
+.doc-cv__timeline-item:last-child { margin-bottom: 0; }
+
+.doc-cv__timeline-item::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+    top: .95rem;
+    width: .7rem;
+    height: .7rem;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 4px var(--bg);
+}
+
+.doc-cv__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.doc-cv__chip {
+    padding: .5rem .9rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-muted);
+    border: 1px solid var(--border);
+    font-size: .88rem;
+    color: var(--fg-muted);
+}
+
+.doc-cv__services {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: .65rem;
+}
+
+.doc-cv__service {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .85rem 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    text-decoration: none;
+    font-size: .92rem;
+    font-weight: 600;
+    transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.doc-cv__service:hover {
+    border-color: var(--brand);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.doc-cv__service i { color: var(--brand); font-size: .8rem; }
+
+.doc-cv__posts {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: .65rem;
+}
+
+.doc-cv__posts a {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: .65rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    text-decoration: none;
+    font-size: .92rem;
+    transition: border-color .2s ease;
+}
+
+.doc-cv__posts a:hover { border-color: var(--brand); }
+
+.doc-cv__posts img {
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: var(--radius-xs);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+/* ----------------------------------------------------------------- ASIDE -- */
+
+.doc-cv__aside {
+    position: sticky;
+    top: 5.5rem;
+    display: grid;
+    gap: 1rem;
+}
+
+.doc-cv__branch { padding: 1.25rem; }
+
+.doc-cv__branch-title {
+    margin: 0 0 .85rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--fg);
+}
+
+.doc-cv__branch p {
+    display: flex;
+    align-items: flex-start;
+    gap: .55rem;
+    margin: 0 0 .6rem;
+    font-size: .88rem;
+    line-height: 1.9;
+    color: var(--fg-muted);
+}
+
+.doc-cv__branch i {
+    color: var(--brand);
+    font-size: .85rem;
+    margin-top: .35rem;
+    flex-shrink: 0;
+}
+
+.doc-cv__branch a { color: var(--fg-muted); text-decoration: none; }
+.doc-cv__branch a:hover { color: var(--brand); }
+.doc-cv__branch-hours { white-space: normal; }
+.doc-cv__branch-map { margin-top: .35rem; }
+
+.doc-cv__book {
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    background: linear-gradient(150deg, var(--brand), var(--brand-strong));
+    border: none;
+    color: #fff;
+}
+
+.doc-cv__book > i { font-size: 1.75rem; opacity: .9; }
+
+.doc-cv__book p {
+    margin: .75rem 0 1rem;
+    font-size: .9rem;
+    line-height: 1.9;
+    color: rgba(255, 255, 255, .94);
+}
+
+.doc-cv__book .ds-btn--primary {
+    background: #fff;
+    color: var(--brand-strong);
+    box-shadow: none;
+}
+
+.doc-cv__book .ds-btn--primary:hover { color: var(--brand-strong); }
+
+/* --------------------------------------------------------------- ROSTER -- */
+
+.doc-list__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: clamp(1rem, 3vw, 1.75rem);
+}
+
+.doc-list__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.doc-list__avatar {
+    width: 7.5rem;
+    height: 7.5rem;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--brand-soft);
+    display: grid;
+    place-items: center;
+    margin-bottom: 1.25rem;
+    border: 3px solid var(--bg-elevated);
+    box-shadow: var(--shadow-lg);
+}
+
+.doc-list__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.doc-list__avatar i { font-size: 2.5rem; color: var(--brand); }
+
+.doc-list__name {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--fg);
+}
+
+.doc-list__headline {
+    margin: .4rem 0 0;
+    font-size: .88rem;
+    color: var(--brand-strong);
+    font-weight: 600;
+}
+
+.doc-list__meta {
+    margin: .9rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .4rem;
+}
+
+.doc-list__meta li {
+    font-size: .78rem;
+    padding: .3rem .7rem;
+    border-radius: var(--radius-pill);
+    background: var(--bg-muted);
+    color: var(--fg-muted);
+}
+
+.doc-list__more {
+    margin-top: 1.25rem;
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--brand);
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.doc-list__card:hover .doc-list__more { gap: .7rem; }
+.doc-list__more i { font-size: .75rem; transition: transform .2s ease; }
+
+/* ----------------------------------------------------------- RESPONSIVE -- */
+
+@media (max-width: 980px) {
+    .doc-cv__layout { grid-template-columns: 1fr; }
+    .doc-cv__aside { position: static; }
+}
+
+@media (max-width: 640px) {
+    .doc-cv__id {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+    }
+
+    .doc-cv__badges,
+    .doc-cv__actions,
+    .doc-cv__social { justify-content: center; }
+
+    .doc-cv__services { grid-template-columns: 1fr; }
+}
+
+/* Motion is decoration here; the hover lifts are the only movement and they
+   have no informational role. */
+@media (prefers-reduced-motion: reduce) {
+    .doc-cv__service,
+    .doc-cv__social a,
+    .doc-list__more i { transition: none; }
+
+    .doc-cv__service:hover,
+    .doc-cv__social a:hover { transform: none; }
+}

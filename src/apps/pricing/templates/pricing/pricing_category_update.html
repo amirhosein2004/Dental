@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ویرایش دسته‌بندی | {{ category.name }}{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'pricing/css/pricing.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container ds-container--narrow">
+        <header class="ds-heading">
+            <span class="ds-heading__eyebrow">ویرایش دسته</span>
+            <h1 class="ds-heading__title">{{ category.name }}</h1>
+            <p class="ds-heading__lead">
+                {{ category.items.count }} خدمت در این دسته
+            </p>
+        </header>
+
+        <form method="post" class="prc-form" novalidate>
+            {% csrf_token %}
+
+            <div class="prc-form__field {% if form.name.errors %}has-error{% endif %}">
+                <label for="{{ form.name.id_for_label }}">نام دسته<span aria-hidden="true">*</span></label>
+                {{ form.name }}
+                {% if form.name.errors %}<p class="prc-form__error">{{ form.name.errors|first }}</p>{% endif %}
+            </div>
+
+            <div class="prc-form__field {% if form.order.errors %}has-error{% endif %}">
+                <label for="{{ form.order.id_for_label }}">ترتیب نمایش</label>
+                {{ form.order }}
+                <small class="prc-form__hint">عدد کوچک‌تر بالاتر نمایش داده می‌شود.</small>
+                {% if form.order.errors %}<p class="prc-form__error">{{ form.order.errors|first }}</p>{% endif %}
+            </div>
+
+            <div class="prc-form__actions">
+                <a href="{% url 'pricing:pricing_category_list' %}" class="ds-btn ds-btn--ghost">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>انصراف</span>
+                </a>
+                <button type="submit" class="ds-btn ds-btn--primary">
+                    <i class="fas fa-save"></i>
+                    <span>ذخیره تغییرات</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

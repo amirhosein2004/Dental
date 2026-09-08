@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}افزودن تعرفه جدید | مدیریت قیمت‌ها{% endblock %}
+
+{# Staff-only. `Disallow` in robots.txt saves the crawl; this is what keeps the URL out of the results. #}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block meta_tags %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block extra_static %}
+    <link rel="stylesheet" href="{% static 'pricing/css/pricing.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ds-section">
+    <div class="ds-container ds-container--narrow">
+        <header class="ds-heading">
+            <span class="ds-heading__eyebrow">مدیریت تعرفه</span>
+            <h1 class="ds-heading__title">افزودن تعرفه جدید</h1>
+            <p class="ds-heading__lead">خدمت جدید و قیمت آن را در دسته‌بندی مناسب ثبت کنید.</p>
+        </header>
+
+        <form method="post" class="prc-form" novalidate>
+            {% csrf_token %}
+
+            <div class="prc-form__field {% if form.category.errors %}has-error{% endif %}">
+                <label for="{{ form.category.id_for_label }}">دسته‌بندی</label>
+                {{ form.category }}
+                <small class="prc-form__hint">
+                    <a href="{% url 'pricing:pricing_category_list' %}">مدیریت دسته‌ها</a>
+                </small>
+                {% if form.category.errors %}<p class="prc-form__error">{{ form.category.errors|first }}</p>{% endif %}
+            </div>
+
+            <div class="prc-form__field {% if form.title.errors %}has-error{% endif %}">
+                <label for="{{ form.title.id_for_label }}">عنوان خدمت<span aria-hidden="true">*</span></label>
+                {{ form.title }}
+                {% if form.title.errors %}<p class="prc-form__error">{{ form.title.errors|first }}</p>{% endif %}
+            </div>
+
+            <div class="prc-form__field {% if form.price.errors %}has-error{% endif %}">
+                <label for="{{ form.price.id_for_label }}">قیمت (تومان)<span aria-hidden="true">*</span></label>
+                {{ form.price }}
+                <small class="prc-form__hint">بدون کاما یا نقطه — مثال: 5000000</small>
+                {% if form.price.errors %}<p class="prc-form__error">{{ form.price.errors|first }}</p>{% endif %}
+            </div>
+
+            <div class="prc-form__actions">
+                <a href="{% url 'pricing:pricing_list' %}" class="ds-btn ds-btn--ghost">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>انصراف</span>
+                </a>
+                <button type="submit" class="ds-btn ds-btn--primary">
+                    <i class="fas fa-save"></i>
+                    <span>ذخیره تعرفه</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

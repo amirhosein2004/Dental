@@ -1,393 +1,143 @@
-# 🦷 Dental Clinic Management System
+# 🦷 SB Dental — clinic website and booking system
 
 <div align="center">
 
-![Django](https://img.shields.io/badge/Django-5.1.7-092E20?style=for-the-badge&logo=django&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-Latest-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![Django](https://img.shields.io/badge/Django-5.2_LTS-092E20?style=for-the-badge&logo=django&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![Celery](https://img.shields.io/badge/Celery-5.4-37B24D?style=for-the-badge&logo=celery&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Celery](https://img.shields.io/badge/Celery-5.4.0-37B24D?style=for-the-badge&logo=celery&logoColor=white)
 
-**A comprehensive dental clinic management system built with Django**
+**The public site and staff panel for a two-practice dental clinic in Mashhad
+and Quchan — Persian, RTL, installable as an app.**
 
-[🌐 Live Demo](https://sbdental.ir) • [📖 Documentation](#documentation) • [🚀 Quick Start](#quick-start)
+[🌐 Live](https://sbdental.ir) • [📖 Docs](docs/) • [🚀 Quick start](#quick-start)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## What it does
 
-- [✨ Features](#-features)
-- [🏗️ Architecture](#️-architecture)
-- [🚀 Quick Start](#-quick-start)
-- [🐳 Docker Deployment](#-docker-deployment)
-- [⚙️ Configuration](#️-configuration)
-- [📁 Project Structure](#-project-structure)
-- [🔧 Development](#-development)
-- [🌐 API Endpoints](#-api-endpoints)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
+**For patients** — a public site: the clinic and both practices, the doctors
+and their CVs, treatments, tariffs, a before/after gallery, articles, a contact
+form, and online booking with no account to create.
 
----
+**For the clinic** — a staff panel behind a two-step login: each doctor edits
+their own content and schedule, the front desk sees the week's bookings and the
+message inbox, and a superuser sees everything. Alerts arrive by SMS and as
+browser notifications.
 
-## ✨ Features
+Booking is a **weekly recurring template**, not a calendar: a doctor publishes
+"Saturday 20:00", a patient claims it for the current week, and the schedule
+empties itself when the week turns over — no cron job involved. See
+[docs/appointments.md](docs/appointments.md).
 
-### 🏥 Core Functionality
-- **Patient Management** - Complete patient records and history
-- **Appointment Scheduling** - Advanced booking system with calendar integration
-- **Doctor Dashboard** - Comprehensive doctor profiles and schedules
-- **Service Management** - Dental services catalog with detailed descriptions
-- **Gallery System** - Before/after photos and clinic gallery
-- **Blog System** - Educational content and news management
+Notable choices, each with its reasons written down in `docs/`:
 
-### 🔒 Security & Authentication
-- **Multi-level Authentication** - Custom user system with role-based access
-- **Brute Force Protection** - Django Axes integration
-- **reCAPTCHA Integration** - Google reCAPTCHA v3 protection
-- **Secure Admin Panel** - Randomized admin URLs
-- **Password Reset System** - Secure OTP-based password recovery
+- **Two roles, no permission tables** — `is_doctor` and `is_superuser`, one
+  ownership rule, and staff routes that answer 404 rather than 403.
+- **Two-step login** — password, then a six-digit emailed code, with a
+  Redis-backed throttle keyed on (IP, username).
+- **Self-hosted everything** — fonts, icons, Leaflet, Swiper, and a
+  hand-rolled math captcha. No CDN is reliably reachable from Iran, and a test
+  fails if a `https://` asset link reappears.
+- **Day-long response caching** with group-versioned invalidation, so a write
+  that changes a page busts it.
+- **Installable PWA** — which on iOS is the precondition for web push, not a
+  nicety.
 
-### 🎨 User Experience
-- **Responsive Design** - Mobile-first approach
-- **Persian/Farsi Support** - Full RTL language support
-- **Rich Text Editor** - CKEditor 5 with Persian language pack
-- **Advanced Caching** - Redis-powered caching system
-- **SEO Optimized** - Meta tags and structured data
+## Stack
 
-### 🚀 Performance & Scalability
-- **Celery Task Queue** - Asynchronous task processing
-- **Redis Caching** - High-performance caching layer
-- **Database Optimization** - Efficient queries with select_related/prefetch_related
-- **Static File Optimization** - Compressed and minified assets
-- **Docker Support** - Containerized deployment
+| | |
+|---|---|
+| Django 5.2 LTS · Python 3.12 · Gunicorn | PostgreSQL 17 |
+| Celery 5.4 (SMS, email, push, cleanup) | Redis 7 — cache, throttle, broker |
+| nginx · Docker Compose · GitLab CI | Kavenegar (SMS) · VAPID web push |
 
----
+No frontend build step: plain CSS and JavaScript on a design-token system, so
+there is no npm, no bundler and nothing to compile before a deploy.
 
-## 🏗️ Architecture
+## Quick start
 
-```mermaid
-graph TB
-    A[Nginx Proxy] --> B[Django Application]
-    B --> C[PostgreSQL Database]
-    B --> D[Redis Cache]
-    B --> E[Celery Workers]
-    E --> D
-    B --> F[Static Files]
-    B --> G[Media Files]
-```
-
-### Technology Stack
-
-| Component | Technology | Version |
-|-----------|------------|---------|
-| **Backend** | Django | 5.1.7 |
-| **Database** | PostgreSQL | 15 |
-| **Cache** | Redis | Latest |
-| **Task Queue** | Celery | 5.4.0 |
-| **Web Server** | Nginx | Latest |
-| **WSGI Server** | Gunicorn | 23.0.0 |
-| **Containerization** | Docker | Latest |
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Python 3.11+
-- PostgreSQL 15+
-- Redis
-- Git
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/amirhosein2004/Dental.git
-cd Dental
-```
-
-### 2. Create Virtual Environment
+Python 3.12 and nothing else — `develop` settings fall back to SQLite,
+in-memory cache and inline Celery so a fresh clone runs.
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-### 3. Install Dependencies
-
-```bash
+source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+
+cp .env.example .env              # DJANGO_ENV defaults to `develop`
+python src/manage.py migrate
+python src/manage.py seed_demo    # optional: realistic Persian demo content
+python src/manage.py createsuperuser
+python src/manage.py runserver
 ```
 
-### 4. Environment Configuration
+Then <http://127.0.0.1:8000>. Logging in as a doctor needs the emailed OTP —
+in develop, mail is written to `sent_emails/`; open the newest file.
 
-Create a `.env` file in the project root:
-
-```env
-# Django Settings
-SECRET_KEY=your-secret-key-here
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-
-# Database Configuration
-DB_ENGINE=django.db.backends.postgresql
-DB_NAME=dental_db
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-DB_HOST=localhost
-DB_PORT=5432
-
-# Redis Configuration
-REDIS_URL=redis://127.0.0.1:6379/1
-REDIS_URL_CELERY=redis://localhost:6379/0
-
-# Email Configuration
-EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=your-email@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
-
-# reCAPTCHA Keys
-RECAPTCHA_PUBLIC_KEY=your-recaptcha-public-key
-RECAPTCHA_PRIVATE_KEY=your-recaptcha-private-key
-
-# Security
-OTP_SECRET_KEY=your-otp-secret
-RESET_PREFIX=your-reset-prefix
-RESET_SUFFIX=your-reset-suffix
-SECURE_ADMIN_PANEL=your-admin-url
-```
-
-### 5. Database Setup
+Real Postgres, Redis and a Celery worker, in containers:
 
 ```bash
-python manage.py makemigrations
-python manage.py migrate
-python manage.py createsuperuser
+cp deploy/env/.env.develop.example deploy/env/.env.develop
+docker compose --env-file deploy/env/.env.develop \
+  -f deploy/base.yml -f deploy/develop.yml up
 ```
 
-### 6. Collect Static Files
+## Day to day
 
 ```bash
-python manage.py collectstatic
+python src/manage.py test                    # ~500 tests, ~7s
+python src/manage.py test apps.contact       # one app
+python src/manage.py check --deploy          # security audit
+python src/manage.py backup_db               # dump, keeping the newest 3
 ```
 
-### 7. Run Development Server
-
-```bash
-python manage.py runserver
-```
-
-Visit `http://127.0.0.1:8000` to see the application.
-
----
-
-## 🐳 Docker Deployment
-
-### Quick Docker Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/amirhosein2004/Dental.git
-cd Dental
-
-# Create .env file (see configuration section)
-cp .env.example .env
-
-# Build and run with Docker Compose
-docker-compose up -d
-
-# Run migrations
-docker-compose exec web python manage.py migrate
-
-# Create superuser
-docker-compose exec web python manage.py createsuperuser
-
-# Collect static files
-docker-compose exec web python manage.py collectstatic --noinput
-```
-
-### Docker Services
-
-The Docker setup includes:
-
-- **Web**: Django application with Gunicorn
-- **Database**: PostgreSQL 15
-- **Cache**: Redis
-- **Celery Worker**: Background task processing
-- **Celery Beat**: Scheduled tasks
-- **Nginx**: Reverse proxy and static file serving
-
----
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SECRET_KEY` | Django secret key | Auto-generated |
-| `DEBUG` | Debug mode | `False` |
-| `ALLOWED_HOSTS` | Allowed hosts | `*` |
-| `DB_ENGINE` | Database engine | `sqlite3` |
-| `REDIS_URL` | Redis cache URL | `redis://127.0.0.1:6379/1` |
-| `EMAIL_HOST` | SMTP host | `smtp.gmail.com` |
-| `LANGUAGE_CODE` | Language code | `en-us` |
-| `TIME_ZONE` | Time zone | `UTC` |
-
-### Django Apps
-
-The project consists of the following Django applications:
-
-- **`home`** - Homepage and landing pages
-- **`accounts`** - User authentication and profiles
-- **`dashboard`** - Doctor dashboard and management
-- **`service`** - Dental services management
-- **`blog`** - Blog and news system
-- **`gallery`** - Image gallery management
-- **`contact`** - Contact forms and information
-- **`about`** - About pages and clinic information
-- **`pricing`** - Pricing services management
-- **`core`** - Core models and utilities
-- **`users`** - Custom user model
-
----
-
-## 📁 Project Structure
+## Layout
 
 ```
-Dental/
-├── 📁 Dental/                 # Main Django project
-│   ├── 📁 settings/           # Environment-specific settings
-│   │   ├── base.py           # Base settings
-│   │   ├── dev.py            # Development settings
-│   │   └── prod.py           # Production settings
-│   ├── urls.py               # Main URL configuration
-│   ├── wsgi.py               # WSGI configuration
-│   └── celery.py             # Celery configuration
-├── 📁 home/                   # Homepage app
-├── 📁 accounts/               # Authentication app
-├── 📁 dashboard/              # Doctor dashboard
-├── 📁 service/                # Services management
-├── 📁 blog/                   # Blog system
-├── 📁 gallery/                # Gallery management
-├── 📁 contact/                # Contact system
-├── 📁 about/                  # About pages
-├── 📁 pricing/                # Pricing services management
-├── 📁 core/                   # Core functionality
-├── 📁 users/                  # Custom user model
-├── 📁 utils/                  # Utility functions
-├── 📁 templates/              # Global templates
-├── 📁 static/                 # Static files
-├── 📁 media/                  # User uploads
-├── requirements.txt           # Python dependencies
-├── docker-compose.yml         # Docker configuration
-├── Dockerfile                 # Docker image
-├── nginx.conf                 # Nginx configuration
-└── manage.py                  # Django management script
+src/            the application — nothing else
+  apps/         fourteen apps, split by subject rather than by layer
+  config/       settings (develop / stage / production), urls, celery
+  utils/        cross-app helpers: security, http, data, mail
+  static/  templates/  manage.py
+deploy/         compose overlays, nginx, entrypoint, env templates
+scripts/        backup, restore, superuser, TLS, cron
+docs/           everything below
 ```
 
----
+## Documentation
 
-## 🔧 Development
+| | |
+|---|---|
+| [getting-started.md](docs/getting-started.md) | clone to running site |
+| [architecture.md](docs/architecture.md) | the apps and how they fit |
+| [environments.md](docs/environments.md) | develop / stage / production |
+| [deploying.md](docs/deploying.md) | **step by step, first deploy to rollback** |
+| [cicd.md](docs/cicd.md) | the GitLab pipeline |
+| [caching.md](docs/caching.md) | what is cached, what invalidates it |
+| [security.md](docs/security.md) | the controls and why each exists |
+| [appointments.md](docs/appointments.md) | the booking system |
+| [notifications.md](docs/notifications.md) | SMS and web push |
+| [frontend.md](docs/frontend.md) | design system, themes, RTL, the PWA |
+| [seo.md](docs/seo.md) | ساختار داده، سایت‌مپ و دیده‌شدن در جست‌وجو |
+| [testing.md](docs/testing.md) | running and writing tests |
+| [operations.md](docs/operations.md) | backups, deploys, common problems |
 
-### Setting up Development Environment
+Runbooks live beside what they describe: [`deploy/README.md`](deploy/README.md)
+for bringing a stack up, [`scripts/README.md`](scripts/README.md) for backups
+and restores.
 
-1. **Install development dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## A note on the comments
 
-2. **Enable debug toolbar**:
-   ```python
-   # In .env file
-   DEBUG=True
-   ```
+Comments in this codebase explain *why*, not *what* — usually by naming the bug
+that made the line necessary. When something looks over-careful, the comment
+above it says which incident it came from. Read that before simplifying it
+away.
 
-### Code Style
+## License
 
-The project follows Django best practices:
-
-- **PEP 8** compliance
-- **Class-based views** for better organization
-- **Model managers** for complex queries
-- **Custom middleware** for additional functionality
-- **Comprehensive caching** strategy
-
-### Database Migrations
-
-```bash
-# Create new migrations
-python manage.py makemigrations
-
-# Apply migrations
-python manage.py migrate
-
-# Show migration status
-python manage.py showmigrations
-```
-
----
-
-### Authentication Endpoints
-
-- `POST /auth/login/` - User login
-- `POST /auth/logout/` - User logout
-- `POST /auth/register/` - User registration
-- `POST /auth/password-reset/` - Password reset request
-- `POST /auth/password-reset-confirm/` - Password reset confirmation
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit your changes**: `git commit -m 'Add amazing feature'`
-4. **Push to the branch**: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
-
-### Development Guidelines
-
-- Follow Django coding standards
-- Write comprehensive tests
-- Update documentation
-- Use meaningful commit messages
-- Ensure backward compatibility
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **Django Community** for the excellent framework
-- **Persian Django Community** for localization support
-- **Contributors** who helped improve this project
-
----
-
-## 📞 Support
-
-- **Website**: [sbdental.ir](https://sbdental.ir)
-- **Email**: drsbdentals@gmail.com
-
----
-
-<div align="center">
-
-**Made with ❤️ for the dental community**
-
-⭐ **Star this repository if it helped you!** ⭐
-
-</div>
+See [LICENSE](LICENSE).

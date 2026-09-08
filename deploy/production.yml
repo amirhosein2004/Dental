@@ -1,0 +1,176 @@
+# Production.
+#
+#   docker compose --env-file env/.env.production \
+#       -f deploy/base.yml -f deploy/production.yml up -d
+#
+# Differences from stage are all about exposure and durability: TLS on 443,
+# nothing else published, more gunicorn workers, and log rotation so a busy
+# week cannot fill the disk.
+#
+# If the site is hosted on Liara rather than a VPS, this overlay is unused —
+# Liara terminates TLS and serves static itself. See deploy/README.md.
+
+services:
+  db:
+    # No `ports`. The database is reachable only over the compose network; a
+    # published 5432 is the single most common way a Postgres ends up on
+    # Shodan. Use `docker compose exec db psql` when you need a shell.
+    logging: &logging
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  redis:
+    logging: *logging
+
+  web:
+    env_file:
+      - ./env/.env.production
+    expose:
+      - "8000"
+    logging: *logging
+    # More workers than stage, and a longer graceful window so a deploy does
+    # not cut off a request mid-upload.
+    command: ["gunicorn", "config.wsgi:application",
+              "--bind", "0.0.0.0:8000",
+              "--workers", "4",
+              "--timeout", "60",
+              "--graceful-timeout", "30",
+              "--max-requests", "1000",
+              "--max-requests-jitter", "100",
+              "--access-logfile", "-",
+              "--error-logfile", "-"]
+
+  worker:
+    env_file:
+      - ./env/.env.production
+    logging: *logging
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/production.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_files:/app/staticfiles:ro
+      - media_files:/app/media:ro
+      # Certificates and the ACME challenge directory, shared with certbot.
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_webroot:/var/www/certbot:ro
+    logging: *logging
+    healthcheck:
+      # 127.0.0.1, not localhost: in the alpine image `localhost` resolves to
+      # ::1 first and nginx listens on IPv4 only, so every probe came back
+      # "connection refused" and the container sat permanently unhealthy while
+      # serving every request perfectly.
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    # nginx reads the certificate once, at startup, and keeps it in memory.
+    # certbot renewing the file on disk therefore changes nothing a visitor
+    # sees — the site would keep serving the old certificate until it expired,
+    # 90 days after a renewal that looked like it worked.
+    #
+    # A periodic reload rather than a signal from certbot: they are separate
+    # containers with no way to signal each other, and the alternative — a
+    # helper holding the docker socket — is root on the host in exchange for
+    # reloading six hours sooner. `nginx -s reload` finishes open requests
+    # before swapping, so an unconditional one is free.
+    command: ["/bin/sh", "-c",
+              "while :; do sleep 6h; nginx -s reload; done & exec nginx -g 'daemon off;'"]
+
+  # Renewal only — the first certificate comes from `scripts/init-letsencrypt.sh`,
+  # which has to solve a chicken-and-egg this loop cannot: nginx will not start
+  # without a certificate file, and Let's Encrypt cannot issue one until nginx
+  # is answering on port 80.
+  #
+  # Renewal runs every twelve hours. Let's Encrypt does nothing until the last
+  # 30 days, so the frequent wake-ups cost nothing and mean a failed attempt
+  # has weeks of retries left.
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+    logging: *logging
+    entrypoint: >
+      sh -c "trap exit TERM;
+             while :; do
+               certbot renew --webroot -w /var/www/certbot --quiet;
+               sleep 12h & wait $${!};
+             done"
+
+
+  # Database backup on a fixed interval, keeping the newest three. A service
+  # rather than a cron entry on the host: it runs the same image, so it has
+  # the same pg_dump version and the same settings the app does, and it needs
+  # no configuration on whatever machine the stack lands on.
+  backup:
+    image: ${APP_IMAGE:-dental-app:local}
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./env/.env.production
+    environment:
+      RUN_MIGRATIONS: "0"
+      RUN_COLLECTSTATIC: "0"
+      BACKUP_KEEP: "7"
+      # Nightly, keeping a week. On a clinic's live database the question is
+      # how much work a restore loses, and a day of appointments is already
+      # more than anyone wants to re-enter from paper. Seven copies then span
+      # a week, which is long enough to notice corruption that a three-deep
+      # rotation would have overwritten before anyone looked.
+      #
+      # Stage deliberately runs looser (every third day, keeping three): the
+      # data there is disposable and the dumps are the same size.
+      BACKUP_INTERVAL_DAYS: "1"
+    volumes:
+      # Same host directory the web container and the scripts use, so a
+      # dump this service takes is one `scripts/restore.sh` can read back.
+      - ../backups/${DJANGO_ENV:?set by deploy/env/.env.<environment>}:/app/backups
+    logging: *logging
+    # A plain shell loop — no cron daemon to keep alive in a container whose
+    # only job is this.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        # Age comes from a marker file in the volume, not from an in-process
+        # timer. This container is recreated on every deploy, and a plain
+        # `sleep 3d` restarted its count each time: deploying more often than
+        # the interval meant the backup never fired at all. The volume
+        # survives a deploy, so the marker remembers across one.
+        MARKER=/app/backups/.last-backup
+        STALE=$$((BACKUP_INTERVAL_DAYS - 1))
+
+        # Long enough for the web container's migrations to finish, so the
+        # first dump on a fresh stack is of a settled schema.
+        sleep 90
+
+        while :; do
+          if [ ! -f "$$MARKER" ] || [ -n "$$(find "$$MARKER" -mtime +$$STALE)" ]; then
+            if python manage.py backup_db --keep "$$BACKUP_KEEP"; then
+              touch "$$MARKER"
+            else
+              # Marker deliberately left alone: the next wake-up retries,
+              # rather than a transient failure costing a whole interval.
+              echo "[backup] failed"
+            fi
+          fi
+          sleep 6h
+        done
+
+volumes:
+  certbot_certs:
+  certbot_webroot:

@@ -58,7 +58,12 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-static
+
+# `staticfiles/` is the *output* of collectstatic and is rebuilt inside the
+# image. `static/` is the source — CSS, JS, fonts, the vendored Leaflet and
+# Swiper — and must be copied in. Ignoring the wrong one of these left the
+# image with nothing for collectstatic to collect.
+staticfiles/
 
 # Celery stuff
 celerybeat-schedule
@@ -118,3 +123,20 @@ logs/
 
 # PostgreSQL data (if using Docker container)
 pgdata/
+
+# --- Never ship these ------------------------------------------------------
+# `backups/` holds Postgres dumps: anyone with the image would have the
+# database. `sent_emails/` holds development mail, including live OTP codes.
+backups/
+sent_emails/
+media/
+test_media/
+.coverage
+htmlcov/
+.playwright-mcp/
+
+# Environment files are read from the host by compose's `env_file`, never from
+# inside the image — so a leaked image carries no credentials.
+deploy/env/
+env/
+.env.*
