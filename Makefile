@@ -51,7 +51,7 @@ COMPOSE  := docker compose --env-file $(ENV_FILE) \
 .DEFAULT_GOAL := help
 .PHONY: help env-check up up-build build down down-volumes restart ps logs \
         logs-web shell dbshell manage migrate makemigrations collectstatic \
-        test check seed superuser backup restore
+        test check seed superuser backup restore ship check-mirrors
 
 help:  ## Show this help
 	@echo 'usage: make [ENV=develop|production] <target>'
@@ -164,3 +164,16 @@ backup:  ## Take a database dump now
 restore:  ## Restore a dump: make restore FILE=backups/<env>/dental-<stamp>.sql
 	@test -n "$(FILE)" || { echo "usage: make ENV=$(ENV) restore FILE=backups/$(ENV)/dental-<stamp>.sql"; exit 1; }
 	DENTAL_ENV=$(ENV) sh scripts/restore.sh $(FILE)
+
+# --- Deploying --------------------------------------------------------------
+
+# The server is in Iran and reaches neither GitHub, GitLab nor Docker Hub, so
+# it can neither pull the code nor pull a prebuilt image. `ship` sends the
+# commit over SSH and builds it at the far end, where the bandwidth is and
+# where the Iranian mirrors are reachable. See docs/deploying.md.
+ship:  ## Send the current commit to the production server and build it there
+	sh scripts/ship.sh
+
+# Run this on the server, not here: it asks that machine what it can reach.
+check-mirrors:  ## Report which mirrors this host can actually reach
+	sh scripts/check-mirrors.sh

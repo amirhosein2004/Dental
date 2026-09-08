@@ -4,10 +4,15 @@ Server-side helpers. All of them work out for themselves whether the app is in
 Docker or a local virtualenv, so the same command works on your laptop and on
 the server.
 
-Everything here is something **a person runs**, by hand, on a server.
+Everything here is something **a person runs**, by hand — on a server, with
+two exceptions. `ship.sh` runs on the laptop and reaches the server over SSH,
+because the server cannot fetch the code itself; `check-mirrors.sh` runs on
+whichever machine you are asking about.
 
 | | |
 |---|---|
+| `ship.sh` | send this commit to the server and build it there — run from the laptop |
+| `check-mirrors.sh` | report which mirrors a host can reach — run on the server |
 | `init-letsencrypt.sh` | obtain the first TLS certificate — once, per host |
 | `backup.sh` | take a backup, keep the newest 3 |
 | `install-cron.sh` | schedule that backup every 3 days |
@@ -128,3 +133,35 @@ call the underlying command directly:
 python src/manage.py backup_db --keep 3
 python src/manage.py ensure_superuser --username amir --email a@example.com --password ...
 ```
+
+## Deploying
+
+The production server is in Iran: it reaches neither GitHub nor GitLab, so
+`git pull` on it is not an option, and it reaches no container registry it is
+allowed to use, so `docker pull` is not either. What it can do is accept an
+SSH connection and build from Iranian mirrors at its own bandwidth.
+
+```bash
+make ship                          # the current commit
+SHIP_REF=v1.0.0 sh scripts/ship.sh # a tag or an older commit
+SHIP_DIRTY=1 sh scripts/ship.sh    # the working tree, uncommitted changes and all
+```
+
+`ship.sh` packs with `git archive`, not with `tar` of the directory, and that
+is the point of it: `tar .` ships whatever is lying around — `venv/`,
+`node_modules/`, a multi-gigabyte `backups/`, and a `deploy/env/.env.production`
+if a copy was ever pulled down for reference. `git archive` ships tracked files
+at a named commit and nothing else.
+
+It extracts over what is on the server without deleting anything, which is
+deliberate: the env file and `backups/` live there and are not in the
+repository. The corollary is that a file deleted from the repository stays
+behind on the server until someone removes it.
+
+Before the first build there, `check-mirrors.sh` says which of the hosts the
+build needs are actually reachable from that machine today — the answer moves,
+so it asks rather than assuming.
+
+Override `SHIP_HOST`, `SHIP_PORT`, `SHIP_USER` or `SHIP_PATH` for a second
+server. The same script is what the `deploy:production` job runs, so pressing
+the button and running it by hand are the same operation.
