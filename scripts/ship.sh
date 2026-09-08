@@ -88,6 +88,12 @@ eval "$PACK" | $SSH "mkdir -p '$SHIP_PATH' && tar -xzf - -C '$SHIP_PATH'" \
 # the entrypoint migrates on the way up, and a migration is the one deploy
 # step that cannot be undone by starting the old image again.
 log "building on the server"
+# No backtick inside a double-quoted string below, escaped or not. This is an
+# unquoted heredoc, so `\`` reaches the far side as a real backtick, and bash
+# there runs it: an `echo "... \`sh scripts/check-mirrors.sh\` ..."` meant as
+# prose executed the script instead, and its exit status then tripped `set -e`
+# before the rest of the message printed. Quote commands in these messages
+# with indentation or single quotes.
 $SSH "bash -s" <<REMOTE || die "remote build failed"
 set -euo pipefail
 cd '$SHIP_PATH'
@@ -104,8 +110,9 @@ if [ ! -f "\$ENV_FILE" ]; then
   echo "created \$ENV_FILE from the example."
   echo
   echo "Fill it in, then run this again. The mirror block at the bottom is"
-  echo "what makes a build work on this machine; \`sh scripts/check-mirrors.sh\`"
-  echo "run here says which mirrors actually answer today."
+  echo "what makes a build work on this machine; running"
+  echo "    sh scripts/check-mirrors.sh"
+  echo "here says which mirrors actually answer today."
   exit 1
 fi
 
