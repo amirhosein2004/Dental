@@ -1,21 +1,11 @@
 # =============================================================================
-# GitLab CI/CD — test, prove the image builds, ship the commit to the server.
+# GitLab CI/CD — test, build once, deploy that same image.
 #
 # The shape:
 #
 #   push anywhere      -> test
 #   push to develop    -> test, build
 #   push to master     -> test, build, deploy to production (manual button)
-#
-# "Deploy" here does not mean "pull an image". The production server is in
-# Iran and reaches neither GitLab's registry nor Docker Hub, so it can neither
-# clone this repository nor pull an image built from it. The deploy job sends
-# the commit over SSH and builds it on the server, against Iranian mirrors —
-# scripts/ship.sh, which is the same thing `make ship` runs by hand.
-#
-# That has a consequence worth stating: the bytes production runs were built
-# on production, not by this pipeline. The `build` job below is a check that
-# the image still builds, not the artefact that gets deployed.
 #
 # There is no stage environment. develop is verified locally with
 # `make up`; the pipeline's job on that branch is to prove the suite still
@@ -38,15 +28,11 @@ stages:
   - deploy
 
 variables:
+  # Tag every image with the commit that produced it. `latest` would make a
+  # rollback mean "rebuild an old commit and hope", instead of "point at the
+  # tag that was working".
+  APP_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
   DOCKER_DRIVER: overlay2
-
-  # Where scripts/ship.sh sends the code. Kept here rather than in the script
-  # so a second server needs no commit — override them in Settings > CI/CD >
-  # Variables. None of these is a secret; the SSH key is.
-  SHIP_HOST: "87.248.131.223"
-  SHIP_PORT: "9011"
-  SHIP_USER: "amiiiriii"
-  SHIP_PATH: "/srv/dental"
 
 # -----------------------------------------------------------------------------
 # Test
@@ -123,17 +109,20 @@ build:
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "/certs/client"
-  # Nothing is pushed and nothing is tagged for keeping. The image this job
-  # produces is thrown away with the job, because the server builds its own —
-  # it cannot reach a registry to pull one from. What this proves is that the
-  # Dockerfile still builds at all, which is worth knowing before a deploy job
-  # discovers it on the server with the site down.
-  #
-  # The mirror arguments are left at their defaults on purpose: this runner
-  # reaches the real Debian archive and the real PyPI, and building against
-  # the mirrors here would test the mirrors rather than the Dockerfile.
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
   script:
-    - docker build --tag dental-app:$CI_COMMIT_SHORT_SHA .
+    # Pull the previous image purely as a layer cache — without it every build
+    # reinstalls every dependency.
+    - docker pull "$CI_REGISTRY_IMAGE:latest" || true
+    - docker build
+        --cache-from "$CI_REGISTRY_IMAGE:latest"
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        --tag "$APP_IMAGE"
+        --tag "$CI_REGISTRY_IMAGE:latest"
+        .
+    - docker push "$APP_IMAGE"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
   rules:
     - if: $CI_COMMIT_BRANCH == "develop"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -144,18 +133,8 @@ build:
 .deploy_template: &deploy
   stage: deploy
   image: alpine:3.20
-  # The runner has to be one that can reach the server. In practice that is a
-  # gitlab-runner installed on the laptop: it polls gitlab.com outbound, so it
-  # needs no public address of its own, and it is already on the connection
-  # that reaches both gitlab.com and the server. Register it with this tag —
-  # `gitlab-runner register --tag-list iran-vpn` — or the job sits pending
-  # forever with "no runner matching" and nothing else said.
-  tags:
-    - iran-vpn
   before_script:
-    # git for `git archive`, which is how ship.sh packs the commit; curl for
-    # the health check at the end of it.
-    - apk add --no-cache openssh-client git curl bash
+    - apk add --no-cache openssh-client
     - eval $(ssh-agent -s)
     # The key arrives as a File-type variable so its newlines survive; `tr` is
     # the usual repair when someone pastes it as a plain variable instead.
@@ -164,7 +143,7 @@ build:
     - mkdir -p ~/.ssh && chmod 700 ~/.ssh
     # Pinned host key rather than StrictHostKeyChecking=no: without it the
     # first connection trusts whatever answers, which is the whole attack.
-    # Get the value with: ssh-keyscan -p 9011 -H your.server
+    # Get the value with: ssh-keyscan -H your.server
     - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
 
@@ -173,22 +152,56 @@ deploy:production:
   environment:
     name: production
     url: https://sbdental.ir
-  # GitLab clones at a depth of 20 by default, and `git archive` can only pack
-  # a commit it has. A shallow clone is fine for deploying the tip; it is not
-  # fine for the rollback job below, which names an older SHA.
-  variables:
-    GIT_DEPTH: 0
-  # Everything this does — the pre-deploy backup, the transfer, the remote
-  # build, the health check — lives in scripts/ship.sh, so that pressing the
-  # button and running `make ship` by hand are the same operation. A deploy
-  # path that only exists inside CI is one nobody can run the day CI is the
-  # thing that is broken.
   script:
-    - sh scripts/ship.sh
-  # The button. Nothing reaches production without someone pressing it: the
-  # entrypoint applies migrations on the way up, so an automatic deploy means
-  # an unreviewed migration runs against the real database while nobody is
-  # watching.
+    - |
+      ssh "$DEPLOY_USER@$DEPLOY_HOST" bash -s <<SSH
+        set -euo pipefail
+        cd "$DEPLOY_PATH"
+
+        # A backup before the migrations the entrypoint is about to run. This
+        # is the only thing standing between a bad migration and a lost
+        # database, so when it can run and fails, the deploy stops.
+        #
+        # Guarded on the container actually being up. `exec` against a stopped
+        # service exits non-zero, and under `set -e` that aborted the job - so
+        # the first deploy to a fresh server, and any deploy after a reboot,
+        # failed before doing anything at all. There is no database to protect
+        # in that state; the point is to skip it loudly, never to swallow a
+        # backup that failed while the stack was up.
+        if docker compose --env-file deploy/env/.env.production \
+             -f deploy/base.yml -f deploy/production.yml \
+             ps --status running --quiet web | grep -q .; then
+          docker compose --env-file deploy/env/.env.production \
+            -f deploy/base.yml -f deploy/production.yml \
+            exec -T web python manage.py backup_db --keep 5
+        else
+          echo "web is not running - skipping the pre-deploy backup (first deploy, or the stack is down)"
+        fi
+
+        # Expanded by the runner, not by the server. Escaped as `\$...` these
+        # arrived at the far end as literal variable names; the server has no
+        # such variables, so `docker login` ran with an empty password, every
+        # `pull` below came back `unauthorized`, and the deploy quietly left
+        # whatever image was already running in place.
+        #
+        # The expanded values travel inside the heredoc, which reaches ssh on
+        # stdin - they are never arguments, so they never appear in `ps` on the
+        # server. The single quotes are what the *remote* shell sees, so the
+        # token is not re-expanded there. GitLab masks it in the job log.
+        echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY'
+        export APP_IMAGE="$APP_IMAGE"
+        docker compose --env-file deploy/env/.env.production \
+          -f deploy/base.yml -f deploy/production.yml pull
+        docker compose --env-file deploy/env/.env.production \
+          -f deploy/base.yml -f deploy/production.yml up -d
+        docker image prune -f
+      SSH
+    # Fail the job if the site does not come back, so the pipeline shows red
+    # rather than green-with-a-broken-site.
+    - apk add --no-cache curl
+    - sleep 20
+    - curl -fsS --retry 5 --retry-delay 5 https://sbdental.ir/healthz
+  # The button. Nothing reaches production without someone pressing it.
   when: manual
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -199,18 +212,32 @@ rollback:production:
     name: production
     url: https://sbdental.ir
   variables:
-    GIT_DEPTH: 0
-    # Set this when running the job: the SHA to go back to.
+    # Set ROLLBACK_SHA when running this job: the short SHA of a commit whose
+    # image is still in the registry.
     ROLLBACK_SHA: ""
-  # A rollback is a deploy of an older commit, and it takes as long as a
-  # deploy does — the server rebuilds. There is no registry to point at a
-  # known-good tag instead, which is the price of the server not being able to
-  # reach one. When minutes matter, `make ship` from a checkout of the old
-  # commit does the same thing without waiting for a runner.
   script:
-    - test -n "$ROLLBACK_SHA" || { echo "set ROLLBACK_SHA to the commit to roll back to"; exit 1; }
-    - git rev-parse --verify "$ROLLBACK_SHA^{commit}"
-    - SHIP_REF="$ROLLBACK_SHA" sh scripts/ship.sh
+    - test -n "$ROLLBACK_SHA" || { echo "set ROLLBACK_SHA to the short SHA to roll back to"; exit 1; }
+    - |
+      ssh "$DEPLOY_USER@$DEPLOY_HOST" bash -s <<SSH
+        set -euo pipefail
+        cd "$DEPLOY_PATH"
+        # Expanded by the runner, not by the server. Escaped as `\$...` these
+        # arrived at the far end as literal variable names; the server has no
+        # such variables, so `docker login` ran with an empty password, every
+        # `pull` below came back `unauthorized`, and the deploy quietly left
+        # whatever image was already running in place.
+        #
+        # The expanded values travel inside the heredoc, which reaches ssh on
+        # stdin - they are never arguments, so they never appear in `ps` on the
+        # server. The single quotes are what the *remote* shell sees, so the
+        # token is not re-expanded there. GitLab masks it in the job log.
+        echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY'
+        export APP_IMAGE="$CI_REGISTRY_IMAGE:$ROLLBACK_SHA"
+        docker compose --env-file deploy/env/.env.production \
+          -f deploy/base.yml -f deploy/production.yml pull
+        docker compose --env-file deploy/env/.env.production \
+          -f deploy/base.yml -f deploy/production.yml up -d
+      SSH
   # Rolling the code back does NOT roll a migration back. If the bad deploy
   # migrated the database, restore instead — scripts/restore.sh.
   when: manual

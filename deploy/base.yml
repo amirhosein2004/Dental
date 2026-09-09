@@ -7,25 +7,6 @@
 # derives names from COMPOSE_PROJECT_NAME instead, which each overlay's env
 # file sets.
 
-# How the image gets built, in one place — three services build it and they
-# have to build it identically, or `web` and `worker` end up running different
-# bytes from the same tag.
-#
-# The mirror arguments are empty on any machine whose env file leaves them
-# unset, which is what a laptop wants. The production server sets them because
-# it reaches neither Debian's archive nor PyPI; see the Mirrors block in the
-# Dockerfile and deploy/env/.env.production.example.
-x-app-build: &app-build
-  context: ..
-  dockerfile: Dockerfile
-  args:
-    APT_MIRROR: ${APT_MIRROR:-}
-    PGDG_URL: ${PGDG_URL:-https://apt.postgresql.org/pub/repos/apt}
-    PGDG_ASC_URL: ${PGDG_ASC_URL:-https://www.postgresql.org/media/keys/ACCC4CF8.asc}
-    PYPI_INDEX_URL: ${PYPI_INDEX_URL:-}
-    PYPI_TRUSTED_HOST: ${PYPI_TRUSTED_HOST:-}
-    USE_PGDG: ${USE_PGDG:-1}
-
 services:
   db:
     # Pinned to a major version, never `:latest`: Postgres does not upgrade its
@@ -79,7 +60,9 @@ services:
     # once and both the server and the tests then run the same bytes — a
     # server that builds for itself is running something nobody tested.
     image: ${APP_IMAGE:-dental-app:local}
-    build: *app-build
+    build:
+      context: ..
+      dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
       db:
@@ -123,7 +106,9 @@ services:
   worker:
     # Same image as web — one build, three roles.
     image: ${APP_IMAGE:-dental-app:local}
-    build: *app-build
+    build:
+      context: ..
+      dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
       db:

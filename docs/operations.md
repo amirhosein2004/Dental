@@ -85,16 +85,10 @@ to anyone who clones it.
 
 ## Deploying
 
-From the laptop, not from the server — that machine reaches neither GitHub nor
-GitLab, so it cannot fetch the code itself:
-
 ```bash
-make ship
+git pull
+make ENV=production up-build
 ```
-
-That streams the current commit over SSH, backs the database up, and rebuilds
-on the server. Details and the mirror setup it depends on are in
-[deploying.md](deploying.md#every-deploy-after-the-first).
 
 The entrypoint waits for Postgres, migrates, and collects static before
 anything serves. Nothing to remember by hand.
